@@ -8,7 +8,7 @@ export const Header = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">Métis Memo</h1>
-            <p className="text-xs text-muted-foreground">Révision espacée intelligente</p>
+            <p className="text-xs text-muted-foreground">Mémorisation intelligente</p>
           </div>
         </div>
       </div>

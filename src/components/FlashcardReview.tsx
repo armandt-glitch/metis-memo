@@ -62,63 +62,101 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
     setShowWrittenResult(true);
   };
 
-  const isWrittenCorrect = writtenAnswer.trim().toLowerCase() === currentCard.answer.trim().toLowerCase();
+  
+
+  const needsWrittenAnswer = currentCard.cardType === 'written' || currentCard.cardType === 'image' || currentCard.cardType === 'audio';
+  const isWrittenCorrectCheck = writtenAnswer.trim().toLowerCase() === currentCard.answer.trim().toLowerCase();
 
   const renderCardContent = () => {
-    // For written type
-    if (currentCard.cardType === 'written') {
-      if (showWrittenResult) {
-        return (
-          <div className="bg-card rounded-3xl shadow-card p-8 mb-8">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
-              Question
-            </p>
-            <p className="text-xl font-medium text-foreground text-center mb-6">
-              {currentCard.question}
-            </p>
-            <div className={cn(
-              'p-4 rounded-xl mb-4',
-              isWrittenCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-destructive/10 border border-destructive/30'
-            )}>
-              <p className="text-sm text-muted-foreground mb-1">Votre réponse :</p>
-              <p className={cn('font-medium', isWrittenCorrect ? 'text-green-600' : 'text-destructive')}>
-                {writtenAnswer || '(vide)'}
+    // For written, image, audio types - all need written answer
+    if (needsWrittenAnswer) {
+      return (
+        <div
+          key={currentCard.id}
+          className="perspective-1000 mb-8"
+        >
+          <div
+            className={cn(
+              'relative w-full min-h-[300px] transition-transform duration-500 preserve-3d',
+              showWrittenResult && 'rotate-y-180'
+            )}
+            style={{ transformStyle: 'preserve-3d' }}
+          >
+            {/* Front - Question */}
+            <div
+              className="absolute inset-0 bg-card rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+              style={{ backfaceVisibility: 'hidden' }}
+            >
+              {currentCard.mediaUrl && currentCard.cardType === 'image' && (
+                <img src={currentCard.mediaUrl} alt="Question" className="w-full h-48 object-contain rounded-xl mb-4" />
+              )}
+              {currentCard.mediaUrl && currentCard.cardType === 'audio' && (
+                <div className="mb-4 w-full">
+                  <div className="flex items-center gap-4 bg-secondary rounded-xl p-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Volume2 className="w-6 h-6 text-primary" />
+                    </div>
+                    <audio controls src={currentCard.mediaUrl} className="flex-1" />
+                  </div>
+                </div>
+              )}
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+                Question
               </p>
+              <p className="text-xl font-medium text-foreground text-center mb-6">
+                {currentCard.question}
+              </p>
+              <Input
+                value={writtenAnswer}
+                onChange={(e) => setWrittenAnswer(e.target.value)}
+                placeholder="Tapez votre réponse..."
+                className="mb-4 max-w-xs"
+                onKeyDown={(e) => e.key === 'Enter' && handleWrittenSubmit()}
+              />
+              <Button onClick={handleWrittenSubmit} className="w-full max-w-xs">
+                Valider
+              </Button>
             </div>
-            <div className="p-4 rounded-xl bg-primary/10 border border-primary/30">
-              <p className="text-sm text-muted-foreground mb-1">Bonne réponse :</p>
-              <p className="font-medium text-primary">{currentCard.answer}</p>
+
+            {/* Back - Answer */}
+            <div
+              className="absolute inset-0 bg-primary rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+            >
+              <p className="text-xs uppercase tracking-wider text-primary-foreground/70 mb-4">
+                Réponse
+              </p>
+              <p className="text-2xl font-bold text-primary-foreground text-center mb-6">
+                {currentCard.answer}
+              </p>
+              
+              {/* User answer feedback */}
+              <div className={cn(
+                'flex items-center gap-3 px-4 py-3 rounded-xl',
+                isWrittenCorrectCheck ? 'bg-green-500/20' : 'bg-white/20'
+              )}>
+                {isWrittenCorrectCheck ? (
+                  <Check className="w-5 h-5 text-green-300" />
+                ) : (
+                  <X className="w-5 h-5 text-red-300" />
+                )}
+                <div>
+                  <p className="text-xs text-primary-foreground/70">Votre réponse</p>
+                  <p className={cn(
+                    'font-medium',
+                    isWrittenCorrectCheck ? 'text-green-200' : 'text-red-200'
+                  )}>
+                    {writtenAnswer || '(vide)'}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        );
-      }
-
-      return (
-        <div className="bg-card rounded-3xl shadow-card p-8 mb-8">
-          {currentCard.mediaUrl && (
-            <img src={currentCard.mediaUrl} alt="Question" className="w-full h-48 object-contain rounded-xl mb-4" />
-          )}
-          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
-            Question
-          </p>
-          <p className="text-xl font-medium text-foreground text-center mb-6">
-            {currentCard.question}
-          </p>
-          <Input
-            value={writtenAnswer}
-            onChange={(e) => setWrittenAnswer(e.target.value)}
-            placeholder="Tapez votre réponse..."
-            className="mb-4"
-            onKeyDown={(e) => e.key === 'Enter' && handleWrittenSubmit()}
-          />
-          <Button onClick={handleWrittenSubmit} className="w-full">
-            Valider
-          </Button>
         </div>
       );
     }
 
-    // For image/audio types or standard flashcard
+    // Standard flashcard - click to flip
     return (
       <div
         key={currentCard.id}
@@ -134,24 +172,9 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
         >
           {/* Front */}
           <div
-            className={cn(
-              'absolute inset-0 bg-card rounded-3xl shadow-card p-8 flex flex-col items-center justify-center backface-hidden'
-            )}
+            className="absolute inset-0 bg-card rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            {currentCard.mediaUrl && currentCard.cardType === 'image' && (
-              <img src={currentCard.mediaUrl} alt="Question" className="w-full h-48 object-contain rounded-xl mb-4" />
-            )}
-            {currentCard.mediaUrl && currentCard.cardType === 'audio' && (
-              <div className="mb-4 w-full">
-                <div className="flex items-center gap-4 bg-secondary rounded-xl p-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Volume2 className="w-6 h-6 text-primary" />
-                  </div>
-                  <audio controls src={currentCard.mediaUrl} className="flex-1" />
-                </div>
-              </div>
-            )}
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
               Question
             </p>
@@ -165,9 +188,7 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
 
           {/* Back */}
           <div
-            className={cn(
-              'absolute inset-0 bg-primary rounded-3xl shadow-card p-8 flex flex-col items-center justify-center'
-            )}
+            className="absolute inset-0 bg-primary rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
             <p className="text-xs uppercase tracking-wider text-primary-foreground/70 mb-4">
@@ -183,7 +204,8 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
   };
 
   const renderActions = () => {
-    if (currentCard.cardType === 'written') {
+    // For written, image, audio types
+    if (needsWrittenAnswer) {
       if (showWrittenResult) {
         return (
           <div className="flex gap-4 animate-slide-up">
@@ -203,7 +225,7 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
               onClick={() => handleAnswer(true)}
             >
               <Check className="w-5 h-5" />
-              {isWrittenCorrect ? 'Correct !' : 'Je savais'}
+              {isWrittenCorrectCheck ? 'Correct !' : 'Je savais'}
             </Button>
           </div>
         );
@@ -211,6 +233,7 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
       return null;
     }
 
+    // Standard flashcard
     if (isFlipped) {
       return (
         <div className="flex gap-4 animate-slide-up">

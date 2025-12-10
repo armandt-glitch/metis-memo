@@ -1,4 +1,5 @@
-export type FormulaType = 'short' | 'medium' | 'long';
+export type FormulaType = 'test' | 'short' | 'medium' | 'long';
+export type CardType = 'flashcard' | 'written' | 'image' | 'audio';
 
 export interface ReviewSchedule {
   interval: number; // in minutes
@@ -6,6 +7,13 @@ export interface ReviewSchedule {
 }
 
 export const FORMULAS: Record<FormulaType, { name: string; description: string; schedule: ReviewSchedule[] }> = {
+  test: {
+    name: 'Test',
+    description: 'Rappel immédiat pour tester rapidement',
+    schedule: [
+      { interval: 0, label: 'Immédiat' },
+    ],
+  },
   short: {
     name: 'Court terme',
     description: 'Idéal pour les examens proches',
@@ -38,11 +46,36 @@ export const FORMULAS: Record<FormulaType, { name: string; description: string; 
   },
 };
 
+export const CARD_TYPES: Record<CardType, { name: string; description: string; icon: string }> = {
+  flashcard: {
+    name: 'Flashcard',
+    description: 'Carte classique à retourner',
+    icon: 'RotateCcw',
+  },
+  written: {
+    name: 'Réponse écrite',
+    description: 'Tapez la réponse pour valider',
+    icon: 'PenLine',
+  },
+  image: {
+    name: 'Image',
+    description: 'Question basée sur une image',
+    icon: 'Image',
+  },
+  audio: {
+    name: 'Audio',
+    description: 'Question basée sur un fichier audio',
+    icon: 'Volume2',
+  },
+};
+
 export interface Flashcard {
   id: string;
   question: string;
   answer: string;
   formula: FormulaType;
+  cardType: CardType;
+  mediaUrl?: string; // URL for image or audio
   currentStep: number;
   createdAt: Date;
   nextReviewAt: Date;

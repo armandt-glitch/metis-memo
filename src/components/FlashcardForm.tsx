@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Plus, ArrowLeft, Upload, X, Image as ImageIcon, Volume2 } from 'lucide-react';
 
 interface FlashcardFormProps {
-  onSubmit: (question: string, answer: string, formula: FormulaType, cardType: CardType, mediaUrl?: string, groupId?: string) => void;
+  onSubmit: (question: string, answer: string, formula: FormulaType, cardType: CardType, mediaUrl?: string, groupIds?: string[]) => void;
   onBack: () => void;
   groups: Group[];
   onCreateGroup: (name: string, color: string) => void;
@@ -20,7 +20,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
   const [answer, setAnswer] = useState('');
   const [formula, setFormula] = useState<FormulaType>('medium');
   const [cardType, setCardType] = useState<CardType>('flashcard');
-  const [groupId, setGroupId] = useState<string | undefined>();
+  const [groupIds, setGroupIds] = useState<string[]>([]);
   const [mediaUrl, setMediaUrl] = useState<string | undefined>();
   const [mediaPreview, setMediaPreview] = useState<string | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,9 +28,10 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (question.trim() && answer.trim()) {
-      onSubmit(question, answer, formula, cardType, mediaUrl, groupId);
+      onSubmit(question, answer, formula, cardType, mediaUrl, groupIds.length > 0 ? groupIds : undefined);
       setQuestion('');
       setAnswer('');
+      setGroupIds([]);
       setMediaUrl(undefined);
       setMediaPreview(undefined);
     }
@@ -81,12 +82,14 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
         {/* Group Selection */}
         <div className="space-y-4">
           <label className="block text-sm font-medium text-foreground">
-            Groupe (optionnel)
+            Groupes (optionnel)
           </label>
           <GroupSelector
             groups={groups}
-            selectedGroupId={groupId}
-            onSelect={setGroupId}
+            selectedGroupIds={groupIds}
+            onToggle={(id) => setGroupIds(prev => 
+              prev.includes(id) ? prev.filter(g => g !== id) : [...prev, id]
+            )}
             onCreateGroup={onCreateGroup}
           />
         </div>

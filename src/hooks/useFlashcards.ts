@@ -71,7 +71,8 @@ export const useFlashcards = () => {
 
   const getCardCountsByGroup = () => {
     const counts: Record<string, number> = {};
-    flashcards.forEach((card) => {
+    // Only count non-completed cards to match what's displayed in "Prochaines révisions"
+    flashcards.filter(c => !c.completed).forEach((card) => {
       const key = card.groupId || 'ungrouped';
       counts[key] = (counts[key] || 0) + 1;
     });

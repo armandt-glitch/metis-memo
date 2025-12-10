@@ -173,6 +173,13 @@ export const useFlashcards = () => {
     );
   };
 
+  const updateCard = (id: string, updates: Partial<Pick<Flashcard, 'question' | 'answer' | 'formula' | 'cardType' | 'groupIds' | 'mediaUrl'>>) => {
+    setFlashcards((prev) =>
+      prev.map((card) =>
+        card.id === id ? { ...card, ...updates } : card
+      )
+    );
+  };
   const getDueCards = () => {
     const now = new Date();
     return flashcards.filter(
@@ -196,6 +203,7 @@ export const useFlashcards = () => {
   return {
     flashcards,
     addFlashcard,
+    updateCard,
     reviewCard,
     deleteCard,
     reopenCard,

@@ -7,6 +7,8 @@ import { FlashcardReview } from '@/components/FlashcardReview';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGroups } from '@/hooks/useGroups';
 import { useToast } from '@/hooks/use-toast';
+import { Flashcard } from '@/types/flashcard';
+import { EditCardDialog } from '@/components/EditCardDialog';
 
 type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz';
 
@@ -14,9 +16,11 @@ const Index = () => {
   const [view, setView] = useState<View>('hero');
   const [reviewCardId, setReviewCardId] = useState<string | null>(null);
   const [thematicQuizGroupId, setThematicQuizGroupId] = useState<string | null>(null);
+  const [editingCard, setEditingCard] = useState<Flashcard | null>(null);
   const {
     flashcards,
     addFlashcard,
+    updateCard,
     reviewCard,
     deleteCard,
     reopenCard,
@@ -100,6 +104,19 @@ const Index = () => {
     setView('thematic-quiz');
   };
 
+  const handleEditCard = (card: Flashcard) => {
+    setEditingCard(card);
+  };
+
+  const handleSaveCard = (id: string, updates: Partial<Flashcard>) => {
+    updateCard(id, updates);
+    setEditingCard(null);
+    toast({
+      title: 'Fiche modifiée !',
+      description: 'Les modifications ont été enregistrées.',
+    });
+  };
+
   const cardsToReview = reviewCardId
     ? flashcards.filter((c) => c.id === reviewCardId)
     : dueCards;
@@ -131,6 +148,8 @@ const Index = () => {
               onStartThematicQuiz={handleStartThematicQuiz}
               onToggleCardGroup={toggleCardGroup}
               onClearCardGroups={clearCardGroups}
+              onCreateGroup={handleCreateGroup}
+              onEditCard={handleEditCard}
               getGroup={getGroup}
             />
           )}
@@ -169,6 +188,14 @@ const Index = () => {
           )}
         </main>
       )}
+
+      <EditCardDialog
+        card={editingCard}
+        groups={groups}
+        onClose={() => setEditingCard(null)}
+        onSave={handleSaveCard}
+        onCreateGroup={handleCreateGroup}
+      />
     </div>
   );
 };

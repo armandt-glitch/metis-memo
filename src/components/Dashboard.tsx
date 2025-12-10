@@ -1,16 +1,24 @@
-import { Flashcard, FORMULAS, Group } from '@/types/flashcard';
+import { useState } from 'react';
+import { Flashcard, FORMULAS, Group, GROUP_COLORS } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check, Pencil } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { GroupFilter } from './GroupFilter';
-import { useState } from 'react';
+import { ColorPicker } from './ColorPicker';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 type ViewMode = 'dashboard' | 'memorized';
 
@@ -28,6 +36,8 @@ interface DashboardProps {
   onStartThematicQuiz: (groupId: string) => void;
   onToggleCardGroup: (cardId: string, groupId: string) => void;
   onClearCardGroups: (cardId: string) => void;
+  onCreateGroup: (name: string, color: string) => void;
+  onEditCard: (card: Flashcard) => void;
   getGroup: (id: string) => Group | undefined;
 }
 
@@ -51,10 +61,15 @@ export const Dashboard = ({
   onStartThematicQuiz,
   onToggleCardGroup,
   onClearCardGroups,
+  onCreateGroup,
+  onEditCard,
   getGroup,
 }: DashboardProps) => {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
+  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupColor, setNewGroupColor] = useState(GROUP_COLORS[0].value);
 
   const filteredFlashcards = selectedGroupId === null
     ? flashcards
@@ -72,6 +87,15 @@ export const Dashboard = ({
   const getCardGroups = (card: Flashcard): Group[] => {
     if (!card.groupIds || card.groupIds.length === 0) return [];
     return card.groupIds.map(id => getGroup(id)).filter((g): g is Group => g !== undefined);
+  };
+
+  const handleCreateGroup = () => {
+    if (newGroupName.trim()) {
+      onCreateGroup(newGroupName.trim(), newGroupColor);
+      setNewGroupName('');
+      setNewGroupColor(GROUP_COLORS[0].value);
+      setIsCreatingGroup(false);
+    }
   };
 
   if (viewMode === 'memorized') {
@@ -354,6 +378,16 @@ export const Dashboard = ({
                                 </button>
                               );
                             })}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsCreatingGroup(true);
+                              }}
+                              className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-primary"
+                            >
+                              <Plus className="w-3 h-3" />
+                              Nouveau groupe
+                            </button>
                           </div>
                         </PopoverContent>
                       </Popover>
@@ -388,6 +422,16 @@ export const Dashboard = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      onEditCard(card);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
+                    title="Modifier la fiche"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       onDeleteCard(card.id);
                     }}
                     className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
@@ -414,6 +458,36 @@ export const Dashboard = ({
           </p>
         </div>
       )}
+
+      {/* Dialog for creating new group */}
+      <Dialog open={isCreatingGroup} onOpenChange={setIsCreatingGroup}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Créer un groupe</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Nom du groupe</label>
+              <Input
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                placeholder="Ex: Histoire, Culture générale..."
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Couleur</label>
+              <ColorPicker value={newGroupColor} onChange={setNewGroupColor} />
+            </div>
+            <Button
+              onClick={handleCreateGroup}
+              disabled={!newGroupName.trim()}
+              className="w-full"
+            >
+              Créer le groupe
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -53,6 +53,9 @@
     --formula-medium: 200 70% 50%;
     --formula-long: 260 60% 55%;
 
+    /* Card answer back */
+    --card-answer: 0 100% 24%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;

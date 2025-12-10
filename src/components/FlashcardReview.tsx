@@ -120,13 +120,13 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
 
             {/* Back - Answer */}
             <div
-              className="absolute inset-0 bg-primary rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+              className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
               style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
             >
-              <p className="text-xs uppercase tracking-wider text-primary-foreground/70 mb-4">
+              <p className="text-xs uppercase tracking-wider text-white/70 mb-4">
                 Réponse
               </p>
-              <p className="text-2xl font-bold text-primary-foreground text-center mb-6">
+              <p className="text-2xl font-bold text-white text-center mb-6">
                 {currentCard.answer}
               </p>
               
@@ -141,7 +141,7 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
                   <X className="w-5 h-5 text-red-300" />
                 )}
                 <div>
-                  <p className="text-xs text-primary-foreground/70">Votre réponse</p>
+                  <p className="text-xs text-white/70">Votre réponse</p>
                   <p className={cn(
                     'font-medium',
                     isWrittenCorrectCheck ? 'text-green-200' : 'text-red-200'
@@ -188,13 +188,13 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
 
           {/* Back */}
           <div
-            className="absolute inset-0 bg-primary rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+            className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
-            <p className="text-xs uppercase tracking-wider text-primary-foreground/70 mb-4">
+            <p className="text-xs uppercase tracking-wider text-white/70 mb-4">
               Réponse
             </p>
-            <p className="text-xl font-medium text-primary-foreground text-center">
+            <p className="text-xl font-medium text-white text-center">
               {currentCard.answer}
             </p>
           </div>

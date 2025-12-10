@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Flashcard, FORMULAS } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { Check, X, RotateCcw, ArrowLeft } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Check, X, RotateCcw, ArrowLeft, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FlashcardReviewProps {
@@ -13,6 +14,8 @@ interface FlashcardReviewProps {
 export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [writtenAnswer, setWrittenAnswer] = useState('');
+  const [showWrittenResult, setShowWrittenResult] = useState(false);
 
   // Ensure currentIndex is within bounds
   const safeIndex = Math.min(currentIndex, Math.max(0, cards.length - 1));
@@ -46,6 +49,8 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
   const handleAnswer = (remembered: boolean) => {
     onReview(currentCard.id, remembered);
     setIsFlipped(false);
+    setWrittenAnswer('');
+    setShowWrittenResult(false);
     if (safeIndex < cards.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
@@ -53,31 +58,68 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
     }
   };
 
-  return (
-    <div className="max-w-lg mx-auto animate-slide-up">
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Retour
-      </button>
+  const handleWrittenSubmit = () => {
+    setShowWrittenResult(true);
+  };
 
-      {/* Progress bar */}
-      <div className="mb-6">
-        <div className="flex justify-between text-sm text-muted-foreground mb-2">
-          <span>Fiche {safeIndex + 1} sur {cards.length}</span>
-          <span>{formula.name}</span>
-        </div>
-        <div className="h-2 bg-secondary rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-primary transition-all duration-300"
-            style={{ width: `${progress}%` }}
+  const isWrittenCorrect = writtenAnswer.trim().toLowerCase() === currentCard.answer.trim().toLowerCase();
+
+  const renderCardContent = () => {
+    // For written type
+    if (currentCard.cardType === 'written') {
+      if (showWrittenResult) {
+        return (
+          <div className="bg-card rounded-3xl shadow-card p-8 mb-8">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+              Question
+            </p>
+            <p className="text-xl font-medium text-foreground text-center mb-6">
+              {currentCard.question}
+            </p>
+            <div className={cn(
+              'p-4 rounded-xl mb-4',
+              isWrittenCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-destructive/10 border border-destructive/30'
+            )}>
+              <p className="text-sm text-muted-foreground mb-1">Votre réponse :</p>
+              <p className={cn('font-medium', isWrittenCorrect ? 'text-green-600' : 'text-destructive')}>
+                {writtenAnswer || '(vide)'}
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-primary/10 border border-primary/30">
+              <p className="text-sm text-muted-foreground mb-1">Bonne réponse :</p>
+              <p className="font-medium text-primary">{currentCard.answer}</p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="bg-card rounded-3xl shadow-card p-8 mb-8">
+          {currentCard.mediaUrl && (
+            <img src={currentCard.mediaUrl} alt="Question" className="w-full h-48 object-contain rounded-xl mb-4" />
+          )}
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+            Question
+          </p>
+          <p className="text-xl font-medium text-foreground text-center mb-6">
+            {currentCard.question}
+          </p>
+          <Input
+            value={writtenAnswer}
+            onChange={(e) => setWrittenAnswer(e.target.value)}
+            placeholder="Tapez votre réponse..."
+            className="mb-4"
+            onKeyDown={(e) => e.key === 'Enter' && handleWrittenSubmit()}
           />
+          <Button onClick={handleWrittenSubmit} className="w-full">
+            Valider
+          </Button>
         </div>
-      </div>
+      );
+    }
 
-      {/* Flashcard */}
+    // For image/audio types or standard flashcard
+    return (
       <div
         key={currentCard.id}
         className="perspective-1000 cursor-pointer mb-8"
@@ -85,7 +127,7 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
       >
         <div
           className={cn(
-            'relative w-full aspect-[4/3] transition-transform duration-500 preserve-3d',
+            'relative w-full min-h-[300px] transition-transform duration-500 preserve-3d',
             isFlipped && 'rotate-y-180'
           )}
           style={{ transformStyle: 'preserve-3d' }}
@@ -97,6 +139,19 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
             )}
             style={{ backfaceVisibility: 'hidden' }}
           >
+            {currentCard.mediaUrl && currentCard.cardType === 'image' && (
+              <img src={currentCard.mediaUrl} alt="Question" className="w-full h-48 object-contain rounded-xl mb-4" />
+            )}
+            {currentCard.mediaUrl && currentCard.cardType === 'audio' && (
+              <div className="mb-4 w-full">
+                <div className="flex items-center gap-4 bg-secondary rounded-xl p-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Volume2 className="w-6 h-6 text-primary" />
+                  </div>
+                  <audio controls src={currentCard.mediaUrl} className="flex-1" />
+                </div>
+              </div>
+            )}
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
               Question
             </p>
@@ -124,9 +179,40 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
           </div>
         </div>
       </div>
+    );
+  };
 
-      {/* Actions */}
-      {isFlipped && (
+  const renderActions = () => {
+    if (currentCard.cardType === 'written') {
+      if (showWrittenResult) {
+        return (
+          <div className="flex gap-4 animate-slide-up">
+            <Button
+              variant="outline"
+              size="lg"
+              className="flex-1 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              onClick={() => handleAnswer(false)}
+            >
+              <X className="w-5 h-5" />
+              À revoir
+            </Button>
+            <Button
+              variant="default"
+              size="lg"
+              className="flex-1"
+              onClick={() => handleAnswer(true)}
+            >
+              <Check className="w-5 h-5" />
+              {isWrittenCorrect ? 'Correct !' : 'Je savais'}
+            </Button>
+          </div>
+        );
+      }
+      return null;
+    }
+
+    if (isFlipped) {
+      return (
         <div className="flex gap-4 animate-slide-up">
           <Button
             variant="outline"
@@ -147,19 +233,48 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
             Je sais
           </Button>
         </div>
-      )}
+      );
+    }
 
-      {!isFlipped && (
-        <Button
-          variant="secondary"
-          size="lg"
-          className="w-full"
-          onClick={() => setIsFlipped(true)}
-        >
-          <RotateCcw className="w-5 h-5" />
-          Retourner la carte
-        </Button>
-      )}
+    return (
+      <Button
+        variant="secondary"
+        size="lg"
+        className="w-full"
+        onClick={() => setIsFlipped(true)}
+      >
+        <RotateCcw className="w-5 h-5" />
+        Retourner la carte
+      </Button>
+    );
+  };
+
+  return (
+    <div className="max-w-lg mx-auto animate-slide-up">
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Retour
+      </button>
+
+      {/* Progress bar */}
+      <div className="mb-6">
+        <div className="flex justify-between text-sm text-muted-foreground mb-2">
+          <span>Fiche {safeIndex + 1} sur {cards.length}</span>
+          <span>{formula.name}</span>
+        </div>
+        <div className="h-2 bg-secondary rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-primary transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {renderCardContent()}
+      {renderActions()}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Flashcard, FormulaType, FORMULAS } from '@/types/flashcard';
+import { Flashcard, FormulaType, CardType, FORMULAS } from '@/types/flashcard';
 
 const STORAGE_KEY = 'memo-flashcards';
 
@@ -22,6 +22,7 @@ export const useFlashcards = () => {
     if (stored) {
       const parsed = JSON.parse(stored).map((card: any) => ({
         ...card,
+        cardType: card.cardType || 'flashcard', // Migration for old cards
         createdAt: new Date(card.createdAt),
         nextReviewAt: new Date(card.nextReviewAt),
       }));
@@ -33,12 +34,14 @@ export const useFlashcards = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(flashcards));
   }, [flashcards]);
 
-  const addFlashcard = (question: string, answer: string, formula: FormulaType) => {
+  const addFlashcard = (question: string, answer: string, formula: FormulaType, cardType: CardType = 'flashcard', mediaUrl?: string) => {
     const newCard: Flashcard = {
       id: generateId(),
       question,
       answer,
       formula,
+      cardType,
+      mediaUrl,
       currentStep: 0,
       createdAt: new Date(),
       nextReviewAt: calculateNextReview(formula, 0),

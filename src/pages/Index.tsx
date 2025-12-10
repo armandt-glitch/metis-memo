@@ -24,8 +24,8 @@ const Index = () => {
   } = useToast();
   const stats = getStats();
   const dueCards = getDueCards();
-  const handleCreateFlashcard = (question: string, answer: string, formula: any) => {
-    addFlashcard(question, answer, formula);
+  const handleCreateFlashcard = (question: string, answer: string, formula: any, cardType: any, mediaUrl?: string) => {
+    addFlashcard(question, answer, formula, cardType, mediaUrl);
     toast({
       title: 'Fiche créée !',
       description: 'Votre fiche a été ajoutée avec succès.'

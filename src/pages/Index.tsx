@@ -25,6 +25,7 @@ const Index = () => {
     getCardCountsByGroup,
     removeGroupFromCards,
     getThematicQuizCards,
+    updateCardGroup,
   } = useFlashcards();
   const { groups, addGroup, deleteGroup, getGroup } = useGroups();
   const { toast } = useToast();
@@ -127,6 +128,7 @@ const Index = () => {
               onDeleteGroup={handleDeleteGroup}
               onReopenCard={handleReopenCard}
               onStartThematicQuiz={handleStartThematicQuiz}
+              onUpdateCardGroup={updateCardGroup}
               getGroup={getGroup}
             />
           )}

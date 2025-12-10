@@ -142,6 +142,14 @@ export const useFlashcards = () => {
     return shuffled.slice(0, count);
   };
 
+  const updateCardGroup = (cardId: string, groupId: string | undefined) => {
+    setFlashcards((prev) =>
+      prev.map((card) =>
+        card.id === cardId ? { ...card, groupId } : card
+      )
+    );
+  };
+
   const getDueCards = () => {
     const now = new Date();
     return flashcards.filter(
@@ -176,5 +184,6 @@ export const useFlashcards = () => {
     getCardCountsByGroup,
     removeGroupFromCards,
     getThematicQuizCards,
+    updateCardGroup,
   };
 };

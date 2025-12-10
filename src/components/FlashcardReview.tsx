@@ -14,7 +14,11 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  if (cards.length === 0) {
+  // Ensure currentIndex is within bounds
+  const safeIndex = Math.min(currentIndex, Math.max(0, cards.length - 1));
+  const currentCard = cards[safeIndex];
+
+  if (cards.length === 0 || !currentCard) {
     return (
       <div className="max-w-lg mx-auto text-center animate-slide-up">
         <div className="bg-card rounded-3xl p-12 shadow-card">
@@ -36,14 +40,13 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
     );
   }
 
-  const currentCard = cards[currentIndex];
   const formula = FORMULAS[currentCard.formula];
-  const progress = ((currentIndex + 1) / cards.length) * 100;
+  const progress = ((safeIndex + 1) / cards.length) * 100;
 
   const handleAnswer = (remembered: boolean) => {
     onReview(currentCard.id, remembered);
     setIsFlipped(false);
-    if (currentIndex < cards.length - 1) {
+    if (safeIndex < cards.length - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
       onBack();
@@ -63,7 +66,7 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
       {/* Progress bar */}
       <div className="mb-6">
         <div className="flex justify-between text-sm text-muted-foreground mb-2">
-          <span>Fiche {currentIndex + 1} sur {cards.length}</span>
+          <span>Fiche {safeIndex + 1} sur {cards.length}</span>
           <span>{formula.name}</span>
         </div>
         <div className="h-2 bg-secondary rounded-full overflow-hidden">

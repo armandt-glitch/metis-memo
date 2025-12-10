@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Group, GROUP_COLORS } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, FolderOpen, X } from 'lucide-react';
+import { Plus, FolderOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { ColorPicker } from './ColorPicker';
 
 interface GroupSelectorProps {
   groups: Group[];
@@ -99,22 +100,7 @@ export const GroupSelector = ({
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Couleur</label>
-                <div className="flex flex-wrap gap-2">
-                  {GROUP_COLORS.map((color) => (
-                    <button
-                      key={color.value}
-                      type="button"
-                      onClick={() => setSelectedColor(color.value)}
-                      className={cn(
-                        'w-8 h-8 rounded-full transition-all',
-                        selectedColor === color.value
-                          ? 'ring-2 ring-offset-2 ring-foreground'
-                          : 'hover:scale-110'
-                      )}
-                      style={{ backgroundColor: color.value }}
-                    />
-                  ))}
-                </div>
+                <ColorPicker value={selectedColor} onChange={setSelectedColor} />
               </div>
               <Button
                 onClick={handleCreate}

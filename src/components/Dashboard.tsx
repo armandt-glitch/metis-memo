@@ -1,6 +1,6 @@
 import { Flashcard, FORMULAS, Group } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X } from 'lucide-react';
+import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,8 @@ interface DashboardProps {
   onDeleteGroup: (id: string) => void;
   onReopenCard: (id: string) => void;
   onStartThematicQuiz: (groupId: string) => void;
-  onUpdateCardGroup: (cardId: string, groupId: string | undefined) => void;
+  onToggleCardGroup: (cardId: string, groupId: string) => void;
+  onClearCardGroups: (cardId: string) => void;
   getGroup: (id: string) => Group | undefined;
 }
 
@@ -48,7 +49,8 @@ export const Dashboard = ({
   onDeleteGroup,
   onReopenCard,
   onStartThematicQuiz,
-  onUpdateCardGroup,
+  onToggleCardGroup,
+  onClearCardGroups,
   getGroup,
 }: DashboardProps) => {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
@@ -57,8 +59,8 @@ export const Dashboard = ({
   const filteredFlashcards = selectedGroupId === null
     ? flashcards
     : selectedGroupId === 'ungrouped'
-    ? flashcards.filter((c) => !c.groupId)
-    : flashcards.filter((c) => c.groupId === selectedGroupId);
+    ? flashcards.filter((c) => !c.groupIds || c.groupIds.length === 0)
+    : flashcards.filter((c) => c.groupIds?.includes(selectedGroupId));
 
   const memorizedCards = flashcards.filter((c) => c.completed);
 
@@ -66,6 +68,11 @@ export const Dashboard = ({
     .filter((c) => !c.completed)
     .sort((a, b) => new Date(a.nextReviewAt).getTime() - new Date(b.nextReviewAt).getTime())
     .slice(0, 10);
+
+  const getCardGroups = (card: Flashcard): Group[] => {
+    if (!card.groupIds || card.groupIds.length === 0) return [];
+    return card.groupIds.map(id => getGroup(id)).filter((g): g is Group => g !== undefined);
+  };
 
   if (viewMode === 'memorized') {
     return (
@@ -99,7 +106,7 @@ export const Dashboard = ({
           <div className="bg-card rounded-2xl p-6 shadow-soft">
             <div className="space-y-3">
               {memorizedCards.map((card) => {
-                const cardGroup = card.groupId ? getGroup(card.groupId) : undefined;
+                const cardGroups = getCardGroups(card);
                 return (
                   <div
                     key={card.id}
@@ -113,15 +120,16 @@ export const Dashboard = ({
                         {card.question}
                       </p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        {cardGroup && (
+                        {cardGroups.map((cardGroup) => (
                           <span
+                            key={cardGroup.id}
                             className="text-xs px-2 py-0.5 rounded-full text-white flex items-center gap-1"
                             style={{ backgroundColor: cardGroup.color }}
                           >
                             <FolderOpen className="w-3 h-3" />
                             {cardGroup.name}
                           </span>
-                        )}
+                        ))}
                         <span
                           className={cn(
                             'text-xs px-2 py-0.5 rounded-full border',
@@ -200,7 +208,7 @@ export const Dashboard = ({
       </div>
 
       {/* Group Filter */}
-      {(groups.length > 0 || flashcards.some(c => !c.groupId)) && (
+      {(groups.length > 0 || flashcards.some(c => !c.groupIds || c.groupIds.length === 0)) && (
         <GroupFilter
           groups={groups}
           selectedGroupId={selectedGroupId}
@@ -268,7 +276,7 @@ export const Dashboard = ({
           <div className="space-y-3">
             {upcomingCards.map((card) => {
               const isDue = new Date(card.nextReviewAt) <= new Date();
-              const cardGroup = card.groupId ? getGroup(card.groupId) : undefined;
+              const cardGroups = getCardGroups(card);
               return (
                 <div
                   key={card.id}
@@ -286,16 +294,16 @@ export const Dashboard = ({
                             onClick={(e) => e.stopPropagation()}
                             className={cn(
                               "text-xs px-2 py-0.5 rounded-full flex items-center gap-1 transition-all hover:opacity-80",
-                              cardGroup
+                              cardGroups.length > 0
                                 ? "text-white"
                                 : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                             )}
-                            style={cardGroup ? { backgroundColor: cardGroup.color } : undefined}
+                            style={cardGroups.length > 0 ? { backgroundColor: cardGroups[0].color } : undefined}
                           >
-                            {cardGroup ? (
+                            {cardGroups.length > 0 ? (
                               <>
                                 <FolderOpen className="w-3 h-3" />
-                                {cardGroup.name}
+                                {cardGroups.length === 1 ? cardGroups[0].name : `${cardGroups.length} groupes`}
                               </>
                             ) : (
                               <>
@@ -308,39 +316,44 @@ export const Dashboard = ({
                         <PopoverContent className="w-48 p-2" align="start">
                           <div className="space-y-1">
                             <p className="text-xs font-medium text-muted-foreground px-2 pb-1">
-                              Choisir un groupe
+                              Gérer les groupes
                             </p>
-                            {cardGroup && (
+                            {cardGroups.length > 0 && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  onUpdateCardGroup(card.id, undefined);
+                                  onClearCardGroups(card.id);
                                 }}
                                 className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-muted-foreground"
                               >
                                 <X className="w-3 h-3" />
-                                Retirer du groupe
+                                Retirer tous les groupes
                               </button>
                             )}
-                            {groups.map((group) => (
-                              <button
-                                key={group.id}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onUpdateCardGroup(card.id, group.id);
-                                }}
-                                className={cn(
-                                  "w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2",
-                                  card.groupId === group.id && "bg-secondary"
-                                )}
-                              >
-                                <div
-                                  className="w-3 h-3 rounded-full"
-                                  style={{ backgroundColor: group.color }}
-                                />
-                                {group.name}
-                              </button>
-                            ))}
+                            {groups.map((group) => {
+                              const isInGroup = card.groupIds?.includes(group.id);
+                              return (
+                                <button
+                                  key={group.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleCardGroup(card.id, group.id);
+                                  }}
+                                  className={cn(
+                                    "w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2",
+                                    isInGroup && "bg-secondary"
+                                  )}
+                                >
+                                  <div
+                                    className="w-3 h-3 rounded-full flex items-center justify-center"
+                                    style={{ backgroundColor: group.color }}
+                                  >
+                                    {isInGroup && <Check className="w-2 h-2 text-white" />}
+                                  </div>
+                                  {group.name}
+                                </button>
+                              );
+                            })}
                           </div>
                         </PopoverContent>
                       </Popover>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Group, GROUP_COLORS } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, FolderOpen } from 'lucide-react';
+import { Plus, FolderOpen, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -15,15 +15,15 @@ import { ColorPicker } from './ColorPicker';
 
 interface GroupSelectorProps {
   groups: Group[];
-  selectedGroupId?: string;
-  onSelect: (groupId?: string) => void;
+  selectedGroupIds: string[];
+  onToggle: (groupId: string) => void;
   onCreateGroup: (name: string, color: string) => void;
 }
 
 export const GroupSelector = ({
   groups,
-  selectedGroupId,
-  onSelect,
+  selectedGroupIds,
+  onToggle,
   onCreateGroup,
 }: GroupSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,38 +42,35 @@ export const GroupSelector = ({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => onSelect(undefined)}
-          className={cn(
-            'px-3 py-2 rounded-lg text-sm font-medium transition-all border',
-            !selectedGroupId
-              ? 'bg-primary text-primary-foreground border-primary'
-              : 'bg-secondary text-muted-foreground border-border hover:bg-secondary/80'
-          )}
-        >
-          Sans groupe
-        </button>
+        {selectedGroupIds.length === 0 && (
+          <span className="px-3 py-2 rounded-lg text-sm font-medium bg-secondary text-muted-foreground border border-border">
+            Sans groupe
+          </span>
+        )}
         
-        {groups.map((group) => (
-          <button
-            key={group.id}
-            type="button"
-            onClick={() => onSelect(group.id)}
-            className={cn(
-              'px-3 py-2 rounded-lg text-sm font-medium transition-all border flex items-center gap-2',
-              selectedGroupId === group.id
-                ? 'text-white border-transparent'
-                : 'bg-secondary text-foreground border-border hover:bg-secondary/80'
-            )}
-            style={{
-              backgroundColor: selectedGroupId === group.id ? group.color : undefined,
-            }}
-          >
-            <FolderOpen className="w-4 h-4" />
-            {group.name}
-          </button>
-        ))}
+        {groups.map((group) => {
+          const isSelected = selectedGroupIds.includes(group.id);
+          return (
+            <button
+              key={group.id}
+              type="button"
+              onClick={() => onToggle(group.id)}
+              className={cn(
+                'px-3 py-2 rounded-lg text-sm font-medium transition-all border flex items-center gap-2',
+                isSelected
+                  ? 'text-white border-transparent'
+                  : 'bg-secondary text-foreground border-border hover:bg-secondary/80'
+              )}
+              style={{
+                backgroundColor: isSelected ? group.color : undefined,
+              }}
+            >
+              {isSelected && <Check className="w-4 h-4" />}
+              <FolderOpen className="w-4 h-4" />
+              {group.name}
+            </button>
+          );
+        })}
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>

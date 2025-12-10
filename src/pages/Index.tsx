@@ -25,7 +25,8 @@ const Index = () => {
     getCardCountsByGroup,
     removeGroupFromCards,
     getThematicQuizCards,
-    updateCardGroup,
+    toggleCardGroup,
+    clearCardGroups,
   } = useFlashcards();
   const { groups, addGroup, deleteGroup, getGroup } = useGroups();
   const { toast } = useToast();
@@ -40,9 +41,9 @@ const Index = () => {
     formula: any,
     cardType: any,
     mediaUrl?: string,
-    groupId?: string
+    groupIds?: string[]
   ) => {
-    addFlashcard(question, answer, formula, cardType, mediaUrl, groupId);
+    addFlashcard(question, answer, formula, cardType, mediaUrl, groupIds);
     toast({
       title: 'Fiche créée !',
       description: 'Votre fiche a été ajoutée avec succès.',
@@ -128,7 +129,8 @@ const Index = () => {
               onDeleteGroup={handleDeleteGroup}
               onReopenCard={handleReopenCard}
               onStartThematicQuiz={handleStartThematicQuiz}
-              onUpdateCardGroup={updateCardGroup}
+              onToggleCardGroup={toggleCardGroup}
+              onClearCardGroups={clearCardGroups}
               getGroup={getGroup}
             />
           )}

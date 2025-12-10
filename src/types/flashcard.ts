@@ -93,7 +93,7 @@ export interface Flashcard {
   answer: string;
   formula: FormulaType;
   cardType: CardType;
-  groupId?: string;
+  groupIds?: string[];
   mediaUrl?: string; // URL for image or audio
   currentStep: number;
   createdAt: Date;

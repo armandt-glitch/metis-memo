@@ -23,6 +23,8 @@ export const useFlashcards = () => {
       const parsed = JSON.parse(stored).map((card: any) => ({
         ...card,
         cardType: card.cardType || 'flashcard', // Migration for old cards
+        // Migration: convert old groupId to groupIds array
+        groupIds: card.groupIds || (card.groupId ? [card.groupId] : undefined),
         createdAt: new Date(card.createdAt),
         nextReviewAt: new Date(card.nextReviewAt),
       }));
@@ -45,14 +47,14 @@ export const useFlashcards = () => {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const addFlashcard = (question: string, answer: string, formula: FormulaType, cardType: CardType = 'flashcard', mediaUrl?: string, groupId?: string) => {
+  const addFlashcard = (question: string, answer: string, formula: FormulaType, cardType: CardType = 'flashcard', mediaUrl?: string, groupIds?: string[]) => {
     const newCard: Flashcard = {
       id: generateId(),
       question,
       answer,
       formula,
       cardType,
-      groupId,
+      groupIds: groupIds && groupIds.length > 0 ? groupIds : undefined,
       mediaUrl,
       currentStep: 0,
       createdAt: new Date(),
@@ -65,25 +67,32 @@ export const useFlashcards = () => {
 
   const getCardsByGroup = (groupId?: string | null) => {
     if (groupId === null) return flashcards;
-    if (groupId === 'ungrouped') return flashcards.filter((c) => !c.groupId);
-    return flashcards.filter((c) => c.groupId === groupId);
+    if (groupId === 'ungrouped') return flashcards.filter((c) => !c.groupIds || c.groupIds.length === 0);
+    return flashcards.filter((c) => c.groupIds?.includes(groupId as string));
   };
 
   const getCardCountsByGroup = () => {
     const counts: Record<string, number> = {};
     // Only count non-completed cards to match what's displayed in "Prochaines révisions"
     flashcards.filter(c => !c.completed).forEach((card) => {
-      const key = card.groupId || 'ungrouped';
-      counts[key] = (counts[key] || 0) + 1;
+      if (!card.groupIds || card.groupIds.length === 0) {
+        counts['ungrouped'] = (counts['ungrouped'] || 0) + 1;
+      } else {
+        card.groupIds.forEach((gId) => {
+          counts[gId] = (counts[gId] || 0) + 1;
+        });
+      }
     });
     return counts;
   };
 
   const removeGroupFromCards = (groupId: string) => {
     setFlashcards((prev) =>
-      prev.map((card) =>
-        card.groupId === groupId ? { ...card, groupId: undefined } : card
-      )
+      prev.map((card) => {
+        if (!card.groupIds?.includes(groupId)) return card;
+        const newGroupIds = card.groupIds.filter((id) => id !== groupId);
+        return { ...card, groupIds: newGroupIds.length > 0 ? newGroupIds : undefined };
+      })
     );
   };
 
@@ -135,18 +144,31 @@ export const useFlashcards = () => {
 
   const getThematicQuizCards = (groupId: string, count: number = 10) => {
     const groupCards = groupId === 'ungrouped'
-      ? flashcards.filter((c) => !c.groupId)
-      : flashcards.filter((c) => c.groupId === groupId);
+      ? flashcards.filter((c) => !c.groupIds || c.groupIds.length === 0)
+      : flashcards.filter((c) => c.groupIds?.includes(groupId));
     
     // Shuffle and take up to count cards
     const shuffled = [...groupCards].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count);
   };
 
-  const updateCardGroup = (cardId: string, groupId: string | undefined) => {
+  const toggleCardGroup = (cardId: string, groupId: string) => {
+    setFlashcards((prev) =>
+      prev.map((card) => {
+        if (card.id !== cardId) return card;
+        const currentGroups = card.groupIds || [];
+        const newGroups = currentGroups.includes(groupId)
+          ? currentGroups.filter((id) => id !== groupId)
+          : [...currentGroups, groupId];
+        return { ...card, groupIds: newGroups.length > 0 ? newGroups : undefined };
+      })
+    );
+  };
+
+  const clearCardGroups = (cardId: string) => {
     setFlashcards((prev) =>
       prev.map((card) =>
-        card.id === cardId ? { ...card, groupId } : card
+        card.id === cardId ? { ...card, groupIds: undefined } : card
       )
     );
   };
@@ -185,6 +207,7 @@ export const useFlashcards = () => {
     getCardCountsByGroup,
     removeGroupFromCards,
     getThematicQuizCards,
-    updateCardGroup,
+    toggleCardGroup,
+    clearCardGroups,
   };
 };

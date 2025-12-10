@@ -31,8 +31,19 @@ export const useFlashcards = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(flashcards));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(flashcards));
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+        console.warn('localStorage quota exceeded. Consider removing some cards with media.');
+      }
+    }
   }, [flashcards]);
+
+  const clearAllCards = () => {
+    setFlashcards([]);
+    localStorage.removeItem(STORAGE_KEY);
+  };
 
   const addFlashcard = (question: string, answer: string, formula: FormulaType, cardType: CardType = 'flashcard', mediaUrl?: string) => {
     const newCard: Flashcard = {
@@ -108,6 +119,7 @@ export const useFlashcards = () => {
     addFlashcard,
     reviewCard,
     deleteCard,
+    clearAllCards,
     getDueCards,
     getUpcomingReviews,
     getStats,

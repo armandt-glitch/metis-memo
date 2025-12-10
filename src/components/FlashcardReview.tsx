@@ -148,9 +148,9 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                 )}
                 <div>
                   <p className="text-xs text-white/70">Votre réponse</p>
-                  <p className={cn(
+                <p className={cn(
                     'font-medium',
-                    isWrittenCorrectCheck ? 'text-green-200' : 'text-red-200'
+                    isWrittenCorrectCheck ? 'text-white' : 'text-red-200'
                   )}>
                     {writtenAnswer || '(vide)'}
                   </p>

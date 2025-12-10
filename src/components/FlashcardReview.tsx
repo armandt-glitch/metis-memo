@@ -79,6 +79,7 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
 
       {/* Flashcard */}
       <div
+        key={currentCard.id}
         className="perspective-1000 cursor-pointer mb-8"
         onClick={() => setIsFlipped(!isFlipped)}
       >

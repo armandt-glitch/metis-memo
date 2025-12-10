@@ -9,24 +9,28 @@ interface FormulaCardProps {
 }
 
 const icons = {
+  test: Zap,
   short: Zap,
   medium: Clock,
   long: Target,
 };
 
 const colors = {
+  test: 'border-primary hover:bg-primary/5',
   short: 'border-formula-short hover:bg-formula-short/5',
   medium: 'border-formula-medium hover:bg-formula-medium/5',
   long: 'border-formula-long hover:bg-formula-long/5',
 };
 
 const selectedColors = {
+  test: 'border-primary bg-primary/10',
   short: 'border-formula-short bg-formula-short/10',
   medium: 'border-formula-medium bg-formula-medium/10',
   long: 'border-formula-long bg-formula-long/10',
 };
 
 const iconColors = {
+  test: 'text-primary',
   short: 'text-formula-short',
   medium: 'text-formula-medium',
   long: 'text-formula-long',

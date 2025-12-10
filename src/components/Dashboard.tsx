@@ -1,17 +1,23 @@
-import { Flashcard, FORMULAS } from '@/types/flashcard';
+import { Flashcard, FORMULAS, Group } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Brain, Clock, CheckCircle2, Trash2 } from 'lucide-react';
+import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { GroupFilter } from './GroupFilter';
+import { useState } from 'react';
 
 interface DashboardProps {
   flashcards: Flashcard[];
   stats: { total: number; completed: number; dueNow: number };
+  groups: Group[];
+  cardCountsByGroup: Record<string, number>;
   onCreateNew: () => void;
   onStartReview: () => void;
   onReviewCard: (id: string) => void;
   onDeleteCard: (id: string) => void;
+  onDeleteGroup: (id: string) => void;
+  getGroup: (id: string) => Group | undefined;
 }
 
 const formulaColors = {
@@ -23,15 +29,27 @@ const formulaColors = {
 export const Dashboard = ({
   flashcards,
   stats,
+  groups,
+  cardCountsByGroup,
   onCreateNew,
   onStartReview,
   onReviewCard,
   onDeleteCard,
+  onDeleteGroup,
+  getGroup,
 }: DashboardProps) => {
-  const upcomingCards = flashcards
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+
+  const filteredFlashcards = selectedGroupId === null
+    ? flashcards
+    : selectedGroupId === 'ungrouped'
+    ? flashcards.filter((c) => !c.groupId)
+    : flashcards.filter((c) => c.groupId === selectedGroupId);
+
+  const upcomingCards = filteredFlashcards
     .filter((c) => !c.completed)
     .sort((a, b) => new Date(a.nextReviewAt).getTime() - new Date(b.nextReviewAt).getTime())
-    .slice(0, 5);
+    .slice(0, 10);
 
   return (
     <div className="animate-slide-up">
@@ -74,6 +92,17 @@ export const Dashboard = ({
         </div>
       </div>
 
+      {/* Group Filter */}
+      {(groups.length > 0 || flashcards.some(c => !c.groupId)) && (
+        <GroupFilter
+          groups={groups}
+          selectedGroupId={selectedGroupId}
+          onSelect={setSelectedGroupId}
+          onDeleteGroup={onDeleteGroup}
+          cardCounts={cardCountsByGroup}
+        />
+      )}
+
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <Button variant="hero" size="xl" onClick={onCreateNew} className="flex-1">
@@ -97,6 +126,7 @@ export const Dashboard = ({
           <div className="space-y-3">
             {upcomingCards.map((card) => {
               const isDue = new Date(card.nextReviewAt) <= new Date();
+              const cardGroup = card.groupId ? getGroup(card.groupId) : undefined;
               return (
                 <div
                   key={card.id}
@@ -107,7 +137,16 @@ export const Dashboard = ({
                     <p className="font-medium text-foreground truncate">
                       {card.question}
                     </p>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      {cardGroup && (
+                        <span
+                          className="text-xs px-2 py-0.5 rounded-full text-white flex items-center gap-1"
+                          style={{ backgroundColor: cardGroup.color }}
+                        >
+                          <FolderOpen className="w-3 h-3" />
+                          {cardGroup.name}
+                        </span>
+                      )}
                       <span
                         className={cn(
                           'text-xs px-2 py-0.5 rounded-full border',

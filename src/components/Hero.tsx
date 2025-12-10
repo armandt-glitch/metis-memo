@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Brain, Sparkles, Clock, CheckCircle } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 interface HeroProps {
   onGetStarted: () => void;
@@ -16,6 +17,9 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
 
       <div className="container mx-auto px-4 relative">
         <div className="max-w-3xl mx-auto text-center">
+          {/* Logo */}
+          <img src={logo} alt="Métis Memo" className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-soft" />
+
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8 animate-float">
             <Sparkles className="w-4 h-4" />

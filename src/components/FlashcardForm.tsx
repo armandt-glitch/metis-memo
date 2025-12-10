@@ -1,22 +1,26 @@
 import { useState, useRef } from 'react';
-import { FormulaType, CardType } from '@/types/flashcard';
+import { FormulaType, CardType, Group } from '@/types/flashcard';
 import { FormulaCard } from './FormulaCard';
 import { CardTypeSelector } from './CardTypeSelector';
+import { GroupSelector } from './GroupSelector';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Plus, ArrowLeft, Upload, X, Image as ImageIcon, Volume2 } from 'lucide-react';
 
 interface FlashcardFormProps {
-  onSubmit: (question: string, answer: string, formula: FormulaType, cardType: CardType, mediaUrl?: string) => void;
+  onSubmit: (question: string, answer: string, formula: FormulaType, cardType: CardType, mediaUrl?: string, groupId?: string) => void;
   onBack: () => void;
+  groups: Group[];
+  onCreateGroup: (name: string, color: string) => void;
 }
 
-export const FlashcardForm = ({ onSubmit, onBack }: FlashcardFormProps) => {
+export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: FlashcardFormProps) => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [formula, setFormula] = useState<FormulaType>('medium');
   const [cardType, setCardType] = useState<CardType>('flashcard');
+  const [groupId, setGroupId] = useState<string | undefined>();
   const [mediaUrl, setMediaUrl] = useState<string | undefined>();
   const [mediaPreview, setMediaPreview] = useState<string | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,7 +28,7 @@ export const FlashcardForm = ({ onSubmit, onBack }: FlashcardFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (question.trim() && answer.trim()) {
-      onSubmit(question, answer, formula, cardType, mediaUrl);
+      onSubmit(question, answer, formula, cardType, mediaUrl, groupId);
       setQuestion('');
       setAnswer('');
       setMediaUrl(undefined);
@@ -74,6 +78,19 @@ export const FlashcardForm = ({ onSubmit, onBack }: FlashcardFormProps) => {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Group Selection */}
+        <div className="space-y-4">
+          <label className="block text-sm font-medium text-foreground">
+            Groupe (optionnel)
+          </label>
+          <GroupSelector
+            groups={groups}
+            selectedGroupId={groupId}
+            onSelect={setGroupId}
+            onCreateGroup={onCreateGroup}
+          />
+        </div>
+
         {/* Card Type Selection */}
         <div className="space-y-4">
           <label className="block text-sm font-medium text-foreground">

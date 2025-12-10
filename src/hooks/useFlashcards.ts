@@ -45,13 +45,14 @@ export const useFlashcards = () => {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const addFlashcard = (question: string, answer: string, formula: FormulaType, cardType: CardType = 'flashcard', mediaUrl?: string) => {
+  const addFlashcard = (question: string, answer: string, formula: FormulaType, cardType: CardType = 'flashcard', mediaUrl?: string, groupId?: string) => {
     const newCard: Flashcard = {
       id: generateId(),
       question,
       answer,
       formula,
       cardType,
+      groupId,
       mediaUrl,
       currentStep: 0,
       createdAt: new Date(),
@@ -60,6 +61,29 @@ export const useFlashcards = () => {
     };
     setFlashcards((prev) => [...prev, newCard]);
     return newCard;
+  };
+
+  const getCardsByGroup = (groupId?: string | null) => {
+    if (groupId === null) return flashcards;
+    if (groupId === 'ungrouped') return flashcards.filter((c) => !c.groupId);
+    return flashcards.filter((c) => c.groupId === groupId);
+  };
+
+  const getCardCountsByGroup = () => {
+    const counts: Record<string, number> = {};
+    flashcards.forEach((card) => {
+      const key = card.groupId || 'ungrouped';
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return counts;
+  };
+
+  const removeGroupFromCards = (groupId: string) => {
+    setFlashcards((prev) =>
+      prev.map((card) =>
+        card.groupId === groupId ? { ...card, groupId: undefined } : card
+      )
+    );
   };
 
   const reviewCard = (id: string, remembered: boolean) => {
@@ -123,5 +147,8 @@ export const useFlashcards = () => {
     getDueCards,
     getUpcomingReviews,
     getStats,
+    getCardsByGroup,
+    getCardCountsByGroup,
+    removeGroupFromCards,
   };
 };

@@ -69,12 +69,31 @@ export const CARD_TYPES: Record<CardType, { name: string; description: string; i
   },
 };
 
+export interface Group {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: Date;
+}
+
+export const GROUP_COLORS = [
+  { name: 'Rouge', value: '#780000' },
+  { name: 'Bleu', value: '#1e40af' },
+  { name: 'Vert', value: '#166534' },
+  { name: 'Violet', value: '#6b21a8' },
+  { name: 'Orange', value: '#c2410c' },
+  { name: 'Rose', value: '#be185d' },
+  { name: 'Cyan', value: '#0891b2' },
+  { name: 'Gris', value: '#4b5563' },
+];
+
 export interface Flashcard {
   id: string;
   question: string;
   answer: string;
   formula: FormulaType;
   cardType: CardType;
+  groupId?: string;
   mediaUrl?: string; // URL for image or audio
   currentStep: number;
   createdAt: Date;

@@ -77,18 +77,22 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
         >
           <div
             className={cn(
-              'relative w-full min-h-[300px] transition-transform duration-500 preserve-3d',
+              'relative w-full transition-transform duration-500 preserve-3d',
               showWrittenResult && 'rotate-y-180'
             )}
             style={{ transformStyle: 'preserve-3d' }}
           >
             {/* Front - Question */}
             <div
-              className="absolute inset-0 bg-card rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+              className="bg-card rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
               style={{ backfaceVisibility: 'hidden' }}
             >
               {currentCard.mediaUrl && currentCard.cardType === 'image' && (
-                <img src={currentCard.mediaUrl} alt="Question" className="w-full h-48 object-contain rounded-xl mb-4" />
+                <img 
+                  src={currentCard.mediaUrl} 
+                  alt="Question" 
+                  className="max-w-full max-h-[60vh] w-auto h-auto object-contain rounded-xl mb-4" 
+                />
               )}
               {currentCard.mediaUrl && currentCard.cardType === 'audio' && (
                 <div className="mb-4 w-full">

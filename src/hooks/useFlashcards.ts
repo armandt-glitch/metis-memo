@@ -118,6 +118,30 @@ export const useFlashcards = () => {
     setFlashcards((prev) => prev.filter((card) => card.id !== id));
   };
 
+  const reopenCard = (id: string) => {
+    setFlashcards((prev) =>
+      prev.map((card) => {
+        if (card.id !== id) return card;
+        return {
+          ...card,
+          currentStep: 0,
+          nextReviewAt: calculateNextReview(card.formula, 0),
+          completed: false,
+        };
+      })
+    );
+  };
+
+  const getThematicQuizCards = (groupId: string, count: number = 10) => {
+    const groupCards = groupId === 'ungrouped'
+      ? flashcards.filter((c) => !c.groupId)
+      : flashcards.filter((c) => c.groupId === groupId);
+    
+    // Shuffle and take up to count cards
+    const shuffled = [...groupCards].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
+  };
+
   const getDueCards = () => {
     const now = new Date();
     return flashcards.filter(
@@ -143,6 +167,7 @@ export const useFlashcards = () => {
     addFlashcard,
     reviewCard,
     deleteCard,
+    reopenCard,
     clearAllCards,
     getDueCards,
     getUpcomingReviews,
@@ -150,5 +175,6 @@ export const useFlashcards = () => {
     getCardsByGroup,
     getCardCountsByGroup,
     removeGroupFromCards,
+    getThematicQuizCards,
   };
 };

@@ -9,9 +9,11 @@ interface FlashcardReviewProps {
   cards: Flashcard[];
   onReview: (id: string, remembered: boolean) => void;
   onBack: () => void;
+  isThematicQuiz?: boolean;
+  quizGroupName?: string;
 }
 
-export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProps) => {
+export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizGroupName }: FlashcardReviewProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [writtenAnswer, setWrittenAnswer] = useState('');
@@ -288,9 +290,14 @@ export const FlashcardReview = ({ cards, onReview, onBack }: FlashcardReviewProp
 
       {/* Progress bar */}
       <div className="mb-6">
+        {isThematicQuiz && quizGroupName && (
+          <p className="text-accent font-semibold mb-2 text-center">
+            Quizz thématique : {quizGroupName}
+          </p>
+        )}
         <div className="flex justify-between text-sm text-muted-foreground mb-2">
           <span>Fiche {safeIndex + 1} sur {cards.length}</span>
-          <span>{formula.name}</span>
+          <span>{isThematicQuiz ? 'Quizz' : formula.name}</span>
         </div>
         <div className="h-2 bg-secondary rounded-full overflow-hidden">
           <div

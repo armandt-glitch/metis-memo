@@ -8,20 +8,23 @@ import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGroups } from '@/hooks/useGroups';
 import { useToast } from '@/hooks/use-toast';
 
-type View = 'hero' | 'dashboard' | 'create' | 'review';
+type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz';
 
 const Index = () => {
   const [view, setView] = useState<View>('hero');
   const [reviewCardId, setReviewCardId] = useState<string | null>(null);
+  const [thematicQuizGroupId, setThematicQuizGroupId] = useState<string | null>(null);
   const {
     flashcards,
     addFlashcard,
     reviewCard,
     deleteCard,
+    reopenCard,
     getDueCards,
     getStats,
     getCardCountsByGroup,
     removeGroupFromCards,
+    getThematicQuizCards,
   } = useFlashcards();
   const { groups, addGroup, deleteGroup, getGroup } = useGroups();
   const { toast } = useToast();
@@ -82,9 +85,26 @@ const Index = () => {
     setView('review');
   };
 
+  const handleReopenCard = (id: string) => {
+    reopenCard(id);
+    toast({
+      title: 'Fiche réouverte !',
+      description: 'La fiche est de nouveau disponible pour révision.',
+    });
+  };
+
+  const handleStartThematicQuiz = (groupId: string) => {
+    setThematicQuizGroupId(groupId);
+    setView('thematic-quiz');
+  };
+
   const cardsToReview = reviewCardId
     ? flashcards.filter((c) => c.id === reviewCardId)
     : dueCards;
+
+  const thematicQuizCards = thematicQuizGroupId
+    ? getThematicQuizCards(thematicQuizGroupId, 10)
+    : [];
 
   return (
     <div className="min-h-screen bg-background border-solid border-0">
@@ -105,6 +125,8 @@ const Index = () => {
               onReviewCard={handleReviewCard}
               onDeleteCard={deleteCard}
               onDeleteGroup={handleDeleteGroup}
+              onReopenCard={handleReopenCard}
+              onStartThematicQuiz={handleStartThematicQuiz}
               getGroup={getGroup}
             />
           )}
@@ -126,6 +148,19 @@ const Index = () => {
                 setReviewCardId(null);
                 setView('dashboard');
               }}
+            />
+          )}
+
+          {view === 'thematic-quiz' && (
+            <FlashcardReview
+              cards={thematicQuizCards}
+              onReview={reviewCard}
+              onBack={() => {
+                setThematicQuizGroupId(null);
+                setView('dashboard');
+              }}
+              isThematicQuiz
+              quizGroupName={thematicQuizGroupId ? getGroup(thematicQuizGroupId)?.name : undefined}
             />
           )}
         </main>

@@ -15,7 +15,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 200 25% 15%;
 
-    --primary: 174 60% 45%;
+    --primary: 0 100% 24%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 40 30% 94%;
@@ -32,24 +32,24 @@
 
     --border: 200 15% 88%;
     --input: 200 15% 88%;
-    --ring: 174 60% 45%;
+    --ring: 0 100% 24%;
 
     --radius: 1rem;
 
     /* Custom tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(174 60% 45%), hsl(180 55% 35%));
+    --gradient-primary: linear-gradient(135deg, hsl(0 100% 24%), hsl(0 80% 18%));
     --gradient-accent: linear-gradient(135deg, hsl(25 95% 55%), hsl(15 90% 50%));
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(40 33% 98%));
-    --gradient-hero: linear-gradient(180deg, hsl(174 40% 95%), hsl(40 33% 98%));
+    --gradient-hero: linear-gradient(180deg, hsl(0 40% 95%), hsl(40 33% 98%));
     
     --shadow-soft: 0 4px 20px -4px hsl(200 25% 15% / 0.08);
     --shadow-card: 0 8px 30px -8px hsl(200 25% 15% / 0.12);
-    --shadow-glow: 0 0 40px hsl(174 60% 45% / 0.2);
+    --shadow-glow: 0 0 40px hsl(0 100% 24% / 0.2);
     
     --font-display: 'Outfit', system-ui, sans-serif;
 
     /* Formula colors */
-    --formula-short: 174 60% 45%;
+    --formula-short: 0 100% 24%;
     --formula-medium: 200 70% 50%;
     --formula-long: 260 60% 55%;
 
@@ -76,8 +76,8 @@
     --popover: 200 20% 14%;
     --popover-foreground: 40 20% 95%;
 
-    --primary: 174 55% 50%;
-    --primary-foreground: 200 25% 10%;
+    --primary: 0 100% 30%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 200 20% 18%;
     --secondary-foreground: 40 20% 90%;
@@ -93,9 +93,9 @@
 
     --border: 200 15% 22%;
     --input: 200 15% 22%;
-    --ring: 174 55% 50%;
+    --ring: 0 100% 30%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(174 55% 50%), hsl(180 50% 40%));
+    --gradient-primary: linear-gradient(135deg, hsl(0 100% 30%), hsl(0 80% 22%));
     --gradient-hero: linear-gradient(180deg, hsl(200 25% 12%), hsl(200 25% 10%));
 
     --sidebar-background: 240 5.9% 10%;

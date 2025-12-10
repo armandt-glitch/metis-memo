@@ -49,9 +49,9 @@
     --font-display: 'Outfit', system-ui, sans-serif;
 
     /* Formula colors */
-    --formula-short: 0 100% 24%;
-    --formula-medium: 200 70% 50%;
-    --formula-long: 260 60% 55%;
+    --formula-short: 142 76% 36%;
+    --formula-medium: 0 100% 24%;
+    --formula-long: 0 100% 24%;
 
     /* Card answer back */
     --card-answer: 0 100% 24%;
@@ -94,6 +94,11 @@
     --border: 200 15% 22%;
     --input: 200 15% 22%;
     --ring: 0 100% 30%;
+
+    /* Formula colors dark mode */
+    --formula-short: 142 76% 42%;
+    --formula-medium: 0 100% 35%;
+    --formula-long: 0 100% 35%;
 
     --gradient-primary: linear-gradient(135deg, hsl(0 100% 30%), hsl(0 80% 22%));
     --gradient-hero: linear-gradient(180deg, hsl(200 25% 12%), hsl(200 25% 10%));

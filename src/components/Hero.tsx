@@ -24,8 +24,8 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
 
           {/* Title */}
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Apprenez mieux,{' '}
-            <span className="text-gradient-primary">retenez plus longtemps</span>
+            Apprenez <span className="text-gradient-primary">mieux</span>,{' '}
+            retenez plus <span className="text-gradient-primary">longtemps</span>
           </h1>
 
           {/* Subtitle */}

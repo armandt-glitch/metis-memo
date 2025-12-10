@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Brain, Sparkles, Clock, CheckCircle } from 'lucide-react';
+import { Brain, Sparkles, Clock, CheckCircle, Layers } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 interface HeroProps {
@@ -44,12 +44,17 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
           </Button>
 
           {/* Features */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
             {[
               {
                 icon: Brain,
                 title: '3 formules',
                 description: 'Court, moyen ou long terme',
+              },
+              {
+                icon: Layers,
+                title: '4 types de fiches',
+                description: 'Flashcard, image, son, question',
               },
               {
                 icon: Clock,

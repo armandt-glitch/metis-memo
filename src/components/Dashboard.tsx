@@ -1,11 +1,16 @@
 import { Flashcard, FORMULAS, Group } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles } from 'lucide-react';
+import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { GroupFilter } from './GroupFilter';
 import { useState } from 'react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 type ViewMode = 'dashboard' | 'memorized';
 
@@ -21,6 +26,7 @@ interface DashboardProps {
   onDeleteGroup: (id: string) => void;
   onReopenCard: (id: string) => void;
   onStartThematicQuiz: (groupId: string) => void;
+  onUpdateCardGroup: (cardId: string, groupId: string | undefined) => void;
   getGroup: (id: string) => Group | undefined;
 }
 
@@ -42,6 +48,7 @@ export const Dashboard = ({
   onDeleteGroup,
   onReopenCard,
   onStartThematicQuiz,
+  onUpdateCardGroup,
   getGroup,
 }: DashboardProps) => {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
@@ -273,15 +280,70 @@ export const Dashboard = ({
                       {card.question}
                     </p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      {cardGroup && (
-                        <span
-                          className="text-xs px-2 py-0.5 rounded-full text-white flex items-center gap-1"
-                          style={{ backgroundColor: cardGroup.color }}
-                        >
-                          <FolderOpen className="w-3 h-3" />
-                          {cardGroup.name}
-                        </span>
-                      )}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className={cn(
+                              "text-xs px-2 py-0.5 rounded-full flex items-center gap-1 transition-all hover:opacity-80",
+                              cardGroup
+                                ? "text-white"
+                                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                            )}
+                            style={cardGroup ? { backgroundColor: cardGroup.color } : undefined}
+                          >
+                            {cardGroup ? (
+                              <>
+                                <FolderOpen className="w-3 h-3" />
+                                {cardGroup.name}
+                              </>
+                            ) : (
+                              <>
+                                <FolderPlus className="w-3 h-3" />
+                                Ajouter un groupe
+                              </>
+                            )}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 p-2" align="start">
+                          <div className="space-y-1">
+                            <p className="text-xs font-medium text-muted-foreground px-2 pb-1">
+                              Choisir un groupe
+                            </p>
+                            {cardGroup && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onUpdateCardGroup(card.id, undefined);
+                                }}
+                                className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-muted-foreground"
+                              >
+                                <X className="w-3 h-3" />
+                                Retirer du groupe
+                              </button>
+                            )}
+                            {groups.map((group) => (
+                              <button
+                                key={group.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onUpdateCardGroup(card.id, group.id);
+                                }}
+                                className={cn(
+                                  "w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2",
+                                  card.groupId === group.id && "bg-secondary"
+                                )}
+                              >
+                                <div
+                                  className="w-3 h-3 rounded-full"
+                                  style={{ backgroundColor: group.color }}
+                                />
+                                {group.name}
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                       <span
                         className={cn(
                           'text-xs px-2 py-0.5 rounded-full border',

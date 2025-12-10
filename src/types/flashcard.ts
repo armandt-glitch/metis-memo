@@ -17,7 +17,7 @@ export const FORMULAS: Record<FormulaType, { name: string; description: string; 
   },
   medium: {
     name: 'Moyen terme',
-    description: 'Parfait pour un apprentissage durable',
+    description: 'Parfait pour un apprentissage durable comme un concours',
     schedule: [
       { interval: 10, label: '10 minutes' },
       { interval: 24 * 60, label: '1 jour' },

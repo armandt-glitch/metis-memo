@@ -1,6 +1,6 @@
 import { Flashcard, FORMULAS, Group } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft } from 'lucide-react';
+import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,8 @@ interface DashboardProps {
   onReviewCard: (id: string) => void;
   onDeleteCard: (id: string) => void;
   onDeleteGroup: (id: string) => void;
+  onReopenCard: (id: string) => void;
+  onStartThematicQuiz: (groupId: string) => void;
   getGroup: (id: string) => Group | undefined;
 }
 
@@ -38,6 +40,8 @@ export const Dashboard = ({
   onReviewCard,
   onDeleteCard,
   onDeleteGroup,
+  onReopenCard,
+  onStartThematicQuiz,
   getGroup,
 }: DashboardProps) => {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
@@ -122,6 +126,13 @@ export const Dashboard = ({
                       </div>
                     </div>
                     <button
+                      onClick={() => onReopenCard(card.id)}
+                      className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
+                      title="Réouvrir pour réviser"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => onDeleteCard(card.id)}
                       className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
                     >
@@ -205,6 +216,41 @@ export const Dashboard = ({
           </Button>
         )}
       </div>
+
+      {/* Quizz thématique */}
+      {groups.length > 0 && (
+        <div className="bg-card rounded-2xl p-6 shadow-soft mb-8">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-accent" />
+            Quizz thématique
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Sélectionnez un groupe pour lancer un quizz de 10 fiches maximum
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {groups.map((group) => {
+              const count = cardCountsByGroup[group.id] || 0;
+              return (
+                <button
+                  key={group.id}
+                  onClick={() => count > 0 && onStartThematicQuiz(group.id)}
+                  disabled={count === 0}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2",
+                    count > 0
+                      ? "text-white hover:opacity-80"
+                      : "bg-secondary text-muted-foreground cursor-not-allowed"
+                  )}
+                  style={count > 0 ? { backgroundColor: group.color } : undefined}
+                >
+                  <FolderOpen className="w-4 h-4" />
+                  {group.name} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Upcoming reviews */}
       {upcomingCards.length > 0 && (

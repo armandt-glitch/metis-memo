@@ -142,7 +142,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                 isWrittenCorrectCheck ? 'bg-green-500/20' : 'bg-white/20'
               )}>
                 {isWrittenCorrectCheck ? (
-                  <Check className="w-5 h-5 text-green-300" />
+                  <Check className="w-5 h-5 text-white" />
                 ) : (
                   <X className="w-5 h-5 text-red-300" />
                 )}

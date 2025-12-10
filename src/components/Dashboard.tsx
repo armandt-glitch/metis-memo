@@ -10,6 +10,7 @@ interface DashboardProps {
   stats: { total: number; completed: number; dueNow: number };
   onCreateNew: () => void;
   onStartReview: () => void;
+  onReviewCard: (id: string) => void;
   onDeleteCard: (id: string) => void;
 }
 
@@ -24,6 +25,7 @@ export const Dashboard = ({
   stats,
   onCreateNew,
   onStartReview,
+  onReviewCard,
   onDeleteCard,
 }: DashboardProps) => {
   const upcomingCards = flashcards
@@ -98,7 +100,8 @@ export const Dashboard = ({
               return (
                 <div
                   key={card.id}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group"
+                  onClick={() => onReviewCard(card.id)}
+                  className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group cursor-pointer"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground truncate">
@@ -134,7 +137,10 @@ export const Dashboard = ({
                     </p>
                   </div>
                   <button
-                    onClick={() => onDeleteCard(card.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteCard(card.id);
+                    }}
                     className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
                   >
                     <Trash2 className="w-4 h-4" />

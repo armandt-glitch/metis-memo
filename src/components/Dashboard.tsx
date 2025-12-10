@@ -1,11 +1,13 @@
 import { Flashcard, FORMULAS, Group } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen } from 'lucide-react';
+import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { GroupFilter } from './GroupFilter';
 import { useState } from 'react';
+
+type ViewMode = 'dashboard' | 'memorized';
 
 interface DashboardProps {
   flashcards: Flashcard[];
@@ -39,6 +41,7 @@ export const Dashboard = ({
   getGroup,
 }: DashboardProps) => {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
 
   const filteredFlashcards = selectedGroupId === null
     ? flashcards
@@ -46,10 +49,93 @@ export const Dashboard = ({
     ? flashcards.filter((c) => !c.groupId)
     : flashcards.filter((c) => c.groupId === selectedGroupId);
 
+  const memorizedCards = flashcards.filter((c) => c.completed);
+
   const upcomingCards = filteredFlashcards
     .filter((c) => !c.completed)
     .sort((a, b) => new Date(a.nextReviewAt).getTime() - new Date(b.nextReviewAt).getTime())
     .slice(0, 10);
+
+  if (viewMode === 'memorized') {
+    return (
+      <div className="animate-slide-up">
+        <Button
+          variant="ghost"
+          onClick={() => setViewMode('dashboard')}
+          className="mb-6"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Retour au tableau de bord
+        </Button>
+
+        <h2 className="text-2xl font-bold text-foreground mb-6">
+          Fiches mémorisées ({memorizedCards.length})
+        </h2>
+
+        {memorizedCards.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              Aucune fiche mémorisée
+            </h3>
+            <p className="text-muted-foreground">
+              Complétez tous les rappels d'une fiche pour qu'elle apparaisse ici !
+            </p>
+          </div>
+        ) : (
+          <div className="bg-card rounded-2xl p-6 shadow-soft">
+            <div className="space-y-3">
+              {memorizedCards.map((card) => {
+                const cardGroup = card.groupId ? getGroup(card.groupId) : undefined;
+                return (
+                  <div
+                    key={card.id}
+                    className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 group"
+                  >
+                    <div className="p-2 rounded-lg bg-accent/10">
+                      <CheckCircle2 className="w-5 h-5 text-accent" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground truncate">
+                        {card.question}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {cardGroup && (
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full text-white flex items-center gap-1"
+                            style={{ backgroundColor: cardGroup.color }}
+                          >
+                            <FolderOpen className="w-3 h-3" />
+                            {cardGroup.name}
+                          </span>
+                        )}
+                        <span
+                          className={cn(
+                            'text-xs px-2 py-0.5 rounded-full border',
+                            formulaColors[card.formula]
+                          )}
+                        >
+                          {FORMULAS[card.formula].name}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => onDeleteCard(card.id)}
+                      className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="animate-slide-up">
@@ -79,10 +165,13 @@ export const Dashboard = ({
           </div>
         </div>
 
-        <div className="bg-card rounded-2xl p-6 shadow-soft">
+        <div 
+          className="bg-card rounded-2xl p-6 shadow-soft cursor-pointer hover:shadow-card transition-shadow"
+          onClick={() => setViewMode('memorized')}
+        >
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-green-500/10">
-              <CheckCircle2 className="w-6 h-6 text-green-500" />
+            <div className="p-3 rounded-xl bg-accent/10">
+              <CheckCircle2 className="w-6 h-6 text-accent" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{stats.completed}</p>

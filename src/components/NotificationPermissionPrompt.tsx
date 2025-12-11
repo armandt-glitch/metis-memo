@@ -4,24 +4,19 @@ import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/hooks/useNotifications';
 import { toast } from 'sonner';
 
-interface NotificationPermissionPromptProps {
-  dueCount: number;
-}
-
-export const NotificationPermissionPrompt = ({ dueCount }: NotificationPermissionPromptProps) => {
+export const NotificationPermissionPrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const { supported, permission, requestPermission, registerServiceWorker } = useNotifications();
 
   useEffect(() => {
-    // Show prompt only if:
+    // Show prompt immediately if:
     // 1. Notifications are supported
     // 2. Permission hasn't been granted or denied yet
     // 3. User hasn't dismissed the prompt in this session
     const dismissed = sessionStorage.getItem('notification-prompt-dismissed');
     if (supported && permission === 'default' && !dismissed) {
-      // Small delay to not show immediately on page load
-      const timer = setTimeout(() => setShowPrompt(true), 2000);
-      return () => clearTimeout(timer);
+      // Show immediately on app open
+      setShowPrompt(true);
     }
   }, [supported, permission]);
 
@@ -41,7 +36,7 @@ export const NotificationPermissionPrompt = ({ dueCount }: NotificationPermissio
           const notificationOptions = {
             body: 'Les notifications sont maintenant actives !',
             icon: '/pwa-192x192.png',
-            badge: '/pwa-192x192.png',
+            badge: '/badge-notification.png',
             tag: 'test-notification',
             data: {
               url: '/?openReview=true'
@@ -81,7 +76,7 @@ export const NotificationPermissionPrompt = ({ dueCount }: NotificationPermissio
           <div className="flex-1">
             <h3 className="font-semibold text-foreground">Activer les notifications</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Recevez une alerte quand vos cartes sont prêtes à être révisées.
+              Les notifications sont nécessaires pour profiter pleinement de l'expérience utilisateur. Elles vous permettent d'être alerté au bon moment pour réviser vos cartes.
             </p>
             <div className="flex gap-2 mt-3">
               <Button size="sm" onClick={handleEnable}>

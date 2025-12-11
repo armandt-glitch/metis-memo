@@ -237,7 +237,7 @@ const Index = () => {
         onCreateGroup={handleCreateGroup}
       />
       
-      <NotificationPermissionPrompt dueCount={dueCards.length} />
+      <NotificationPermissionPrompt />
     </div>
   );
 };

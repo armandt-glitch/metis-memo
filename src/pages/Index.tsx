@@ -12,6 +12,7 @@ import { useDueCardNotifications } from '@/hooks/useDueCardNotifications';
 import { Flashcard } from '@/types/flashcard';
 import { EditCardDialog } from '@/components/EditCardDialog';
 import { NotificationPermissionPrompt } from '@/components/NotificationPermissionPrompt';
+import { OnboardingTutorial } from '@/components/OnboardingTutorial';
 
 type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz';
 
@@ -234,6 +235,7 @@ const Index = () => {
       />
       
       <NotificationPermissionPrompt />
+      <OnboardingTutorial />
     </div>
   );
 };

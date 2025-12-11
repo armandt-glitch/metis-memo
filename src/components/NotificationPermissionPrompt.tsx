@@ -38,21 +38,21 @@ export const NotificationPermissionPrompt = ({ dueCount }: NotificationPermissio
       // Send a test notification via service worker
       setTimeout(async () => {
         try {
+          const notificationOptions = {
+            body: 'Les notifications sont maintenant actives !',
+            icon: '/pwa-192x192.png',
+            badge: '/pwa-192x192.png',
+            tag: 'test-notification',
+            data: {
+              url: '/?openReview=true'
+            }
+          };
+          
           if (registration?.active) {
-            await registration.showNotification('Métis Memo', {
-              body: 'Les notifications sont maintenant actives !',
-              icon: '/pwa-192x192.png',
-              badge: '/pwa-192x192.png',
-              tag: 'test-notification',
-            });
+            await registration.showNotification('Métis Memo', notificationOptions);
           } else if ('serviceWorker' in navigator) {
             const reg = await navigator.serviceWorker.ready;
-            await reg.showNotification('Métis Memo', {
-              body: 'Les notifications sont maintenant actives !',
-              icon: '/pwa-192x192.png',
-              badge: '/pwa-192x192.png',
-              tag: 'test-notification',
-            });
+            await reg.showNotification('Métis Memo', notificationOptions);
           }
         } catch (error) {
           console.error('Test notification failed:', error);

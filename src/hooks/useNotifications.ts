@@ -90,6 +90,9 @@ export const useNotifications = () => {
       tag: options?.tag || 'metis-memo-notification',
       requireInteraction: true,
       body: options?.body || '',
+      data: {
+        url: '/?openReview=true'
+      }
     };
 
     try {
@@ -131,6 +134,7 @@ export const useNotifications = () => {
       const notification = new Notification(title, notificationOptions);
       notification.onclick = () => {
         window.focus();
+        window.location.href = '/?openReview=true';
         notification.close();
       };
       console.log('Notification sent via Notification API');

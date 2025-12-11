@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { Dashboard } from '@/components/Dashboard';
@@ -15,6 +16,7 @@ import { NotificationPermissionPrompt } from '@/components/NotificationPermissio
 type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz';
 
 const Index = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<View>('hero');
   const [reviewCardId, setReviewCardId] = useState<string | null>(null);
   const [thematicQuizGroupId, setThematicQuizGroupId] = useState<string | null>(null);
@@ -43,6 +45,21 @@ const Index = () => {
   
   // Notify user when cards are due
   useDueCardNotifications(dueCards.length, { flashcards });
+
+  // Handle notification click - open review when openReview param is present
+  useEffect(() => {
+    if (searchParams.get('openReview') === 'true') {
+      if (dueCards.length > 0) {
+        setView('review');
+      } else {
+        setView('dashboard');
+      }
+      // Clear the param from URL
+      searchParams.delete('openReview');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, dueCards.length, setSearchParams]);
+
   const handleCreateFlashcard = (
     question: string,
     answer: string,

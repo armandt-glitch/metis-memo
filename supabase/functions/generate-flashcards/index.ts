@@ -18,7 +18,8 @@ serve(async (req) => {
   }
 
   try {
-    const { theme, count = 5 } = await req.json();
+    const { theme, count: rawCount = 5 } = await req.json();
+    const count = Math.min(Math.max(parseInt(rawCount) || 5, 1), 20);
     
     if (!theme || !THEMES[theme as keyof typeof THEMES]) {
       return new Response(

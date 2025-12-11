@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useDueCardNotifications } from '@/hooks/useDueCardNotifications';
 import { Flashcard } from '@/types/flashcard';
 import { EditCardDialog } from '@/components/EditCardDialog';
+import { NotificationPermissionPrompt } from '@/components/NotificationPermissionPrompt';
 
 type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz';
 
@@ -41,7 +42,7 @@ const Index = () => {
   const cardCountsByGroup = getCardCountsByGroup();
   
   // Notify user when cards are due
-  useDueCardNotifications(dueCards.length);
+  useDueCardNotifications(dueCards.length, { flashcards });
   const handleCreateFlashcard = (
     question: string,
     answer: string,
@@ -200,6 +201,8 @@ const Index = () => {
         onSave={handleSaveCard}
         onCreateGroup={handleCreateGroup}
       />
+      
+      <NotificationPermissionPrompt dueCount={dueCards.length} />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Brain, Sparkles, Clock, CheckCircle, Layers } from 'lucide-react';
 import logo from '@/assets/logo.png';
+import { InstallPWA } from '@/components/InstallPWA';
 
 interface HeroProps {
   onGetStarted: () => void;
@@ -39,9 +40,12 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
           </p>
 
           {/* CTA */}
-          <Button variant="hero" size="xl" onClick={onGetStarted}>
-            Commencer maintenant
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button variant="hero" size="xl" onClick={onGetStarted}>
+              Commencer maintenant
+            </Button>
+            <InstallPWA variant="hero" />
+          </div>
 
           {/* Features */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">

@@ -26,15 +26,26 @@ export const NotificationPermissionPrompt = ({ dueCount }: NotificationPermissio
   }, [supported, permission]);
 
   const handleEnable = async () => {
+    // First register service worker
+    await registerServiceWorker();
+    
+    // Then request permission
     const granted = await requestPermission();
+    
     if (granted) {
-      await registerServiceWorker();
       toast.success('Notifications activées ! Vous serez prévenu quand des cartes sont à réviser.');
-      setShowPrompt(false);
+      
+      // Send a test notification to confirm it works
+      setTimeout(() => {
+        new Notification('Métis Memo', {
+          body: 'Les notifications sont maintenant actives !',
+          icon: '/pwa-192x192.png',
+        });
+      }, 1000);
     } else {
       toast.error('Les notifications ont été refusées. Vous pouvez les activer dans les paramètres de votre navigateur.');
-      setShowPrompt(false);
     }
+    setShowPrompt(false);
   };
 
   const handleDismiss = () => {

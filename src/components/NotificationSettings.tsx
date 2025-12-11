@@ -40,17 +40,7 @@ export const NotificationSettings = ({ dueCount }: NotificationSettingsProps) =>
   }
 
   if (permission === 'granted') {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleTestNotification}
-        className="gap-2"
-      >
-        <BellRing className="h-4 w-4" />
-        Tester notification
-      </Button>
-    );
+    return null;
   }
 
   if (permission === 'denied') {

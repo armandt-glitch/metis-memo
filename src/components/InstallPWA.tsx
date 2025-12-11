@@ -72,12 +72,7 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
   const heroButtonClass = isHero ? 'gap-2 !bg-[#780000] !text-white shadow-md hover:shadow-lg hover:scale-105 active:scale-100' : 'gap-2';
 
   if (isInstalled) {
-    return (
-      <div className={`flex items-center gap-2 text-green-500 ${isHero ? 'text-base' : 'text-sm'}`}>
-        <Check className={iconSize} />
-        <span>Application installée</span>
-      </div>
-    );
+    return null;
   }
 
   // Android/Chrome with install prompt - direct installation

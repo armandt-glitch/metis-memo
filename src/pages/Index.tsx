@@ -60,6 +60,24 @@ const Index = () => {
     }
   }, [searchParams, dueCards.length, setSearchParams]);
 
+  // Listen for service worker messages to navigate to review
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'NAVIGATE_TO_REVIEW') {
+        if (dueCards.length > 0) {
+          setView('review');
+        } else {
+          setView('dashboard');
+        }
+      }
+    };
+    
+    navigator.serviceWorker?.addEventListener('message', handleMessage);
+    return () => {
+      navigator.serviceWorker?.removeEventListener('message', handleMessage);
+    };
+  }, [dueCards.length]);
+
   const handleCreateFlashcard = (
     question: string,
     answer: string,

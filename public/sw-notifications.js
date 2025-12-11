@@ -23,7 +23,8 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
-  const urlToOpen = event.notification.data?.url || '/?openReview=true';
+  const urlToOpen = new URL('/', self.location.origin);
+  urlToOpen.searchParams.set('openReview', 'true');
   
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
@@ -31,17 +32,17 @@ self.addEventListener('notificationclick', function(event) {
         // If a window is already open, focus it and navigate
         for (let i = 0; i < clientList.length; i++) {
           const client = clientList[i];
-          if ('focus' in client) {
-            return client.focus().then(function(focusedClient) {
-              if (focusedClient && 'navigate' in focusedClient) {
-                return focusedClient.navigate(urlToOpen);
-              }
+          if (client.url && 'focus' in client) {
+            return client.focus().then(function() {
+              // Post message to navigate
+              client.postMessage({ type: 'NAVIGATE_TO_REVIEW' });
+              return client;
             });
           }
         }
         // Otherwise open a new window
         if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
+          return clients.openWindow(urlToOpen.toString());
         }
       })
   );

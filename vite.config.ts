@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "robots.txt", "sw-notifications.js"],
       manifest: {
-        name: "Memo - Mémorisation intelligente",
-        short_name: "Memo",
+        name: "Métis Memo - Mémorisation intelligente",
+        short_name: "Métis Memo",
         description: "Application de flashcards avec répétition espacée",
         theme_color: "#6366f1",
         background_color: "#0f172a",

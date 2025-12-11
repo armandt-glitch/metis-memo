@@ -75,70 +75,70 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
       return (
         <div
           key={currentCard.id}
-          className="perspective-1000 mb-8"
+          className="perspective-1000 h-full"
         >
           <div
             className={cn(
-              'relative w-full transition-transform duration-500 preserve-3d',
+              'relative w-full h-full transition-transform duration-500 preserve-3d',
               showWrittenResult && 'rotate-y-180'
             )}
             style={{ transformStyle: 'preserve-3d' }}
           >
             {/* Front - Question */}
             <div
-              className="bg-card rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+              className="h-full bg-card rounded-3xl shadow-card p-4 md:p-8 flex flex-col items-center justify-center overflow-hidden"
               style={{ backfaceVisibility: 'hidden' }}
             >
               {currentCard.mediaUrl && currentCard.cardType === 'image' && (
                 <img 
                   src={currentCard.mediaUrl} 
                   alt="Question" 
-                  className="max-w-full max-h-[60vh] w-auto h-auto object-contain rounded-xl mb-4" 
+                  className="max-w-full max-h-[30vh] md:max-h-[40vh] w-auto h-auto object-contain rounded-xl mb-2 md:mb-4 flex-shrink" 
                 />
               )}
               {currentCard.mediaUrl && currentCard.cardType === 'audio' && (
-                <div className="mb-4 w-full">
-                  <div className="flex items-center gap-4 bg-secondary rounded-xl p-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Volume2 className="w-6 h-6 text-primary" />
+                <div className="mb-2 md:mb-4 w-full flex-shrink-0">
+                  <div className="flex items-center gap-4 bg-secondary rounded-xl p-3 md:p-4">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                     </div>
-                    <audio controls src={currentCard.mediaUrl} className="flex-1" />
+                    <audio controls src={currentCard.mediaUrl} className="flex-1 h-10" />
                   </div>
                 </div>
               )}
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex-shrink-0">
                 Question
               </p>
-              <p className="text-xl font-medium text-foreground text-center mb-6">
+              <p className="text-lg md:text-xl font-medium text-foreground text-center mb-4 flex-shrink-0 line-clamp-4">
                 {currentCard.question}
               </p>
               <Input
                 value={writtenAnswer}
                 onChange={(e) => setWrittenAnswer(e.target.value)}
                 placeholder="Tapez votre réponse..."
-                className="mb-4 max-w-xs"
+                className="mb-3 max-w-xs flex-shrink-0"
                 onKeyDown={(e) => e.key === 'Enter' && handleWrittenSubmit()}
               />
-              <Button onClick={handleWrittenSubmit} className="w-full max-w-xs">
+              <Button onClick={handleWrittenSubmit} className="w-full max-w-xs flex-shrink-0">
                 Valider
               </Button>
             </div>
 
             {/* Back - Answer */}
             <div
-              className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+              className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-4 md:p-8 flex flex-col items-center justify-center overflow-hidden"
               style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
             >
-              <p className="text-xs uppercase tracking-wider text-white/70 mb-4">
+              <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
                 Réponse
               </p>
-              <p className="text-2xl font-bold text-white text-center mb-6">
+              <p className="text-xl md:text-2xl font-bold text-white text-center mb-4 md:mb-6 flex-shrink-0 line-clamp-4">
                 {currentCard.answer}
               </p>
               
               {/* User answer feedback */}
               <div className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl',
+                'flex items-center gap-3 px-4 py-3 rounded-xl flex-shrink-0',
                 isWrittenCorrectCheck ? 'bg-green-500/20' : 'bg-white/20'
               )}>
                 {isWrittenCorrectCheck ? (
@@ -148,7 +148,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                 )}
                 <div>
                   <p className="text-xs text-white/70">Votre réponse</p>
-                <p className={cn(
+                  <p className={cn(
                     'font-medium',
                     isWrittenCorrectCheck ? 'text-white' : 'text-red-200'
                   )}>
@@ -166,41 +166,41 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     return (
       <div
         key={currentCard.id}
-        className="perspective-1000 cursor-pointer mb-8"
+        className="perspective-1000 cursor-pointer h-full"
         onClick={() => setIsFlipped(!isFlipped)}
       >
         <div
           className={cn(
-            'relative w-full min-h-[300px] transition-transform duration-500 preserve-3d',
+            'relative w-full h-full min-h-[200px] transition-transform duration-500 preserve-3d',
             isFlipped && 'rotate-y-180'
           )}
           style={{ transformStyle: 'preserve-3d' }}
         >
           {/* Front */}
           <div
-            className="absolute inset-0 bg-card rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+            className="absolute inset-0 bg-card rounded-3xl shadow-card p-4 md:p-8 flex flex-col items-center justify-center overflow-hidden"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4 flex-shrink-0">
               Question
             </p>
-            <p className="text-xl font-medium text-foreground text-center">
+            <p className="text-lg md:text-xl font-medium text-foreground text-center line-clamp-6">
               {currentCard.question}
             </p>
-            <p className="text-sm text-muted-foreground mt-6">
+            <p className="text-sm text-muted-foreground mt-4 md:mt-6 flex-shrink-0">
               Cliquez pour voir la réponse
             </p>
           </div>
 
           {/* Back */}
           <div
-            className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-8 flex flex-col items-center justify-center"
+            className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-4 md:p-8 flex flex-col items-center justify-center overflow-hidden"
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
-            <p className="text-xs uppercase tracking-wider text-white/70 mb-4">
+            <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
               Réponse
             </p>
-            <p className="text-xl font-medium text-white text-center">
+            <p className="text-lg md:text-xl font-medium text-white text-center line-clamp-6">
               {currentCard.answer}
             </p>
           </div>
@@ -279,17 +279,17 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
   };
 
   return (
-    <div className="max-w-lg mx-auto animate-slide-up">
+    <div className="max-w-lg mx-auto animate-slide-up h-[100dvh] flex flex-col py-4 md:py-0 md:h-auto">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4 flex-shrink-0"
       >
         <ArrowLeft className="w-4 h-4" />
         Retour
       </button>
 
       {/* Progress bar */}
-      <div className="mb-6">
+      <div className="mb-4 flex-shrink-0">
         {isThematicQuiz && quizGroupName && (
           <p className="text-accent font-semibold mb-2 text-center">
             Quizz thématique : {quizGroupName}
@@ -307,8 +307,15 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
         </div>
       </div>
 
-      {renderCardContent()}
-      {renderActions()}
+      {/* Card content - takes remaining space */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        {renderCardContent()}
+      </div>
+      
+      {/* Actions - fixed at bottom */}
+      <div className="flex-shrink-0 mt-4">
+        {renderActions()}
+      </div>
     </div>
   );
 };

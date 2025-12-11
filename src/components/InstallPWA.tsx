@@ -75,12 +75,27 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
     return (
       <div className={`flex items-center gap-2 text-green-500 ${isHero ? 'text-base' : 'text-sm'}`}>
         <Check className={iconSize} />
-        <span>App installée</span>
+        <span>Application installée</span>
       </div>
     );
   }
 
-  // iOS instructions dialog
+  // Android/Chrome with install prompt - direct installation
+  if (deferredPrompt) {
+    return (
+      <Button 
+        variant={isHero ? 'default' : 'outline'} 
+        size={buttonSize} 
+        onClick={handleInstall} 
+        className={heroButtonClass}
+      >
+        <Download className={iconSize} />
+        Installer l'application
+      </Button>
+    );
+  }
+
+  // iOS - must show instructions (Apple doesn't allow programmatic install)
   if (isIOS) {
     return (
       <Dialog>
@@ -91,32 +106,20 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
             className={heroButtonClass}
           >
             <Smartphone className={iconSize} />
-            Installer l'app
+            Installer l'application
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Installer Métis Memo sur iOS</DialogTitle>
+            <DialogTitle>Installer Métis Memo</DialogTitle>
             <DialogDescription asChild>
               <div className="space-y-4 pt-4">
-                <p>Pour installer l'application sur votre iPhone ou iPad :</p>
+                <p className="text-foreground">Sur iPhone/iPad, l'installation se fait via Safari :</p>
                 <ol className="list-decimal list-inside space-y-3 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="font-medium">1.</span>
-                    <span>Appuyez sur le bouton <strong>Partager</strong> <Share className="inline h-4 w-4" /> en bas de Safari</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-medium">2.</span>
-                    <span>Faites défiler et appuyez sur <strong>"Sur l'écran d'accueil"</strong></span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-medium">3.</span>
-                    <span>Appuyez sur <strong>Ajouter</strong> en haut à droite</span>
-                  </li>
+                  <li>Appuyez sur <Share className="inline h-4 w-4 mx-1" /> <strong>Partager</strong> en bas de l'écran</li>
+                  <li>Faites défiler et appuyez sur <strong>"Sur l'écran d'accueil"</strong></li>
+                  <li>Appuyez sur <strong>Ajouter</strong></li>
                 </ol>
-                <p className="text-xs text-muted-foreground mt-4">
-                  L'app fonctionnera hors ligne et apparaîtra comme une vraie application sur votre écran d'accueil.
-                </p>
               </div>
             </DialogDescription>
           </DialogHeader>
@@ -125,22 +128,7 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
     );
   }
 
-  // Android/Chrome with install prompt
-  if (deferredPrompt) {
-    return (
-      <Button 
-        variant={isHero ? 'default' : 'outline'} 
-        size={buttonSize} 
-        onClick={handleInstall} 
-        className={heroButtonClass}
-      >
-        <Download className={iconSize} />
-        Installer l'app
-      </Button>
-    );
-  }
-
-  // Show instructions for other browsers (desktop Chrome, Firefox, etc.)
+  // Fallback for desktop or browsers without install support
   if (isHero) {
     return (
       <Dialog>
@@ -151,7 +139,7 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
             className={heroButtonClass}
           >
             <Download className={iconSize} />
-            Installer l'app
+            Installer l'application
           </Button>
         </DialogTrigger>
         <DialogContent>
@@ -159,20 +147,16 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
             <DialogTitle>Installer Métis Memo</DialogTitle>
             <DialogDescription asChild>
               <div className="space-y-4 pt-4">
-                <p><strong>Sur Android (Chrome) :</strong></p>
+                <p className="text-foreground"><strong>Sur Android (Chrome) :</strong></p>
                 <ol className="list-decimal list-inside space-y-2 text-sm ml-2">
                   <li>Appuyez sur le menu <strong>⋮</strong> en haut à droite</li>
-                  <li>Appuyez sur <strong>"Installer l'application"</strong> ou <strong>"Ajouter à l'écran d'accueil"</strong></li>
+                  <li>Appuyez sur <strong>"Installer l'application"</strong></li>
                 </ol>
-                <p className="mt-4"><strong>Sur iPhone/iPad (Safari) :</strong></p>
+                <p className="mt-4 text-foreground"><strong>Sur iPhone/iPad (Safari) :</strong></p>
                 <ol className="list-decimal list-inside space-y-2 text-sm ml-2">
-                  <li>Appuyez sur le bouton <strong>Partager</strong> <Share className="inline h-4 w-4" /></li>
+                  <li>Appuyez sur <Share className="inline h-4 w-4 mx-1" /> <strong>Partager</strong></li>
                   <li>Appuyez sur <strong>"Sur l'écran d'accueil"</strong></li>
-                  <li>Appuyez sur <strong>Ajouter</strong></li>
                 </ol>
-                <p className="text-xs text-muted-foreground mt-4">
-                  L'app fonctionnera hors ligne comme une vraie application.
-                </p>
               </div>
             </DialogDescription>
           </DialogHeader>

@@ -67,8 +67,9 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
   };
 
   const isHero = variant === 'hero';
-  const buttonSize = isHero ? 'lg' : 'sm';
+  const buttonSize = isHero ? 'xl' : 'sm';
   const iconSize = isHero ? 'h-5 w-5' : 'h-4 w-4';
+  const heroButtonClass = isHero ? 'gap-2 bg-[#780000] hover:bg-[#780000]/90 text-white shadow-lg' : 'gap-2';
 
   if (isInstalled) {
     return (
@@ -87,7 +88,7 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
           <Button 
             variant={isHero ? 'default' : 'outline'} 
             size={buttonSize} 
-            className={`gap-2 ${isHero ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg' : ''}`}
+            className={heroButtonClass}
           >
             <Smartphone className={iconSize} />
             Installer l'app
@@ -131,7 +132,7 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
         variant={isHero ? 'default' : 'outline'} 
         size={buttonSize} 
         onClick={handleInstall} 
-        className={`gap-2 ${isHero ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg' : ''}`}
+        className={heroButtonClass}
       >
         <Download className={iconSize} />
         Installer l'app
@@ -147,7 +148,7 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
           <Button 
             variant="default" 
             size={buttonSize} 
-            className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+            className={heroButtonClass}
           >
             <Download className={iconSize} />
             Installer l'app

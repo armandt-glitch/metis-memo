@@ -40,7 +40,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
           </p>
 
           {/* CTA */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col items-center justify-center gap-4">
             <Button variant="hero" size="xl" onClick={onGetStarted}>
               Commencer maintenant
             </Button>

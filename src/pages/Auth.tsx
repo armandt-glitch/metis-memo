@@ -101,7 +101,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">FlashCards</CardTitle>
+          <CardTitle className="text-2xl font-bold">Métis Mémo</CardTitle>
           <CardDescription>Connectez-vous pour accéder à vos cartes</CardDescription>
         </CardHeader>
         <CardContent>

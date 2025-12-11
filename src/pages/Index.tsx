@@ -4,10 +4,11 @@ import { Hero } from '@/components/Hero';
 import { Dashboard } from '@/components/Dashboard';
 import { FlashcardForm } from '@/components/FlashcardForm';
 import { FlashcardReview } from '@/components/FlashcardReview';
+import { CardGenerator } from '@/components/CardGenerator';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGroups } from '@/hooks/useGroups';
 import { useToast } from '@/hooks/use-toast';
-import { Flashcard } from '@/types/flashcard';
+import { Flashcard, FormulaType, CardType } from '@/types/flashcard';
 import { EditCardDialog } from '@/components/EditCardDialog';
 
 type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz';
@@ -53,6 +54,16 @@ const Index = () => {
       description: 'Votre fiche a été ajoutée avec succès.',
     });
     setView('dashboard');
+  };
+
+  const handleGeneratedCards = (cards: Array<{ question: string; answer: string; formula: FormulaType; cardType: CardType; groupIds?: string[] }>) => {
+    cards.forEach(card => {
+      addFlashcard(card.question, card.answer, card.formula, card.cardType, undefined, card.groupIds);
+    });
+    toast({
+      title: 'Cartes ajoutées !',
+      description: `${cards.length} cartes ont été ajoutées à votre collection.`,
+    });
   };
 
   const handleCreateGroup = (name: string, color: string) => {
@@ -155,12 +166,15 @@ const Index = () => {
           )}
 
           {view === 'create' && (
-            <FlashcardForm
-              onSubmit={handleCreateFlashcard}
-              onBack={() => setView(flashcards.length > 0 ? 'dashboard' : 'hero')}
-              groups={groups}
-              onCreateGroup={handleCreateGroup}
-            />
+            <div className="space-y-6">
+              <CardGenerator onCardsGenerated={handleGeneratedCards} />
+              <FlashcardForm
+                onSubmit={handleCreateFlashcard}
+                onBack={() => setView(flashcards.length > 0 ? 'dashboard' : 'hero')}
+                groups={groups}
+                onCreateGroup={handleCreateGroup}
+              />
+            </div>
           )}
 
           {view === 'review' && (

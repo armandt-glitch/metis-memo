@@ -43,33 +43,9 @@ self.addEventListener('notificationclick', function(event) {
   // For "review" action or clicking the notification body, open review
   const urlToOpen = self.location.origin + '/?openReview=true';
   
+  // Always try to open a new window on mobile - most reliable method
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then(function(clientList) {
-        // If a window is already open, focus it and navigate
-        for (let i = 0; i < clientList.length; i++) {
-          const client = clientList[i];
-          if ('focus' in client) {
-            return client.focus().then(function(focusedClient) {
-              // Navigate to review page
-              if (focusedClient && 'navigate' in focusedClient) {
-                return focusedClient.navigate(urlToOpen);
-              } else {
-                // Post message to navigate
-                focusedClient.postMessage({ type: 'NAVIGATE_TO_REVIEW' });
-              }
-              return focusedClient;
-            });
-          }
-        }
-        // Otherwise open a new window
-        return clients.openWindow(urlToOpen);
-      })
-      .catch(function(error) {
-        console.error('Error handling notification click:', error);
-        // Fallback: just open a new window
-        return clients.openWindow(urlToOpen);
-      })
+    clients.openWindow(urlToOpen)
   );
 });
 

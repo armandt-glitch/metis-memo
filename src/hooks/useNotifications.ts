@@ -84,27 +84,39 @@ export const useNotifications = () => {
       return null;
     }
     
-    const notificationOptions: NotificationOptions = {
+    const notificationOptions = {
       icon: '/pwa-192x192.png',
       badge: '/pwa-192x192.png',
-      tag: 'metis-memo-notification',
+      tag: options?.tag || 'metis-memo-notification',
       requireInteraction: true,
-      ...options,
+      body: options?.body || '',
     };
 
     try {
-      // Method 1: Try service worker notification (works in background on mobile)
-      if (swRegistration?.active) {
+      // Method 1: Try to get service worker registration and show notification
+      if ('serviceWorker' in navigator) {
         try {
-          await swRegistration.showNotification(title, notificationOptions);
-          console.log('Notification sent via service worker');
+          const registration = await navigator.serviceWorker.ready;
+          await registration.showNotification(title, notificationOptions);
+          console.log('Notification sent via service worker ready');
           return null;
         } catch (swError) {
-          console.log('SW notification failed, trying fallback:', swError);
+          console.log('SW ready notification failed:', swError);
         }
       }
 
-      // Method 2: Try sending message to service worker
+      // Method 2: Try existing registration
+      if (swRegistration?.active) {
+        try {
+          await swRegistration.showNotification(title, notificationOptions);
+          console.log('Notification sent via stored registration');
+          return null;
+        } catch (regError) {
+          console.log('Stored registration notification failed:', regError);
+        }
+      }
+
+      // Method 3: Try sending message to service worker controller
       if (navigator.serviceWorker?.controller) {
         navigator.serviceWorker.controller.postMessage({
           type: 'SHOW_NOTIFICATION',
@@ -115,7 +127,7 @@ export const useNotifications = () => {
         return null;
       }
 
-      // Method 3: Fallback to regular Notification API
+      // Method 4: Fallback to regular Notification API (desktop only)
       const notification = new Notification(title, notificationOptions);
       notification.onclick = () => {
         window.focus();

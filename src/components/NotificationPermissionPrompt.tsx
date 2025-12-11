@@ -27,7 +27,7 @@ export const NotificationPermissionPrompt = ({ dueCount }: NotificationPermissio
 
   const handleEnable = async () => {
     // First register service worker
-    await registerServiceWorker();
+    const registration = await registerServiceWorker();
     
     // Then request permission
     const granted = await requestPermission();
@@ -35,12 +35,28 @@ export const NotificationPermissionPrompt = ({ dueCount }: NotificationPermissio
     if (granted) {
       toast.success('Notifications activées ! Vous serez prévenu quand des cartes sont à réviser.');
       
-      // Send a test notification to confirm it works
-      setTimeout(() => {
-        new Notification('Métis Memo', {
-          body: 'Les notifications sont maintenant actives !',
-          icon: '/pwa-192x192.png',
-        });
+      // Send a test notification via service worker
+      setTimeout(async () => {
+        try {
+          if (registration?.active) {
+            await registration.showNotification('Métis Memo', {
+              body: 'Les notifications sont maintenant actives !',
+              icon: '/pwa-192x192.png',
+              badge: '/pwa-192x192.png',
+              tag: 'test-notification',
+            });
+          } else if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.ready;
+            await reg.showNotification('Métis Memo', {
+              body: 'Les notifications sont maintenant actives !',
+              icon: '/pwa-192x192.png',
+              badge: '/pwa-192x192.png',
+              tag: 'test-notification',
+            });
+          }
+        } catch (error) {
+          console.error('Test notification failed:', error);
+        }
       }, 1000);
     } else {
       toast.error('Les notifications ont été refusées. Vous pouvez les activer dans les paramètres de votre navigateur.');

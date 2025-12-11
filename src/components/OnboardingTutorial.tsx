@@ -21,7 +21,7 @@ interface TutorialStep {
 const TUTORIAL_STEPS: TutorialStep[] = [
   {
     icon: <Brain className="w-12 h-12 text-primary" />,
-    title: "Bienvenue sur Interval Memo !",
+    title: "Bienvenue sur Métis Memo !",
     description: "Une application de révision par répétition espacée pour mémoriser efficacement vos connaissances."
   },
   {

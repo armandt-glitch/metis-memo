@@ -1,7 +1,7 @@
 // Service Worker for push notifications
 self.addEventListener('push', function(event) {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'Memo - Révision';
+  const title = data.title || 'Métis Memo - Révision';
   const options = {
     body: data.body || 'Vous avez des cartes à réviser !',
     icon: '/pwa-192x192.png',

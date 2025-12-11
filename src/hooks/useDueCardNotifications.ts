@@ -68,7 +68,7 @@ export const useDueCardNotifications = (
         scheduledHours.add(hourKey);
         
         const timeoutId = scheduleNotification(
-          'Memo - Révision',
+          'Métis Memo - Révision',
           'Une carte est prête à être révisée !',
           reviewDate
         );

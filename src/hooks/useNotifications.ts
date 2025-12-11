@@ -92,7 +92,7 @@ export const useNotifications = () => {
       ? '1 carte à réviser !' 
       : `${dueCount} cartes à réviser !`;
     
-    sendNotification('Memo - Révision', {
+    sendNotification('Métis Memo - Révision', {
       body: message,
       tag: 'due-cards',
     });

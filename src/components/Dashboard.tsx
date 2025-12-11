@@ -305,13 +305,13 @@ export const Dashboard = ({
                 <div
                   key={card.id}
                   onClick={() => onReviewCard(card.id)}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group cursor-pointer"
+                  className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group cursor-pointer"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">
+                    <p className="font-medium text-foreground line-clamp-2 sm:truncate">
                       {card.question}
                     </p>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <Popover>
                         <PopoverTrigger asChild>
                           <button
@@ -404,7 +404,7 @@ export const Dashboard = ({
                       </span>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 mt-2 sm:mt-0">
                     <p
                       className={cn(
                         'text-sm font-medium',
@@ -418,26 +418,28 @@ export const Dashboard = ({
                             locale: fr,
                           })}
                     </p>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditCard(card);
+                        }}
+                        className="sm:opacity-0 sm:group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
+                        title="Modifier la fiche"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteCard(card.id);
+                        }}
+                        className="sm:opacity-0 sm:group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditCard(card);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
-                    title="Modifier la fiche"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteCard(card.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
                 </div>
               );
             })}

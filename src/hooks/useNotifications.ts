@@ -86,9 +86,10 @@ export const useNotifications = () => {
     
     const notificationOptions = {
       icon: '/pwa-192x192.png',
-      badge: '/pwa-192x192.png',
+      badge: '/badge-notification.png',
       tag: options?.tag || 'metis-memo-notification',
       requireInteraction: true,
+      vibrate: [200, 100, 200],
       body: options?.body || '',
       data: {
         url: '/?openReview=true'

@@ -49,26 +49,22 @@ const Index = () => {
   // Handle notification click - open review when openReview param is present
   useEffect(() => {
     if (searchParams.get('openReview') === 'true') {
-      if (dueCards.length > 0) {
-        setView('review');
-      } else {
-        setView('dashboard');
-      }
+      // Always go to review view when clicking notification
+      // If no due cards, it will show empty state in FlashcardReview
+      setView('review');
       // Clear the param from URL
       searchParams.delete('openReview');
       setSearchParams(searchParams, { replace: true });
     }
-  }, [searchParams, dueCards.length, setSearchParams]);
+  }, [searchParams, setSearchParams]);
 
   // Listen for service worker messages to navigate to review
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'NAVIGATE_TO_REVIEW') {
-        if (dueCards.length > 0) {
-          setView('review');
-        } else {
-          setView('dashboard');
-        }
+        // Always navigate to review when clicking notification
+        setView('review');
+        window.focus();
       }
     };
     
@@ -76,7 +72,7 @@ const Index = () => {
     return () => {
       navigator.serviceWorker?.removeEventListener('message', handleMessage);
     };
-  }, [dueCards.length]);
+  }, []);
 
   const handleCreateFlashcard = (
     question: string,

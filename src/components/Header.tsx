@@ -1,6 +1,12 @@
 import logo from '@/assets/logo.png';
+import { InstallPWA } from '@/components/InstallPWA';
+import { NotificationSettings } from '@/components/NotificationSettings';
 
-export const Header = () => {
+interface HeaderProps {
+  dueCount?: number;
+}
+
+export const Header = ({ dueCount = 0 }: HeaderProps) => {
   return (
     <header className="py-4 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -11,6 +17,11 @@ export const Header = () => {
               <h1 className="text-xl font-bold text-foreground">Métis Memo</h1>
               <p className="text-xs text-muted-foreground">Mémorisation intelligente</p>
             </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <NotificationSettings dueCount={dueCount} />
+            <InstallPWA />
           </div>
         </div>
       </div>

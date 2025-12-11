@@ -7,6 +7,7 @@ import { FlashcardReview } from '@/components/FlashcardReview';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGroups } from '@/hooks/useGroups';
 import { useToast } from '@/hooks/use-toast';
+import { useDueCardNotifications } from '@/hooks/useDueCardNotifications';
 import { Flashcard } from '@/types/flashcard';
 import { EditCardDialog } from '@/components/EditCardDialog';
 
@@ -38,7 +39,9 @@ const Index = () => {
   const stats = getStats();
   const dueCards = getDueCards();
   const cardCountsByGroup = getCardCountsByGroup();
-
+  
+  // Notify user when cards are due
+  useDueCardNotifications(dueCards.length);
   const handleCreateFlashcard = (
     question: string,
     answer: string,
@@ -128,7 +131,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background border-solid border-0">
-      <Header />
+      <Header dueCount={dueCards.length} />
 
       {view === 'hero' && <Hero onGetStarted={handleGetStarted} />}
 

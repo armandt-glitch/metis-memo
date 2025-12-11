@@ -5,7 +5,7 @@ self.addEventListener('push', function(event) {
   const options = {
     body: data.body || 'Vous avez des cartes à réviser !',
     icon: '/pwa-192x192.png',
-    badge: '/pwa-192x192.png',
+    badge: '/badge-notification.png',
     tag: 'memo-due-cards',
     renotify: true,
     requireInteraction: true,
@@ -55,7 +55,7 @@ self.addEventListener('message', function(event) {
     self.registration.showNotification(title, {
       body: body,
       icon: '/pwa-192x192.png',
-      badge: '/pwa-192x192.png',
+      badge: '/badge-notification.png',
       tag: 'memo-due-cards',
       renotify: true,
       requireInteraction: true,

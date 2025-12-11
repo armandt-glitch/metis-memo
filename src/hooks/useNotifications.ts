@@ -91,6 +91,16 @@ export const useNotifications = () => {
       requireInteraction: true,
       vibrate: [200, 100, 200],
       body: options?.body || '',
+      actions: [
+        {
+          action: 'review',
+          title: '📚 Réviser'
+        },
+        {
+          action: 'dismiss',
+          title: 'Plus tard'
+        }
+      ],
       data: {
         url: '/?openReview=true'
       }

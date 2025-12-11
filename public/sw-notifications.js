@@ -10,6 +10,16 @@ self.addEventListener('push', function(event) {
     renotify: true,
     requireInteraction: true,
     vibrate: [200, 100, 200],
+    actions: [
+      {
+        action: 'review',
+        title: '📚 Réviser'
+      },
+      {
+        action: 'dismiss',
+        title: 'Plus tard'
+      }
+    ],
     data: {
       url: '/?openReview=true'
     }
@@ -23,6 +33,14 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
+  const action = event.action;
+  
+  // If user clicked "Plus tard", just close
+  if (action === 'dismiss') {
+    return;
+  }
+  
+  // For "review" action or clicking the notification body, open review
   const urlToOpen = new URL('/', self.location.origin);
   urlToOpen.searchParams.set('openReview', 'true');
   
@@ -60,6 +78,16 @@ self.addEventListener('message', function(event) {
       renotify: true,
       requireInteraction: true,
       vibrate: [200, 100, 200],
+      actions: [
+        {
+          action: 'review',
+          title: '📚 Réviser'
+        },
+        {
+          action: 'dismiss',
+          title: 'Plus tard'
+        }
+      ],
       data: {
         url: '/?openReview=true'
       }

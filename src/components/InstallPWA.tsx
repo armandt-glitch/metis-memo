@@ -69,7 +69,7 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
   const isHero = variant === 'hero';
   const buttonSize = isHero ? 'xl' : 'sm';
   const iconSize = isHero ? 'h-5 w-5' : 'h-4 w-4';
-  const heroButtonClass = isHero ? 'gap-2 !bg-[#780000] hover:!bg-[#5a0000] !text-white shadow-lg' : 'gap-2';
+  const heroButtonClass = isHero ? 'gap-2 !bg-[#780000] !text-white shadow-md hover:shadow-lg hover:scale-105 active:scale-100' : 'gap-2';
 
   if (isInstalled) {
     return (

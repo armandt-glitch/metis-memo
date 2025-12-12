@@ -197,7 +197,6 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     }
 
     // Standard flashcard - click to flip
-    // Render both question and answer invisibly to let the card size adapt to the longest content
     return (
       <div
         key={currentCard.id}
@@ -211,46 +210,42 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
           )}
           style={{ transformStyle: 'preserve-3d' }}
         >
-          {/* Hidden content sizer - takes the max height of question or answer */}
-          <div className="invisible" aria-hidden="true">
-            <div className="bg-card rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center">
+          {/* Front - visible container that sets the height */}
+          <div
+            className="bg-card rounded-3xl shadow-card p-6 md:p-8"
+            style={{ backfaceVisibility: 'hidden' }}
+          >
+            {/* Show question when not flipped, answer when flipped (but answer is invisible here) */}
+            <div className={cn("flex flex-col items-center justify-center", isFlipped && "invisible")}>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4">
+                {t('review.question')}
+              </p>
+              <p className={cn(
+                "font-medium text-foreground text-center px-2 whitespace-normal break-words",
+                getTextSize(currentCard.question)
+              )}>
+                {currentCard.question}
+              </p>
+              <p className="text-sm text-muted-foreground mt-4 md:mt-6">
+                {t('review.click.reveal')}
+              </p>
+            </div>
+            {/* Hidden answer sizer to ensure card is tall enough for the answer */}
+            <div className="invisible absolute inset-0 p-6 md:p-8 flex flex-col items-center justify-center" aria-hidden="true">
               <p className="text-xs uppercase tracking-wider mb-2 md:mb-4">Label</p>
               <p className={cn(
                 "font-medium text-center px-2 whitespace-normal break-words",
-                getTextSize(currentCard.question.length > currentCard.answer.length ? currentCard.question : currentCard.answer)
+                getTextSize(currentCard.answer, true)
               )}>
-                {currentCard.question.length > currentCard.answer.length ? currentCard.question : currentCard.answer}
+                {currentCard.answer}
               </p>
-              <p className="text-sm mt-4 md:mt-6">Spacer</p>
             </div>
           </div>
 
-          {/* Front */}
+          {/* Back - absolutely positioned over the front */}
           <div
             className={cn(
-              "absolute inset-0 bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center",
-              isFlipped && "invisible"
-            )}
-            style={{ backfaceVisibility: 'hidden' }}
-          >
-            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4">
-              {t('review.question')}
-            </p>
-            <p className={cn(
-              "font-medium text-foreground text-center px-2 whitespace-normal break-words",
-              getTextSize(currentCard.question)
-            )}>
-              {currentCard.question}
-            </p>
-            <p className="text-sm text-muted-foreground mt-4 md:mt-6">
-              {t('review.click.reveal')}
-            </p>
-          </div>
-
-          {/* Back */}
-          <div
-            className={cn(
-              "absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center",
+              "absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center overflow-auto",
               !isFlipped && "invisible"
             )}
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}

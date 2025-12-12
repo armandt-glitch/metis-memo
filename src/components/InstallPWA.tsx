@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -20,6 +21,7 @@ interface InstallPWAProps {
 }
 
 export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
+  const { t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -85,7 +87,7 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
         className={heroButtonClass}
       >
         <Download className={iconSize} />
-        Installer l'application
+        {t('install.button')}
       </Button>
     );
   }
@@ -101,19 +103,19 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
             className={heroButtonClass}
           >
             <Smartphone className={iconSize} />
-            Installer l'application
+            {t('install.button')}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Installer Métis Memo</DialogTitle>
+            <DialogTitle>{t('install.title')}</DialogTitle>
             <DialogDescription asChild>
               <div className="space-y-4 pt-4">
-                <p className="text-foreground">Sur iPhone/iPad, l'installation se fait via Safari :</p>
+                <p className="text-foreground">{t('install.ios.intro')}</p>
                 <ol className="list-decimal list-inside space-y-3 text-sm">
-                  <li>Appuyez sur <Share className="inline h-4 w-4 mx-1" /> <strong>Partager</strong> en bas de l'écran</li>
-                  <li>Faites défiler et appuyez sur <strong>"Sur l'écran d'accueil"</strong></li>
-                  <li>Appuyez sur <strong>Ajouter</strong></li>
+                  <li>{t('install.ios.step1')} <Share className="inline h-4 w-4 mx-1" /> <strong>{t('install.ios.share')}</strong> {t('install.ios.step1b')}</li>
+                  <li>{t('install.ios.step2')} <strong>{t('install.ios.step2b')}</strong></li>
+                  <li>{t('install.ios.step3')} <strong>{t('install.ios.step3b')}</strong></li>
                 </ol>
               </div>
             </DialogDescription>
@@ -134,23 +136,23 @@ export const InstallPWA = ({ variant = 'default' }: InstallPWAProps) => {
             className={heroButtonClass}
           >
             <Download className={iconSize} />
-            Installer l'application
+            {t('install.button')}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Installer Métis Memo</DialogTitle>
+            <DialogTitle>{t('install.title')}</DialogTitle>
             <DialogDescription asChild>
               <div className="space-y-4 pt-4">
-                <p className="text-foreground"><strong>Sur Android (Chrome) :</strong></p>
+                <p className="text-foreground"><strong>{t('install.android.title')}</strong></p>
                 <ol className="list-decimal list-inside space-y-2 text-sm ml-2">
-                  <li>Appuyez sur le menu <strong>⋮</strong> en haut à droite</li>
-                  <li>Appuyez sur <strong>"Installer l'application"</strong></li>
+                  <li>{t('install.android.step1')} <strong>⋮</strong> {t('install.android.step1b')}</li>
+                  <li>{t('install.android.step2')} <strong>{t('install.android.step2b')}</strong></li>
                 </ol>
-                <p className="mt-4 text-foreground"><strong>Sur iPhone/iPad (Safari) :</strong></p>
+                <p className="mt-4 text-foreground"><strong>{t('install.ios.title')}</strong></p>
                 <ol className="list-decimal list-inside space-y-2 text-sm ml-2">
-                  <li>Appuyez sur <Share className="inline h-4 w-4 mx-1" /> <strong>Partager</strong></li>
-                  <li>Appuyez sur <strong>"Sur l'écran d'accueil"</strong></li>
+                  <li>{t('install.ios.step1')} <Share className="inline h-4 w-4 mx-1" /> <strong>{t('install.ios.share')}</strong></li>
+                  <li>{t('install.ios.step2')} <strong>{t('install.ios.step2b')}</strong></li>
                 </ol>
               </div>
             </DialogDescription>

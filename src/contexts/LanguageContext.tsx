@@ -158,6 +158,24 @@ const translations: Record<Language, Record<string, string>> = {
     'color.pink': 'Rose',
     'color.cyan': 'Cyan',
     'color.gray': 'Gris',
+    
+    // Install PWA
+    'install.button': 'Installer l\'application',
+    'install.title': 'Installer Métis Memo',
+    'install.ios.intro': 'Sur iPhone/iPad, l\'installation se fait via Safari :',
+    'install.ios.step1': 'Appuyez sur',
+    'install.ios.share': 'Partager',
+    'install.ios.step1b': 'en bas de l\'écran',
+    'install.ios.step2': 'Faites défiler et appuyez sur',
+    'install.ios.step2b': '"Sur l\'écran d\'accueil"',
+    'install.ios.step3': 'Appuyez sur',
+    'install.ios.step3b': 'Ajouter',
+    'install.android.title': 'Sur Android (Chrome) :',
+    'install.android.step1': 'Appuyez sur le menu',
+    'install.android.step1b': 'en haut à droite',
+    'install.android.step2': 'Appuyez sur',
+    'install.android.step2b': '"Installer l\'application"',
+    'install.ios.title': 'Sur iPhone/iPad (Safari) :',
   },
   en: {
     // Header
@@ -308,6 +326,24 @@ const translations: Record<Language, Record<string, string>> = {
     'color.pink': 'Pink',
     'color.cyan': 'Cyan',
     'color.gray': 'Gray',
+    
+    // Install PWA
+    'install.button': 'Install app',
+    'install.title': 'Install Métis Memo',
+    'install.ios.intro': 'On iPhone/iPad, install via Safari:',
+    'install.ios.step1': 'Tap',
+    'install.ios.share': 'Share',
+    'install.ios.step1b': 'at the bottom of the screen',
+    'install.ios.step2': 'Scroll down and tap',
+    'install.ios.step2b': '"Add to Home Screen"',
+    'install.ios.step3': 'Tap',
+    'install.ios.step3b': 'Add',
+    'install.android.title': 'On Android (Chrome):',
+    'install.android.step1': 'Tap the menu',
+    'install.android.step1b': 'in the top right',
+    'install.android.step2': 'Tap',
+    'install.android.step2b': '"Install app"',
+    'install.ios.title': 'On iPhone/iPad (Safari):',
   },
 };
 

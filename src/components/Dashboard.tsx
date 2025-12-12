@@ -442,7 +442,7 @@ export const Dashboard = ({
                           e.stopPropagation();
                           onDeleteCard(card.id);
                         }}
-                        className="sm:opacity-0 sm:group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
+                        className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

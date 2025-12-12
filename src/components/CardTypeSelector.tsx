@@ -1,6 +1,7 @@
-import { CardType, CARD_TYPES } from '@/types/flashcard';
+import { CardType } from '@/types/flashcard';
 import { RotateCcw, PenLine, Image, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CardTypeSelectorProps {
   selected: CardType;
@@ -8,18 +9,21 @@ interface CardTypeSelectorProps {
 }
 
 const iconMap = {
-  RotateCcw,
-  PenLine,
-  Image,
-  Volume2,
+  flashcard: RotateCcw,
+  written: PenLine,
+  image: Image,
+  audio: Volume2,
 };
 
+const cardTypeKeys: CardType[] = ['flashcard', 'written', 'image', 'audio'];
+
 export const CardTypeSelector = ({ selected, onSelect }: CardTypeSelectorProps) => {
+  const { t } = useLanguage();
+
   return (
     <div className="grid grid-cols-2 gap-3">
-      {(Object.keys(CARD_TYPES) as CardType[]).map((type) => {
-        const cardType = CARD_TYPES[type];
-        const Icon = iconMap[cardType.icon as keyof typeof iconMap];
+      {cardTypeKeys.map((type) => {
+        const Icon = iconMap[type];
         const isSelected = selected === type;
 
         return (
@@ -45,9 +49,9 @@ export const CardTypeSelector = ({ selected, onSelect }: CardTypeSelectorProps) 
               </div>
               <div>
                 <p className={cn('font-medium', isSelected ? 'text-foreground' : 'text-muted-foreground')}>
-                  {cardType.name}
+                  {t(`cardtype.${type}`)}
                 </p>
-                <p className="text-xs text-muted-foreground">{cardType.description}</p>
+                <p className="text-xs text-muted-foreground">{t(`cardtype.${type}.desc`)}</p>
               </div>
             </div>
           </button>

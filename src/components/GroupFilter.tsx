@@ -1,6 +1,7 @@
 import { Group } from '@/types/flashcard';
 import { FolderOpen, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface GroupFilterProps {
   groups: Group[];
@@ -17,6 +18,7 @@ export const GroupFilter = ({
   onDeleteGroup,
   cardCounts = {},
 }: GroupFilterProps) => {
+  const { t } = useLanguage();
   const totalCards = Object.values(cardCounts).reduce((a, b) => a + b, 0);
   const ungroupedCount = cardCounts['ungrouped'] || 0;
 
@@ -31,7 +33,7 @@ export const GroupFilter = ({
             : 'bg-card text-foreground border-border hover:bg-secondary'
         )}
       >
-        Tous ({totalCards})
+        {t('filter.all')} ({totalCards})
       </button>
 
       {ungroupedCount > 0 && (
@@ -44,7 +46,7 @@ export const GroupFilter = ({
               : 'bg-card text-foreground border-border hover:bg-secondary'
           )}
         >
-          Sans groupe ({ungroupedCount})
+          {t('filter.ungrouped')} ({ungroupedCount})
         </button>
       )}
 

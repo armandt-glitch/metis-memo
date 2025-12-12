@@ -197,6 +197,31 @@ export const Dashboard = ({
 
   return (
     <div className="animate-slide-up">
+      {/* Group Filter */}
+      {(groups.length > 0 || flashcards.some(c => !c.groupIds || c.groupIds.length === 0)) && (
+        <GroupFilter
+          groups={groups}
+          selectedGroupId={selectedGroupId}
+          onSelect={setSelectedGroupId}
+          onDeleteGroup={onDeleteGroup}
+          cardCounts={cardCountsByGroup}
+        />
+      )}
+
+      {/* Actions */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <Button variant="hero" size="xl" onClick={onCreateNew} className="flex-1">
+          <Plus className="w-5 h-5" />
+          {t('dashboard.new.card')}
+        </Button>
+        {stats.dueNow > 0 && (
+          <Button variant="hero-outline" size="xl" onClick={onStartReview} className="flex-1">
+            <Play className="w-5 h-5" />
+            {t('dashboard.review')} ({stats.dueNow})
+          </Button>
+        )}
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-card rounded-2xl p-6 shadow-soft">
@@ -237,31 +262,6 @@ export const Dashboard = ({
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Group Filter */}
-      {(groups.length > 0 || flashcards.some(c => !c.groupIds || c.groupIds.length === 0)) && (
-        <GroupFilter
-          groups={groups}
-          selectedGroupId={selectedGroupId}
-          onSelect={setSelectedGroupId}
-          onDeleteGroup={onDeleteGroup}
-          cardCounts={cardCountsByGroup}
-        />
-      )}
-
-      {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <Button variant="hero" size="xl" onClick={onCreateNew} className="flex-1">
-          <Plus className="w-5 h-5" />
-          {t('dashboard.new.card')}
-        </Button>
-        {stats.dueNow > 0 && (
-          <Button variant="hero-outline" size="xl" onClick={onStartReview} className="flex-1">
-            <Play className="w-5 h-5" />
-            {t('dashboard.review')} ({stats.dueNow})
-          </Button>
-        )}
       </div>
 
       {/* Quizz thématique */}

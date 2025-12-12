@@ -181,7 +181,7 @@ export const Dashboard = ({
                     </button>
                     <button
                       onClick={() => onDeleteCard(card.id)}
-                      className="opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
+                      className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

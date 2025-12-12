@@ -16,15 +16,6 @@ const getTextSize = (text: string, isAnswer = false) => {
   return isAnswer ? 'text-lg md:text-2xl' : 'text-lg md:text-xl';
 };
 
-// Calculate dynamic card height based on question length * 2 (to account for answer)
-const getCardMinHeight = (questionLength: number): string => {
-  const estimatedContentLength = questionLength * 2;
-  if (estimatedContentLength > 800) return 'min-h-[450px] md:min-h-[500px]';
-  if (estimatedContentLength > 500) return 'min-h-[350px] md:min-h-[400px]';
-  if (estimatedContentLength > 300) return 'min-h-[280px] md:min-h-[320px]';
-  if (estimatedContentLength > 150) return 'min-h-[220px] md:min-h-[260px]';
-  return 'min-h-[180px] md:min-h-[200px]';
-};
 
 interface FlashcardReviewProps {
   cards: Flashcard[];
@@ -206,51 +197,54 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     }
 
     // Standard flashcard - click to flip
-    const cardHeight = getCardMinHeight(currentCard.question.length);
-    
     return (
       <div
         key={currentCard.id}
-        className="perspective-1000 cursor-pointer h-full"
+        className="perspective-1000 cursor-pointer"
         onClick={() => setIsFlipped(!isFlipped)}
       >
         <div
           className={cn(
-            'relative w-full h-full transition-transform duration-500 preserve-3d',
-            cardHeight,
+            'relative w-full transition-transform duration-500 preserve-3d',
             isFlipped && 'rotate-y-180'
           )}
           style={{ transformStyle: 'preserve-3d' }}
         >
           {/* Front */}
           <div
-            className="absolute inset-0 bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
+            className={cn(
+              "bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center",
+              isFlipped && "invisible"
+            )}
             style={{ backfaceVisibility: 'hidden' }}
           >
-            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4 flex-shrink-0">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4">
               {t('review.question')}
             </p>
             <p className={cn(
-              "font-medium text-foreground text-center px-2",
+              "font-medium text-foreground text-center px-2 whitespace-normal break-words",
               getTextSize(currentCard.question)
             )}>
               {currentCard.question}
             </p>
-            <p className="text-sm text-muted-foreground mt-4 md:mt-6 flex-shrink-0">
+            <p className="text-sm text-muted-foreground mt-4 md:mt-6">
               {t('review.click.reveal')}
             </p>
           </div>
 
           {/* Back */}
           <div
-            className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
+            className={cn(
+              "absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center",
+              !isFlipped && "invisible"
+            )}
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
-            <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
+            <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4">
               {t('review.answer')}
             </p>
             <p className={cn(
-              "font-medium text-white text-center px-2",
+              "font-medium text-white text-center px-2 whitespace-normal break-words",
               getTextSize(currentCard.answer, true)
             )}>
               {currentCard.answer}
@@ -331,17 +325,17 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
   };
 
   return (
-    <div className="max-w-lg mx-auto animate-slide-up h-[100dvh] flex flex-col py-4 md:py-0 md:h-auto">
+    <div className="max-w-lg mx-auto animate-slide-up py-4 md:py-0">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4 flex-shrink-0"
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
       >
         <ArrowLeft className="w-4 h-4" />
         {t('review.back')}
       </button>
 
       {/* Progress bar */}
-      <div className="mb-4 flex-shrink-0">
+      <div className="mb-4">
         {isThematicQuiz && quizGroupName && (
           <p className="text-accent font-semibold mb-2 text-center">
             {t('review.thematic')} : {quizGroupName}
@@ -359,8 +353,8 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
         </div>
       </div>
 
-      {/* Card content - fixed height on mobile, auto on desktop */}
-      <div className="flex-1 min-h-0 overflow-hidden md:flex-none md:min-h-[300px]">
+      {/* Card content - auto height based on content */}
+      <div>
         {renderCardContent()}
       </div>
       

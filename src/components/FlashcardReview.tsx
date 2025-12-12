@@ -94,25 +94,10 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     // For written, image, audio types - all need written answer
     if (needsWrittenAnswer) {
       return (
-        <div
-          key={currentCard.id}
-          className="perspective-1000"
-        >
-          <div
-            className={cn(
-              'relative w-full transition-transform duration-500 preserve-3d',
-              showWrittenResult && 'rotate-y-180'
-            )}
-            style={{ transformStyle: 'preserve-3d' }}
-          >
-            {/* Front - Question */}
-            <div
-              className={cn(
-                "bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center",
-                showWrittenResult && "invisible"
-              )}
-              style={{ backfaceVisibility: 'hidden' }}
-            >
+        <div key={currentCard.id}>
+          {!showWrittenResult ? (
+            // Front - Question with input
+            <div className="bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
               {currentCard.mediaUrl && currentCard.cardType === 'image' && (
                 <img 
                   src={currentCard.mediaUrl} 
@@ -149,33 +134,20 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               <Button onClick={handleWrittenSubmit} className="w-full max-w-xs">
                 {t('review.validate')}
               </Button>
-              
-              {/* Hidden answer sizer */}
-              <div className="invisible absolute inset-0 p-6 md:p-8 flex flex-col items-center justify-center pointer-events-none" aria-hidden="true">
-                <p className={cn(
-                  "font-bold text-center px-2 whitespace-normal break-words",
-                  getTextSize(currentCard.answer, true)
-                )}>
-                  {currentCard.answer}
-                </p>
-              </div>
             </div>
-
-            {/* Back - Answer */}
-            <div
-              className={cn(
-                "absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center",
-                !showWrittenResult && "invisible"
-              )}
-              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-            >
+          ) : (
+            // Back - Answer
+            <div className="bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center animate-fade-in">
               <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4">
                 {t('review.answer')}
               </p>
-              <p className={cn(
-                "font-bold text-white text-center mb-4 md:mb-6 px-2 whitespace-normal break-words",
-                getTextSize(currentCard.answer, true)
-              )}>
+              <p 
+                className={cn(
+                  "font-bold text-white text-center mb-4 md:mb-6 px-2",
+                  getTextSize(currentCard.answer, true)
+                )}
+                style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+              >
                 {currentCard.answer}
               </p>
               
@@ -198,16 +170,19 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                       </span>
                     )}
                   </p>
-                  <p className={cn(
-                    'font-medium',
-                    isWrittenCorrectCheck ? 'text-white' : 'text-red-200'
-                  )}>
+                  <p 
+                    className={cn(
+                      'font-medium',
+                      isWrittenCorrectCheck ? 'text-white' : 'text-red-200'
+                    )}
+                    style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                  >
                     {writtenAnswer || t('review.empty')}
                   </p>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       );
     }

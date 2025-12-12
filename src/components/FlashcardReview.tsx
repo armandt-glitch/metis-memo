@@ -173,7 +173,14 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                   <X className="w-5 h-5 text-red-300 flex-shrink-0" />
                 )}
                 <div className="min-w-0">
-                  <p className="text-xs text-white/70">{t('review.your.answer')}</p>
+                  <p className="text-xs text-white/70">
+                    {t('review.your.answer')}
+                    {isWrittenCorrectCheck && !answerResult.isPerfect && (
+                      <span className="ml-2 text-yellow-300">
+                        ({t('review.accepted.with.errors')})
+                      </span>
+                    )}
+                  </p>
                   <p className={cn(
                     'font-medium truncate',
                     isWrittenCorrectCheck ? 'text-white' : 'text-red-200'

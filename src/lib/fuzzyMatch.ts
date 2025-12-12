@@ -108,18 +108,26 @@ export function calculateSimilarity(str1: string, str2: string): number {
   return 1 - (distance / maxLength);
 }
 
+export interface AnswerCheckResult {
+  isCorrect: boolean;
+  similarity: number;
+  isPerfect: boolean;
+  userNormalized: string;
+  expectedNormalized: string;
+}
+
 /**
  * Check if user answer matches expected answer with fuzzy matching
- * Returns { isCorrect: boolean, similarity: number }
+ * Returns detailed result including whether the answer is perfect
  */
-export function checkAnswer(userAnswer: string, expectedAnswer: string): { isCorrect: boolean; similarity: number } {
+export function checkAnswer(userAnswer: string, expectedAnswer: string): AnswerCheckResult {
   // Normalize both texts
   const normalizedUser = normalizeText(userAnswer);
   const normalizedExpected = normalizeText(expectedAnswer);
   
   // If both are empty after normalization, consider it incorrect
   if (normalizedUser.length === 0 && normalizedExpected.length === 0) {
-    return { isCorrect: false, similarity: 0 };
+    return { isCorrect: false, similarity: 0, isPerfect: false, userNormalized: '', expectedNormalized: '' };
   }
   
   // Calculate similarity
@@ -130,8 +138,14 @@ export function checkAnswer(userAnswer: string, expectedAnswer: string): { isCor
   const isShortAnswer = normalizedExpected.length < 10;
   const threshold = isShortAnswer ? 0.92 : 0.85;
   
+  // Check if answer is perfect (exact match after normalization)
+  const isPerfect = normalizedUser === normalizedExpected;
+  
   return {
     isCorrect: similarity >= threshold,
-    similarity
+    similarity,
+    isPerfect,
+    userNormalized: normalizedUser,
+    expectedNormalized: normalizedExpected
   };
 }

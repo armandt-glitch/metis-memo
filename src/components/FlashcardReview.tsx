@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Check, X, RotateCcw, ArrowLeft, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { checkAnswer } from '@/lib/fuzzyMatch';
 
 // Helper to get responsive text size based on content length
 const getTextSize = (text: string, isAnswer = false) => {
@@ -80,7 +81,13 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
   };
 
   const needsWrittenAnswer = currentCard.cardType === 'written' || currentCard.cardType === 'image' || currentCard.cardType === 'audio';
-  const isWrittenCorrectCheck = writtenAnswer.trim().toLowerCase() === currentCard.answer.trim().toLowerCase();
+  
+  // Use fuzzy matching for answer validation
+  const answerResult = useMemo(() => {
+    return checkAnswer(writtenAnswer, currentCard.answer);
+  }, [writtenAnswer, currentCard.answer]);
+  
+  const isWrittenCorrectCheck = answerResult.isCorrect;
 
   const renderCardContent = () => {
     // For written, image, audio types - all need written answer

@@ -96,29 +96,32 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
       return (
         <div
           key={currentCard.id}
-          className="perspective-1000 h-full"
+          className="perspective-1000"
         >
           <div
             className={cn(
-              'relative w-full h-full transition-transform duration-500 preserve-3d',
+              'relative w-full transition-transform duration-500 preserve-3d',
               showWrittenResult && 'rotate-y-180'
             )}
             style={{ transformStyle: 'preserve-3d' }}
           >
             {/* Front - Question */}
             <div
-              className="h-full bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
+              className={cn(
+                "bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center",
+                showWrittenResult && "invisible"
+              )}
               style={{ backfaceVisibility: 'hidden' }}
             >
               {currentCard.mediaUrl && currentCard.cardType === 'image' && (
                 <img 
                   src={currentCard.mediaUrl} 
                   alt="Question" 
-                  className="max-w-[90%] max-h-[25vh] md:max-h-[35vh] w-auto h-auto object-contain rounded-xl mb-3 md:mb-4 flex-shrink" 
+                  className="max-w-[90%] max-h-[25vh] md:max-h-[35vh] w-auto h-auto object-contain rounded-xl mb-3 md:mb-4" 
                 />
               )}
               {currentCard.mediaUrl && currentCard.cardType === 'audio' && (
-                <div className="mb-3 md:mb-4 w-full max-w-xs flex-shrink-0">
+                <div className="mb-3 md:mb-4 w-full max-w-xs">
                   <div className="flex items-center gap-3 bg-secondary rounded-xl p-3">
                     <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Volume2 className="w-5 h-5 text-primary" />
@@ -127,11 +130,11 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                   </div>
                 </div>
               )}
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex-shrink-0">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
                 {t('review.question')}
               </p>
               <p className={cn(
-                "font-medium text-foreground text-center mb-4 px-2",
+                "font-medium text-foreground text-center mb-4 px-2 whitespace-normal break-words",
                 getTextSize(currentCard.question)
               )}>
                 {currentCard.question}
@@ -140,24 +143,37 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                 value={writtenAnswer}
                 onChange={(e) => setWrittenAnswer(e.target.value)}
                 placeholder={t('review.type.answer')}
-                className="mb-3 max-w-xs flex-shrink-0"
+                className="mb-3 max-w-xs"
                 onKeyDown={(e) => e.key === 'Enter' && handleWrittenSubmit()}
               />
-              <Button onClick={handleWrittenSubmit} className="w-full max-w-xs flex-shrink-0">
+              <Button onClick={handleWrittenSubmit} className="w-full max-w-xs">
                 {t('review.validate')}
               </Button>
+              
+              {/* Hidden answer sizer */}
+              <div className="invisible absolute inset-0 p-6 md:p-8 flex flex-col items-center justify-center pointer-events-none" aria-hidden="true">
+                <p className={cn(
+                  "font-bold text-center px-2 whitespace-normal break-words",
+                  getTextSize(currentCard.answer, true)
+                )}>
+                  {currentCard.answer}
+                </p>
+              </div>
             </div>
 
             {/* Back - Answer */}
             <div
-              className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
+              className={cn(
+                "absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center",
+                !showWrittenResult && "invisible"
+              )}
               style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
             >
-              <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
+              <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4">
                 {t('review.answer')}
               </p>
               <p className={cn(
-                "font-bold text-white text-center mb-4 md:mb-6 px-2",
+                "font-bold text-white text-center mb-4 md:mb-6 px-2 whitespace-normal break-words",
                 getTextSize(currentCard.answer, true)
               )}>
                 {currentCard.answer}
@@ -165,7 +181,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               
               {/* User answer feedback */}
               <div className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl flex-shrink-0 max-w-full',
+                'flex items-center gap-3 px-4 py-3 rounded-xl max-w-full',
                 isWrittenCorrectCheck ? 'bg-green-500/20' : 'bg-white/20'
               )}>
                 {isWrittenCorrectCheck ? (
@@ -183,7 +199,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                     )}
                   </p>
                   <p className={cn(
-                    'font-medium truncate',
+                    'font-medium',
                     isWrittenCorrectCheck ? 'text-white' : 'text-red-200'
                   )}>
                     {writtenAnswer || t('review.empty')}
@@ -197,59 +213,32 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     }
 
     // Standard flashcard - click to flip
+    // Simple conditional rendering for proper height adaptation
     return (
       <div
         key={currentCard.id}
-        className="perspective-1000 cursor-pointer"
+        className="cursor-pointer"
         onClick={() => setIsFlipped(!isFlipped)}
       >
-        <div
-          className={cn(
-            'relative w-full transition-transform duration-500 preserve-3d',
-            isFlipped && 'rotate-y-180'
-          )}
-          style={{ transformStyle: 'preserve-3d' }}
-        >
-          {/* Front - visible container that sets the height */}
-          <div
-            className="bg-card rounded-3xl shadow-card p-6 md:p-8"
-            style={{ backfaceVisibility: 'hidden' }}
-          >
-            {/* Show question when not flipped, answer when flipped (but answer is invisible here) */}
-            <div className={cn("flex flex-col items-center justify-center", isFlipped && "invisible")}>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4">
-                {t('review.question')}
-              </p>
-              <p className={cn(
-                "font-medium text-foreground text-center px-2 whitespace-normal break-words",
-                getTextSize(currentCard.question)
-              )}>
-                {currentCard.question}
-              </p>
-              <p className="text-sm text-muted-foreground mt-4 md:mt-6">
-                {t('review.click.reveal')}
-              </p>
-            </div>
-            {/* Hidden answer sizer to ensure card is tall enough for the answer */}
-            <div className="invisible absolute inset-0 p-6 md:p-8 flex flex-col items-center justify-center" aria-hidden="true">
-              <p className="text-xs uppercase tracking-wider mb-2 md:mb-4">Label</p>
-              <p className={cn(
-                "font-medium text-center px-2 whitespace-normal break-words",
-                getTextSize(currentCard.answer, true)
-              )}>
-                {currentCard.answer}
-              </p>
-            </div>
+        {!isFlipped ? (
+          // Front - Question
+          <div className="bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4">
+              {t('review.question')}
+            </p>
+            <p className={cn(
+              "font-medium text-foreground text-center px-2 whitespace-normal break-words",
+              getTextSize(currentCard.question)
+            )}>
+              {currentCard.question}
+            </p>
+            <p className="text-sm text-muted-foreground mt-4 md:mt-6">
+              {t('review.click.reveal')}
+            </p>
           </div>
-
-          {/* Back - absolutely positioned over the front */}
-          <div
-            className={cn(
-              "absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center overflow-auto",
-              !isFlipped && "invisible"
-            )}
-            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-          >
+        ) : (
+          // Back - Answer
+          <div className="bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
             <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4">
               {t('review.answer')}
             </p>
@@ -260,7 +249,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               {currentCard.answer}
             </p>
           </div>
-        </div>
+        )}
       </div>
     );
   };

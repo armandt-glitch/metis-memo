@@ -37,7 +37,7 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.no.memorized': 'Aucune fiche mémorisée',
     'dashboard.no.memorized.desc': 'Complétez tous les rappels d\'une fiche pour qu\'elle apparaisse ici !',
     'dashboard.cards.created': 'Fiches créées',
-    'dashboard.review.now': 'À réviser maintenant',
+    'dashboard.review.now': 'À réviser',
     'dashboard.memorized': 'Mémorisées',
     'dashboard.new.card': 'Nouvelle fiche',
     'dashboard.review': 'Réviser',

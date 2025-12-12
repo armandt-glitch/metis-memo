@@ -11,44 +11,46 @@ import {
   Brain
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TutorialStep {
   icon: React.ReactNode;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
 }
 
 const TUTORIAL_STEPS: TutorialStep[] = [
   {
     icon: <Brain className="w-12 h-12 text-primary" />,
-    title: "Bienvenue sur Métis Memo !",
-    description: "Une application de révision par répétition espacée pour mémoriser efficacement vos connaissances."
+    titleKey: 'onboarding.welcome',
+    descriptionKey: 'onboarding.welcome.desc',
   },
   {
     icon: <Plus className="w-12 h-12 text-primary" />,
-    title: "Créez vos fiches",
-    description: "Ajoutez des fiches avec questions et réponses. Vous pouvez aussi ajouter des images ou de l'audio !"
+    titleKey: 'onboarding.create',
+    descriptionKey: 'onboarding.create.desc',
   },
   {
     icon: <Calendar className="w-12 h-12 text-primary" />,
-    title: "Répétition espacée",
-    description: "L'application planifie automatiquement vos révisions selon des intervalles optimisés pour la mémorisation."
+    titleKey: 'onboarding.spaced',
+    descriptionKey: 'onboarding.spaced.desc',
   },
   {
     icon: <Bell className="w-12 h-12 text-primary" />,
-    title: "Notifications",
-    description: "Activez les notifications pour ne jamais manquer une session de révision !"
+    titleKey: 'onboarding.notifications',
+    descriptionKey: 'onboarding.notifications.desc',
   },
   {
     icon: <CheckCircle className="w-12 h-12 text-primary" />,
-    title: "Prêt à commencer !",
-    description: "Créez votre première fiche et commencez à mémoriser efficacement."
+    titleKey: 'onboarding.ready',
+    descriptionKey: 'onboarding.ready.desc',
   }
 ];
 
 const STORAGE_KEY = 'interval-memo-tutorial-completed';
 
 export const OnboardingTutorial = () => {
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -88,7 +90,7 @@ export const OnboardingTutorial = () => {
         <button
           onClick={handleSkip}
           className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Passer le tutoriel"
+          aria-label={t('onboarding.skip')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -121,11 +123,11 @@ export const OnboardingTutorial = () => {
             </div>
             
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              {step.title}
+              {t(step.titleKey)}
             </h2>
             
             <p className="text-muted-foreground mb-8 leading-relaxed">
-              {step.description}
+              {t(step.descriptionKey)}
             </p>
           </div>
 
@@ -137,7 +139,7 @@ export const OnboardingTutorial = () => {
                 onClick={handleSkip}
                 className="flex-1"
               >
-                Passer
+                {t('onboarding.skip')}
               </Button>
             )}
             <Button
@@ -147,11 +149,11 @@ export const OnboardingTutorial = () => {
               {isLastStep ? (
                 <>
                   <BookOpen className="w-4 h-4" />
-                  Commencer
+                  {t('onboarding.start')}
                 </>
               ) : (
                 <>
-                  Suivant
+                  {t('onboarding.next')}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

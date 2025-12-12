@@ -238,14 +238,17 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
           </div>
         ) : (
           // Back - Answer
-          <div className="bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
+          <div className="bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in overflow-hidden">
             <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4">
               {t('review.answer')}
             </p>
-            <p className={cn(
-              "font-medium text-white text-center px-2 whitespace-normal break-words",
-              getTextSize(currentCard.answer, true)
-            )}>
+            <p 
+              className={cn(
+                "font-medium text-white text-center w-full",
+                getTextSize(currentCard.answer, true)
+              )}
+              style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+            >
               {currentCard.answer}
             </p>
           </div>

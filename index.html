@@ -32,7 +32,36 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading screen shown before React loads -->
+      <div id="loading-screen" style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        gap: 24px;
+        background: linear-gradient(180deg, hsl(0 40% 97%), hsl(40 33% 99%));
+      ">
+        <img src="/pwa-192x192.png" alt="Métis Memo" style="width: 64px; height: 64px; opacity: 0.9;" />
+        <div style="
+          width: 32px;
+          height: 32px;
+          border: 3px solid hsl(0 70% 90%);
+          border-top-color: hsl(0 70% 45%);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        "></div>
+      </div>
+      <style>
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        #loading-screen {
+          transition: opacity 0.3s ease-out;
+        }
+      </style>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

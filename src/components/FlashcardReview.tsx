@@ -1,9 +1,18 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Flashcard, FORMULAS } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, X, RotateCcw, ArrowLeft, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// Helper to get responsive text size based on content length
+const getTextSize = (text: string, isAnswer = false) => {
+  const len = text.length;
+  if (len > 500) return isAnswer ? 'text-xs md:text-base' : 'text-xs md:text-base';
+  if (len > 300) return isAnswer ? 'text-sm md:text-lg' : 'text-sm md:text-lg';
+  if (len > 150) return isAnswer ? 'text-base md:text-xl' : 'text-base md:text-xl';
+  return isAnswer ? 'text-lg md:text-2xl' : 'text-lg md:text-xl';
+};
 
 interface FlashcardReviewProps {
   cards: Flashcard[];
@@ -109,7 +118,10 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex-shrink-0">
                 Question
               </p>
-              <p className="text-base md:text-xl font-medium text-foreground text-center mb-4 flex-shrink-0 px-2 overflow-y-auto max-h-[20vh] md:max-h-none scrollbar-thin">
+              <p className={cn(
+                "font-medium text-foreground text-center mb-4 px-2",
+                getTextSize(currentCard.question)
+              )}>
                 {currentCard.question}
               </p>
               <Input
@@ -132,7 +144,10 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
                 Réponse
               </p>
-              <p className="text-lg md:text-2xl font-bold text-white text-center mb-4 md:mb-6 flex-shrink px-2 overflow-y-auto max-h-[30vh] md:max-h-none scrollbar-thin">
+              <p className={cn(
+                "font-bold text-white text-center mb-4 md:mb-6 px-2",
+                getTextSize(currentCard.answer, true)
+              )}>
                 {currentCard.answer}
               </p>
               
@@ -184,7 +199,10 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4 flex-shrink-0">
               Question
             </p>
-            <p className="text-base md:text-xl font-medium text-foreground text-center px-2 overflow-y-auto max-h-[50vh] md:max-h-none scrollbar-thin">
+            <p className={cn(
+              "font-medium text-foreground text-center px-2",
+              getTextSize(currentCard.question)
+            )}>
               {currentCard.question}
             </p>
             <p className="text-sm text-muted-foreground mt-4 md:mt-6 flex-shrink-0">
@@ -200,7 +218,10 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
               Réponse
             </p>
-            <p className="text-base md:text-xl font-medium text-white text-center px-2 overflow-y-auto max-h-[50vh] md:max-h-none scrollbar-thin">
+            <p className={cn(
+              "font-medium text-white text-center px-2",
+              getTextSize(currentCard.answer, true)
+            )}>
               {currentCard.answer}
             </p>
           </div>

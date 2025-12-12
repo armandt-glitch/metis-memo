@@ -223,44 +223,38 @@ export const Dashboard = ({
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-card rounded-2xl p-6 shadow-soft">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-primary/10">
-              <Brain className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-              <p className="text-sm text-muted-foreground">{t('dashboard.cards.created')}</p>
+      <div className="grid grid-cols-3 gap-3 mb-8">
+        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50 text-center">
+          <div className="flex justify-center mb-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Brain className="w-5 h-5 text-primary" />
             </div>
           </div>
+          <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+          <p className="text-xs text-muted-foreground">{t('dashboard.cards.created')}</p>
         </div>
 
-        <div className="bg-card rounded-2xl p-6 shadow-soft">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-accent/10">
-              <Clock className="w-6 h-6 text-accent" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{stats.dueNow}</p>
-              <p className="text-sm text-muted-foreground">{t('dashboard.review.now')}</p>
+        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50 text-center">
+          <div className="flex justify-center mb-2">
+            <div className="p-2 rounded-lg bg-accent/10">
+              <Clock className="w-5 h-5 text-accent" />
             </div>
           </div>
+          <p className="text-2xl font-bold text-foreground">{stats.dueNow}</p>
+          <p className="text-xs text-muted-foreground">{t('dashboard.review.now')}</p>
         </div>
 
         <div 
-          className="bg-card rounded-2xl p-6 shadow-soft cursor-pointer hover:shadow-card transition-shadow"
+          className="bg-card rounded-xl p-4 shadow-soft border border-border/50 text-center cursor-pointer hover:shadow-card transition-shadow"
           onClick={() => setViewMode('memorized')}
         >
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-accent/10">
-              <CheckCircle2 className="w-6 h-6 text-accent" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">{stats.completed}</p>
-              <p className="text-sm text-muted-foreground">{t('dashboard.memorized')}</p>
+          <div className="flex justify-center mb-2">
+            <div className="p-2 rounded-lg bg-accent/10">
+              <CheckCircle2 className="w-5 h-5 text-accent" />
             </div>
           </div>
+          <p className="text-2xl font-bold text-foreground">{stats.completed}</p>
+          <p className="text-xs text-muted-foreground">{t('dashboard.memorized')}</p>
         </div>
       </div>
 

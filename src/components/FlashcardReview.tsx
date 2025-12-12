@@ -86,30 +86,30 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
           >
             {/* Front - Question */}
             <div
-              className="h-full bg-card rounded-3xl shadow-card p-4 md:p-8 flex flex-col items-center justify-center overflow-hidden"
+              className="h-full bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
               style={{ backfaceVisibility: 'hidden' }}
             >
               {currentCard.mediaUrl && currentCard.cardType === 'image' && (
                 <img 
                   src={currentCard.mediaUrl} 
                   alt="Question" 
-                  className="max-w-full max-h-[30vh] md:max-h-[40vh] w-auto h-auto object-contain rounded-xl mb-2 md:mb-4 flex-shrink" 
+                  className="max-w-[90%] max-h-[25vh] md:max-h-[35vh] w-auto h-auto object-contain rounded-xl mb-3 md:mb-4 flex-shrink" 
                 />
               )}
               {currentCard.mediaUrl && currentCard.cardType === 'audio' && (
-                <div className="mb-2 md:mb-4 w-full flex-shrink-0">
-                  <div className="flex items-center gap-4 bg-secondary rounded-xl p-3 md:p-4">
-                    <div className="w-10 h-10 md:w-12 md:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Volume2 className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                <div className="mb-3 md:mb-4 w-full max-w-xs flex-shrink-0">
+                  <div className="flex items-center gap-3 bg-secondary rounded-xl p-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Volume2 className="w-5 h-5 text-primary" />
                     </div>
-                    <audio controls src={currentCard.mediaUrl} className="flex-1 h-10" />
+                    <audio controls src={currentCard.mediaUrl} className="flex-1 h-8" />
                   </div>
                 </div>
               )}
               <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex-shrink-0">
                 Question
               </p>
-              <p className="text-lg md:text-xl font-medium text-foreground text-center mb-4 flex-shrink-0 line-clamp-4">
+              <p className="text-base md:text-xl font-medium text-foreground text-center mb-4 flex-shrink-0 px-2 overflow-y-auto max-h-[20vh] md:max-h-none scrollbar-thin">
                 {currentCard.question}
               </p>
               <Input
@@ -126,30 +126,30 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
 
             {/* Back - Answer */}
             <div
-              className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-4 md:p-8 flex flex-col items-center justify-center overflow-hidden"
+              className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
               style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
             >
               <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
                 Réponse
               </p>
-              <p className="text-xl md:text-2xl font-bold text-white text-center mb-4 md:mb-6 flex-shrink-0 line-clamp-4">
+              <p className="text-lg md:text-2xl font-bold text-white text-center mb-4 md:mb-6 flex-shrink px-2 overflow-y-auto max-h-[30vh] md:max-h-none scrollbar-thin">
                 {currentCard.answer}
               </p>
               
               {/* User answer feedback */}
               <div className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl flex-shrink-0',
+                'flex items-center gap-3 px-4 py-3 rounded-xl flex-shrink-0 max-w-full',
                 isWrittenCorrectCheck ? 'bg-green-500/20' : 'bg-white/20'
               )}>
                 {isWrittenCorrectCheck ? (
-                  <Check className="w-5 h-5 text-white" />
+                  <Check className="w-5 h-5 text-white flex-shrink-0" />
                 ) : (
-                  <X className="w-5 h-5 text-red-300" />
+                  <X className="w-5 h-5 text-red-300 flex-shrink-0" />
                 )}
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs text-white/70">Votre réponse</p>
                   <p className={cn(
-                    'font-medium',
+                    'font-medium truncate',
                     isWrittenCorrectCheck ? 'text-white' : 'text-red-200'
                   )}>
                     {writtenAnswer || '(vide)'}
@@ -178,13 +178,13 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
         >
           {/* Front */}
           <div
-            className="absolute inset-0 bg-card rounded-3xl shadow-card p-4 md:p-8 flex flex-col items-center justify-center overflow-hidden"
+            className="absolute inset-0 bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
             style={{ backfaceVisibility: 'hidden' }}
           >
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4 flex-shrink-0">
               Question
             </p>
-            <p className="text-lg md:text-xl font-medium text-foreground text-center line-clamp-6">
+            <p className="text-base md:text-xl font-medium text-foreground text-center px-2 overflow-y-auto max-h-[50vh] md:max-h-none scrollbar-thin">
               {currentCard.question}
             </p>
             <p className="text-sm text-muted-foreground mt-4 md:mt-6 flex-shrink-0">
@@ -194,13 +194,13 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
 
           {/* Back */}
           <div
-            className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-4 md:p-8 flex flex-col items-center justify-center overflow-hidden"
+            className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
             <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
               Réponse
             </p>
-            <p className="text-lg md:text-xl font-medium text-white text-center line-clamp-6">
+            <p className="text-base md:text-xl font-medium text-white text-center px-2 overflow-y-auto max-h-[50vh] md:max-h-none scrollbar-thin">
               {currentCard.answer}
             </p>
           </div>

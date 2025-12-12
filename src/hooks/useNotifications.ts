@@ -1,5 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 
+const MOTIVATIONAL_MESSAGES = [
+  "Rome ne s'est pas faite en un jour, ta mémoire non plus. Viens réviser.",
+  "Un petit rappel aujourd'hui, un grand souvenir demain.",
+  "Deux minutes de révision valent mieux qu'un oubli total.",
+  "Ta mémoire t'attend, elle n'aime pas être mise en pause.",
+  "Réviser maintenant, remercier ton futur toi plus tard.",
+  "Juste une carte. Promis, après tu peux retourner procrastiner.",
+  "Si tu lis ça, tu peux réviser une carte.",
+  "Ding ! Ce souvenir aimerait rester vivant.",
+];
+
+const getRandomMotivationalMessage = () => {
+  const index = Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length);
+  return MOTIVATIONAL_MESSAGES[index];
+};
+
 export const useNotifications = () => {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [supported, setSupported] = useState(false);
@@ -159,12 +175,10 @@ export const useNotifications = () => {
   const notifyDueCards = useCallback((dueCount: number) => {
     if (dueCount === 0) return;
     
-    const message = dueCount === 1 
-      ? '1 carte à réviser !' 
-      : `${dueCount} cartes à réviser !`;
+    const motivationalMessage = getRandomMotivationalMessage();
     
-    sendNotification('Métis Memo - Révision', {
-      body: message,
+    sendNotification('Métis Memo', {
+      body: motivationalMessage,
       tag: 'due-cards',
     });
   }, [sendNotification]);

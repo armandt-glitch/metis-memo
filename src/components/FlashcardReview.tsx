@@ -16,6 +16,16 @@ const getTextSize = (text: string, isAnswer = false) => {
   return isAnswer ? 'text-lg md:text-2xl' : 'text-lg md:text-xl';
 };
 
+// Calculate dynamic card height based on question length * 2 (to account for answer)
+const getCardMinHeight = (questionLength: number): string => {
+  const estimatedContentLength = questionLength * 2;
+  if (estimatedContentLength > 800) return 'min-h-[450px] md:min-h-[500px]';
+  if (estimatedContentLength > 500) return 'min-h-[350px] md:min-h-[400px]';
+  if (estimatedContentLength > 300) return 'min-h-[280px] md:min-h-[320px]';
+  if (estimatedContentLength > 150) return 'min-h-[220px] md:min-h-[260px]';
+  return 'min-h-[180px] md:min-h-[200px]';
+};
+
 interface FlashcardReviewProps {
   cards: Flashcard[];
   onReview: (id: string, remembered: boolean) => void;
@@ -196,6 +206,8 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     }
 
     // Standard flashcard - click to flip
+    const cardHeight = getCardMinHeight(currentCard.question.length);
+    
     return (
       <div
         key={currentCard.id}
@@ -204,7 +216,8 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
       >
         <div
           className={cn(
-            'relative w-full h-full min-h-[250px] transition-transform duration-500 preserve-3d',
+            'relative w-full h-full transition-transform duration-500 preserve-3d',
+            cardHeight,
             isFlipped && 'rotate-y-180'
           )}
           style={{ transformStyle: 'preserve-3d' }}

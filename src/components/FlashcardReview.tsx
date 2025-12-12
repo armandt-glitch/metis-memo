@@ -181,19 +181,19 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     return (
       <div
         key={currentCard.id}
-        className="perspective-1000 cursor-pointer h-full"
+        className="perspective-1000 cursor-pointer h-full md:h-auto"
         onClick={() => setIsFlipped(!isFlipped)}
       >
         <div
           className={cn(
-            'relative w-full h-full min-h-[200px] transition-transform duration-500 preserve-3d',
+            'relative w-full h-full md:h-auto min-h-[200px] transition-transform duration-500 preserve-3d',
             isFlipped && 'rotate-y-180'
           )}
           style={{ transformStyle: 'preserve-3d' }}
         >
           {/* Front */}
           <div
-            className="absolute inset-0 bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
+            className="absolute inset-0 md:relative md:inset-auto bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center md:py-12"
             style={{ backfaceVisibility: 'hidden' }}
           >
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4 flex-shrink-0">
@@ -212,7 +212,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
 
           {/* Back */}
           <div
-            className="absolute inset-0 bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center"
+            className="absolute inset-0 md:relative md:inset-auto bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center md:py-12"
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
             <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
@@ -328,8 +328,8 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
         </div>
       </div>
 
-      {/* Card content - takes remaining space */}
-      <div className="flex-1 min-h-0 overflow-hidden">
+      {/* Card content - fixed height on mobile, auto on desktop */}
+      <div className="flex-1 min-h-0 overflow-hidden md:flex-none md:min-h-[300px]">
         {renderCardContent()}
       </div>
       

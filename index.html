@@ -32,7 +32,29 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading screen shown before React loads -->
+      <div id="loading-screen" style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(180deg, hsl(0 40% 95%), hsl(40 33% 98%));
+      ">
+        <div style="
+          width: 120px;
+          height: 120px;
+          background: hsl(0 70% 85%);
+          border-radius: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 8px 30px -8px hsla(0, 70%, 50%, 0.3);
+        ">
+          <img src="/pwa-192x192.png" alt="Métis Memo" style="width: 80px; height: 80px;" />
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

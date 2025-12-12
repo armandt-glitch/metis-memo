@@ -1,13 +1,29 @@
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Sparkles, Clock, CheckCircle, Layers } from 'lucide-react';
+import { Brain, Sparkles, Clock, CheckCircle, Layers, LayoutDashboard } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { InstallPWA } from '@/components/InstallPWA';
+
+const FIRST_VISIT_KEY = 'interval-memo-first-visit-done';
 
 interface HeroProps {
   onGetStarted: () => void;
 }
 
 export const Hero = ({ onGetStarted }: HeroProps) => {
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem(FIRST_VISIT_KEY);
+    if (hasVisited) {
+      setIsFirstVisit(false);
+    }
+  }, []);
+
+  const handleGetStarted = () => {
+    localStorage.setItem(FIRST_VISIT_KEY, 'true');
+    onGetStarted();
+  };
   return (
     <div className="relative overflow-hidden bg-gradient-hero py-20 md:py-32">
       {/* Background decorations */}
@@ -41,8 +57,15 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
 
           {/* CTA */}
           <div className="flex flex-col items-center justify-center gap-4">
-            <Button variant="hero" size="xl" onClick={onGetStarted}>
-              Commencer maintenant
+            <Button variant="hero" size="xl" onClick={handleGetStarted}>
+              {isFirstVisit ? (
+                'Commencer maintenant'
+              ) : (
+                <>
+                  <LayoutDashboard className="w-5 h-5 mr-2" />
+                  Tableau de bord
+                </>
+              )}
             </Button>
             <InstallPWA variant="hero" />
           </div>

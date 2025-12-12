@@ -1,6 +1,7 @@
-import { FormulaType, FORMULAS } from '@/types/flashcard';
+import { FormulaType } from '@/types/flashcard';
 import { Clock, Zap, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FormulaCardProps {
   type: FormulaType;
@@ -36,8 +37,15 @@ const iconColors = {
   long: 'text-formula-long',
 };
 
+const scheduleKeys: Record<FormulaType, string[]> = {
+  test: ['formula.immediate'],
+  short: ['formula.10min', 'formula.1day', 'formula.3days'],
+  medium: ['formula.10min', 'formula.1day', 'formula.7days', 'formula.21days'],
+  long: ['formula.10min', 'formula.1day', 'formula.7days', 'formula.30days', 'formula.90days'],
+};
+
 export const FormulaCard = ({ type, selected, onSelect }: FormulaCardProps) => {
-  const formula = FORMULAS[type];
+  const { t } = useLanguage();
   const Icon = icons[type];
 
   return (
@@ -55,13 +63,13 @@ export const FormulaCard = ({ type, selected, onSelect }: FormulaCardProps) => {
         </div>
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-foreground mb-1">
-            {formula.name}
+            {t(`formula.${type}`)}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {formula.description}
+            {t(`formula.${type}.desc`)}
           </p>
           <div className="space-y-2">
-            {formula.schedule.map((step, index) => (
+            {scheduleKeys[type].map((key, index) => (
               <div
                 key={index}
                 className="flex items-center gap-2 text-sm text-muted-foreground"
@@ -72,7 +80,7 @@ export const FormulaCard = ({ type, selected, onSelect }: FormulaCardProps) => {
                 )}>
                   {index + 1}
                 </span>
-                <span>{step.label}</span>
+                <span>{t(key)}</span>
               </div>
             ))}
           </div>

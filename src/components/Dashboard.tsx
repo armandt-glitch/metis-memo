@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check, Pencil } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { GroupFilter } from './GroupFilter';
 import { ColorPicker } from './ColorPicker';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   Popover,
   PopoverContent,
@@ -65,11 +66,18 @@ export const Dashboard = ({
   onEditCard,
   getGroup,
 }: DashboardProps) => {
+  const { t, language } = useLanguage();
+  const dateLocale = language === 'fr' ? fr : enUS;
+  
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupColor, setNewGroupColor] = useState(GROUP_COLORS[0].value);
+
+  const getFormulaName = (type: string) => {
+    return t(`formula.${type}`);
+  };
 
   const filteredFlashcards = selectedGroupId === null
     ? flashcards
@@ -107,11 +115,11 @@ export const Dashboard = ({
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Retour au tableau de bord
+          {t('dashboard.back')}
         </Button>
 
         <h2 className="text-2xl font-bold text-foreground mb-6">
-          Fiches mémorisées ({memorizedCards.length})
+          {t('dashboard.memorized.title')} ({memorizedCards.length})
         </h2>
 
         {memorizedCards.length === 0 ? (
@@ -120,10 +128,10 @@ export const Dashboard = ({
               <CheckCircle2 className="w-10 h-10 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-2">
-              Aucune fiche mémorisée
+              {t('dashboard.no.memorized')}
             </h3>
             <p className="text-muted-foreground">
-              Complétez tous les rappels d'une fiche pour qu'elle apparaisse ici !
+              {t('dashboard.no.memorized.desc')}
             </p>
           </div>
         ) : (
@@ -157,17 +165,17 @@ export const Dashboard = ({
                         <span
                           className={cn(
                             'text-xs px-2 py-0.5 rounded-full border',
-                            formulaColors[card.formula]
+                            formulaColors[card.formula as keyof typeof formulaColors]
                           )}
                         >
-                          {FORMULAS[card.formula].name}
+                          {getFormulaName(card.formula)}
                         </span>
                       </div>
                     </div>
                     <button
                       onClick={() => onReopenCard(card.id)}
                       className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
-                      title="Réouvrir pour réviser"
+                      title={t('dashboard.reopen')}
                     >
                       <RotateCcw className="w-4 h-4" />
                     </button>
@@ -198,7 +206,7 @@ export const Dashboard = ({
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-              <p className="text-sm text-muted-foreground">Fiches créées</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.cards.created')}</p>
             </div>
           </div>
         </div>
@@ -210,7 +218,7 @@ export const Dashboard = ({
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{stats.dueNow}</p>
-              <p className="text-sm text-muted-foreground">À réviser maintenant</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.review.now')}</p>
             </div>
           </div>
         </div>
@@ -225,7 +233,7 @@ export const Dashboard = ({
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{stats.completed}</p>
-              <p className="text-sm text-muted-foreground">Mémorisées</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.memorized')}</p>
             </div>
           </div>
         </div>
@@ -246,12 +254,12 @@ export const Dashboard = ({
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <Button variant="hero" size="xl" onClick={onCreateNew} className="flex-1">
           <Plus className="w-5 h-5" />
-          Nouvelle fiche
+          {t('dashboard.new.card')}
         </Button>
         {stats.dueNow > 0 && (
           <Button variant="hero-outline" size="xl" onClick={onStartReview} className="flex-1">
             <Play className="w-5 h-5" />
-            Réviser ({stats.dueNow})
+            {t('dashboard.review')} ({stats.dueNow})
           </Button>
         )}
       </div>
@@ -261,10 +269,10 @@ export const Dashboard = ({
         <div className="bg-card rounded-2xl p-6 shadow-soft mb-8">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-accent" />
-            Quizz thématique
+            {t('dashboard.thematic.quiz')}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Sélectionnez un groupe pour lancer un quizz de 10 fiches maximum
+            {t('dashboard.thematic.quiz.desc')}
           </p>
           <div className="flex flex-wrap gap-2">
             {groups.map((group) => {
@@ -295,7 +303,7 @@ export const Dashboard = ({
       {upcomingCards.length > 0 && (
         <div className="bg-card rounded-2xl p-6 shadow-soft">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Prochaines révisions
+            {t('dashboard.upcoming')}
           </h3>
           <div className="space-y-3">
             {upcomingCards.map((card) => {
@@ -327,12 +335,12 @@ export const Dashboard = ({
                             {cardGroups.length > 0 ? (
                               <>
                                 <FolderOpen className="w-3 h-3" />
-                                {cardGroups.length === 1 ? cardGroups[0].name : `${cardGroups.length} groupes`}
+                                {cardGroups.length === 1 ? cardGroups[0].name : `${cardGroups.length} ${t('dashboard.groups')}`}
                               </>
                             ) : (
                               <>
                                 <FolderPlus className="w-3 h-3" />
-                                Ajouter un groupe
+                                {t('dashboard.add.group')}
                               </>
                             )}
                           </button>
@@ -340,7 +348,7 @@ export const Dashboard = ({
                         <PopoverContent className="w-48 p-2" align="start">
                           <div className="space-y-1">
                             <p className="text-xs font-medium text-muted-foreground px-2 pb-1">
-                              Gérer les groupes
+                              {t('dashboard.manage.groups')}
                             </p>
                             {cardGroups.length > 0 && (
                               <button
@@ -351,7 +359,7 @@ export const Dashboard = ({
                                 className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-muted-foreground"
                               >
                                 <X className="w-3 h-3" />
-                                Retirer tous les groupes
+                                {t('dashboard.remove.all.groups')}
                               </button>
                             )}
                             {groups.map((group) => {
@@ -386,7 +394,7 @@ export const Dashboard = ({
                               className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-primary"
                             >
                               <Plus className="w-3 h-3" />
-                              Nouveau groupe
+                              {t('dashboard.new.group')}
                             </button>
                           </div>
                         </PopoverContent>
@@ -394,13 +402,13 @@ export const Dashboard = ({
                       <span
                         className={cn(
                           'text-xs px-2 py-0.5 rounded-full border',
-                          formulaColors[card.formula]
+                          formulaColors[card.formula as keyof typeof formulaColors]
                         )}
                       >
-                        {FORMULAS[card.formula].name}
+                        {getFormulaName(card.formula)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        Étape {card.currentStep + 1}/{FORMULAS[card.formula].schedule.length}
+                        {t('dashboard.step')} {card.currentStep + 1}/{FORMULAS[card.formula].schedule.length}
                       </span>
                     </div>
                   </div>
@@ -412,10 +420,10 @@ export const Dashboard = ({
                       )}
                     >
                       {isDue
-                        ? 'Maintenant'
+                        ? t('dashboard.now')
                         : formatDistanceToNow(new Date(card.nextReviewAt), {
                             addSuffix: true,
-                            locale: fr,
+                            locale: dateLocale,
                           })}
                     </p>
                     <div className="flex items-center gap-1">
@@ -425,7 +433,7 @@ export const Dashboard = ({
                           onEditCard(card);
                         }}
                         className="sm:opacity-0 sm:group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
-                        title="Modifier la fiche"
+                        title={t('dashboard.edit')}
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -453,10 +461,10 @@ export const Dashboard = ({
             <Brain className="w-10 h-10 text-muted-foreground" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
-            Aucune fiche pour le moment
+            {t('dashboard.no.cards')}
           </h3>
           <p className="text-muted-foreground mb-6">
-            Créez votre première fiche pour commencer à mémoriser !
+            {t('dashboard.no.cards.desc')}
           </p>
         </div>
       )}
@@ -465,19 +473,19 @@ export const Dashboard = ({
       <Dialog open={isCreatingGroup} onOpenChange={setIsCreatingGroup}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Créer un groupe</DialogTitle>
+            <DialogTitle>{t('dashboard.create.group')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Nom du groupe</label>
+              <label className="text-sm font-medium">{t('dashboard.group.name')}</label>
               <Input
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder="Ex: Histoire, Culture générale..."
+                placeholder="Ex: History, General knowledge..."
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Couleur</label>
+              <label className="text-sm font-medium">{t('dashboard.color')}</label>
               <ColorPicker value={newGroupColor} onChange={setNewGroupColor} />
             </div>
             <Button
@@ -485,7 +493,7 @@ export const Dashboard = ({
               disabled={!newGroupName.trim()}
               className="w-full"
             >
-              Créer le groupe
+              {t('dashboard.create.group.btn')}
             </Button>
           </div>
         </DialogContent>

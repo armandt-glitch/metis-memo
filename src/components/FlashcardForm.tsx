@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Plus, ArrowLeft, Upload, X, Image as ImageIcon, Volume2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FlashcardFormProps {
   onSubmit: (question: string, answer: string, formula: FormulaType, cardType: CardType, mediaUrl?: string, groupIds?: string[]) => void;
@@ -16,6 +17,7 @@ interface FlashcardFormProps {
 }
 
 export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: FlashcardFormProps) => {
+  const { t } = useLanguage();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [formula, setFormula] = useState<FormulaType>('medium');
@@ -68,21 +70,21 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
-        Retour
+        {t('form.back')}
       </button>
 
       <h2 className="text-3xl font-bold text-foreground mb-2">
-        Nouvelle fiche
+        {t('form.title')}
       </h2>
       <p className="text-muted-foreground mb-8">
-        Créez une fiche de révision et choisissez votre formule de mémorisation
+        {t('form.subtitle')}
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Group Selection */}
         <div className="space-y-4">
           <label className="block text-sm font-medium text-foreground">
-            Groupes (optionnel)
+            {t('form.groups')}
           </label>
           <GroupSelector
             groups={groups}
@@ -97,7 +99,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
         {/* Card Type Selection */}
         <div className="space-y-4">
           <label className="block text-sm font-medium text-foreground">
-            Type de fiche
+            {t('form.card.type')}
           </label>
           <CardTypeSelector selected={cardType} onSelect={setCardType} />
         </div>
@@ -106,7 +108,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
         {showMediaUpload && (
           <div className="space-y-4">
             <label className="block text-sm font-medium text-foreground">
-              {cardType === 'image' ? 'Image' : 'Fichier audio'}
+              {cardType === 'image' ? t('form.image') : t('form.audio')}
             </label>
             
             {mediaPreview ? (
@@ -115,7 +117,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
                   <div className="relative rounded-xl overflow-hidden bg-secondary">
                     <img
                       src={mediaPreview}
-                      alt="Aperçu"
+                      alt="Preview"
                       className="w-full h-48 object-contain"
                     />
                   </div>
@@ -148,7 +150,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
                   )}
                 </div>
                 <p className="text-muted-foreground">
-                  Cliquez pour ajouter {cardType === 'image' ? 'une image' : 'un fichier audio'}
+                  {cardType === 'image' ? t('form.click.add.image') : t('form.click.add.audio')}
                 </p>
               </div>
             )}
@@ -164,31 +166,31 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
 
         <div className="space-y-4">
           <label className="block text-sm font-medium text-foreground">
-            Question
+            {t('form.question')}
           </label>
           <Textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Entrez votre question..."
+            placeholder={t('form.question.placeholder')}
             className="min-h-[100px] resize-none bg-card border-border focus:ring-primary"
           />
         </div>
 
         <div className="space-y-4">
           <label className="block text-sm font-medium text-foreground">
-            Réponse {cardType === 'written' && '(l\'utilisateur devra taper cette réponse)'}
+            {t('form.answer')} {cardType === 'written' && t('form.answer.written')}
           </label>
           <Textarea
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
-            placeholder="Entrez la réponse..."
+            placeholder={t('form.answer.placeholder')}
             className="min-h-[100px] resize-none bg-card border-border focus:ring-primary"
           />
         </div>
 
         <div className="space-y-4">
           <label className="block text-sm font-medium text-foreground">
-            Formule de révision
+            {t('form.formula')}
           </label>
           <div className="grid gap-4">
             {(['test', 'short', 'medium', 'long'] as FormulaType[]).map((type) => (
@@ -210,7 +212,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
           disabled={!question.trim() || !answer.trim() || (showMediaUpload && !mediaUrl)}
         >
           <Plus className="w-5 h-5" />
-          Créer la fiche
+          {t('form.create')}
         </Button>
       </form>
     </div>

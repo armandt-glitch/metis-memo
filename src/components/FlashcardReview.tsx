@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Check, X, RotateCcw, ArrowLeft, Volume2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Helper to get responsive text size based on content length
 const getTextSize = (text: string, isAnswer = false) => {
@@ -23,6 +24,7 @@ interface FlashcardReviewProps {
 }
 
 export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizGroupName }: FlashcardReviewProps) => {
+  const { t } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [writtenAnswer, setWrittenAnswer] = useState('');
@@ -32,6 +34,10 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
   const safeIndex = Math.min(currentIndex, Math.max(0, cards.length - 1));
   const currentCard = cards[safeIndex];
 
+  const getFormulaName = (type: string) => {
+    return t(`formula.${type}`);
+  };
+
   if (cards.length === 0 || !currentCard) {
     return (
       <div className="max-w-lg mx-auto text-center animate-slide-up">
@@ -40,14 +46,14 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             <Check className="w-10 h-10 text-primary" />
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-2">
-            Tout est à jour !
+            {t('review.all.done')}
           </h2>
           <p className="text-muted-foreground mb-8">
-            Vous n'avez aucune fiche à réviser pour le moment.
+            {t('review.no.cards')}
           </p>
           <Button variant="hero-outline" size="lg" onClick={onBack}>
             <ArrowLeft className="w-4 h-4" />
-            Retour au tableau de bord
+            {t('review.back.dashboard')}
           </Button>
         </div>
       </div>
@@ -72,8 +78,6 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
   const handleWrittenSubmit = () => {
     setShowWrittenResult(true);
   };
-
-  
 
   const needsWrittenAnswer = currentCard.cardType === 'written' || currentCard.cardType === 'image' || currentCard.cardType === 'audio';
   const isWrittenCorrectCheck = writtenAnswer.trim().toLowerCase() === currentCard.answer.trim().toLowerCase();
@@ -116,7 +120,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                 </div>
               )}
               <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 flex-shrink-0">
-                Question
+                {t('review.question')}
               </p>
               <p className={cn(
                 "font-medium text-foreground text-center mb-4 px-2",
@@ -127,12 +131,12 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               <Input
                 value={writtenAnswer}
                 onChange={(e) => setWrittenAnswer(e.target.value)}
-                placeholder="Tapez votre réponse..."
+                placeholder={t('review.type.answer')}
                 className="mb-3 max-w-xs flex-shrink-0"
                 onKeyDown={(e) => e.key === 'Enter' && handleWrittenSubmit()}
               />
               <Button onClick={handleWrittenSubmit} className="w-full max-w-xs flex-shrink-0">
-                Valider
+                {t('review.validate')}
               </Button>
             </div>
 
@@ -142,7 +146,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
             >
               <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
-                Réponse
+                {t('review.answer')}
               </p>
               <p className={cn(
                 "font-bold text-white text-center mb-4 md:mb-6 px-2",
@@ -162,12 +166,12 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
                   <X className="w-5 h-5 text-red-300 flex-shrink-0" />
                 )}
                 <div className="min-w-0">
-                  <p className="text-xs text-white/70">Votre réponse</p>
+                  <p className="text-xs text-white/70">{t('review.your.answer')}</p>
                   <p className={cn(
                     'font-medium truncate',
                     isWrittenCorrectCheck ? 'text-white' : 'text-red-200'
                   )}>
-                    {writtenAnswer || '(vide)'}
+                    {writtenAnswer || t('review.empty')}
                   </p>
                 </div>
               </div>
@@ -197,7 +201,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             style={{ backfaceVisibility: 'hidden' }}
           >
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 md:mb-4 flex-shrink-0">
-              Question
+              {t('review.question')}
             </p>
             <p className={cn(
               "font-medium text-foreground text-center px-2",
@@ -206,7 +210,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               {currentCard.question}
             </p>
             <p className="text-sm text-muted-foreground mt-4 md:mt-6 flex-shrink-0">
-              Cliquez pour voir la réponse
+              {t('review.click.reveal')}
             </p>
           </div>
 
@@ -216,7 +220,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
             <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4 flex-shrink-0">
-              Réponse
+              {t('review.answer')}
             </p>
             <p className={cn(
               "font-medium text-white text-center px-2",
@@ -243,7 +247,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               onClick={() => handleAnswer(false)}
             >
               <X className="w-5 h-5" />
-              À revoir
+              {t('review.to.review')}
             </Button>
             <Button
               variant="default"
@@ -252,7 +256,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               onClick={() => handleAnswer(true)}
             >
               <Check className="w-5 h-5" />
-              {isWrittenCorrectCheck ? 'Correct !' : 'Je savais'}
+              {isWrittenCorrectCheck ? t('review.correct') : t('review.i.knew')}
             </Button>
           </div>
         );
@@ -271,7 +275,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             onClick={() => handleAnswer(false)}
           >
             <X className="w-5 h-5" />
-            À revoir
+            {t('review.to.review')}
           </Button>
           <Button
             variant="default"
@@ -280,7 +284,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             onClick={() => handleAnswer(true)}
           >
             <Check className="w-5 h-5" />
-            Je sais
+            {t('review.i.know')}
           </Button>
         </div>
       );
@@ -294,7 +298,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
         onClick={() => setIsFlipped(true)}
       >
         <RotateCcw className="w-5 h-5" />
-        Retourner la carte
+        {t('review.flip')}
       </Button>
     );
   };
@@ -306,19 +310,19 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4 flex-shrink-0"
       >
         <ArrowLeft className="w-4 h-4" />
-        Retour
+        {t('review.back')}
       </button>
 
       {/* Progress bar */}
       <div className="mb-4 flex-shrink-0">
         {isThematicQuiz && quizGroupName && (
           <p className="text-accent font-semibold mb-2 text-center">
-            Quizz thématique : {quizGroupName}
+            {t('review.thematic')} : {quizGroupName}
           </p>
         )}
         <div className="flex justify-between text-sm text-muted-foreground mb-2">
-          <span>Fiche {safeIndex + 1} sur {cards.length}</span>
-          <span>{isThematicQuiz ? 'Quizz' : formula.name}</span>
+          <span>{t('review.card')} {safeIndex + 1} {t('review.of')} {cards.length}</span>
+          <span>{isThematicQuiz ? t('review.quiz') : getFormulaName(currentCard.formula)}</span>
         </div>
         <div className="h-2 bg-secondary rounded-full overflow-hidden">
           <div

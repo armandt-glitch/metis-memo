@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ColorPicker } from './ColorPicker';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface GroupSelectorProps {
   groups: Group[];
@@ -26,6 +27,7 @@ export const GroupSelector = ({
   onToggle,
   onCreateGroup,
 }: GroupSelectorProps) => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [selectedColor, setSelectedColor] = useState(GROUP_COLORS[0].value);
@@ -44,7 +46,7 @@ export const GroupSelector = ({
       <div className="flex flex-wrap gap-2">
         {selectedGroupIds.length === 0 && (
           <span className="px-3 py-2 rounded-lg text-sm font-medium bg-secondary text-muted-foreground border border-border">
-            Sans groupe
+            {t('form.no.group')}
           </span>
         )}
         
@@ -79,24 +81,24 @@ export const GroupSelector = ({
               className="px-3 py-2 rounded-lg text-sm font-medium bg-secondary text-muted-foreground border border-dashed border-border hover:bg-secondary/80 transition-all flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              Nouveau groupe
+              {t('form.new.group')}
             </button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Créer un groupe</DialogTitle>
+              <DialogTitle>{t('dashboard.create.group')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nom du groupe</label>
+                <label className="text-sm font-medium">{t('dashboard.group.name')}</label>
                 <Input
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
-                  placeholder="Ex: Histoire, Culture générale..."
+                  placeholder="Ex: History, General knowledge..."
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Couleur</label>
+                <label className="text-sm font-medium">{t('dashboard.color')}</label>
                 <ColorPicker value={selectedColor} onChange={setSelectedColor} />
               </div>
               <Button
@@ -104,7 +106,7 @@ export const GroupSelector = ({
                 disabled={!newGroupName.trim()}
                 className="w-full"
               >
-                Créer le groupe
+                {t('dashboard.create.group.btn')}
               </Button>
             </div>
           </DialogContent>

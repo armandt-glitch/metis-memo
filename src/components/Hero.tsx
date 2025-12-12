@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Brain, Sparkles, Clock, CheckCircle, Layers, LayoutDashboard } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { InstallPWA } from '@/components/InstallPWA';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const FIRST_VISIT_KEY = 'interval-memo-first-visit-done';
 
@@ -11,6 +12,7 @@ interface HeroProps {
 }
 
 export const Hero = ({ onGetStarted }: HeroProps) => {
+  const { t } = useLanguage();
   const [isFirstVisit, setIsFirstVisit] = useState(true);
 
   useEffect(() => {
@@ -24,6 +26,30 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
     localStorage.setItem(FIRST_VISIT_KEY, 'true');
     onGetStarted();
   };
+
+  const features = [
+    {
+      icon: Brain,
+      title: t('hero.feature.formulas'),
+      description: t('hero.feature.formulas.desc'),
+    },
+    {
+      icon: Layers,
+      title: t('hero.feature.types'),
+      description: t('hero.feature.types.desc'),
+    },
+    {
+      icon: Clock,
+      title: t('hero.feature.reminders'),
+      description: t('hero.feature.reminders.desc'),
+    },
+    {
+      icon: CheckCircle,
+      title: t('hero.feature.progress'),
+      description: t('hero.feature.progress.desc'),
+    },
+  ];
+
   return (
     <div className="relative overflow-hidden bg-gradient-hero py-20 md:py-32">
       {/* Background decorations */}
@@ -40,30 +66,29 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8 animate-float">
             <Sparkles className="w-4 h-4" />
-            Mémorisation scientifique
+            {t('hero.badge')}
           </div>
 
           {/* Title */}
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Apprenez <span className="text-gradient-primary">mieux</span>,{' '}
-            retenez plus <span className="text-gradient-primary">longtemps</span>
+            {t('hero.title.learn')} <span className="text-gradient-primary">{t('hero.title.better')}</span>,{' '}
+            {t('hero.title.retain')} <span className="text-gradient-primary">{t('hero.title.longer')}</span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Créez des fiches intelligentes qui reviennent automatiquement au bon moment
-            pour une mémorisation optimale et durable.
+            {t('hero.subtitle')}
           </p>
 
           {/* CTA */}
           <div className="flex flex-col items-center justify-center gap-4">
             <Button variant="hero" size="xl" onClick={handleGetStarted}>
               {isFirstVisit ? (
-                'Commencer maintenant'
+                t('hero.cta.start')
               ) : (
                 <>
                   <LayoutDashboard className="w-5 h-5 mr-2" />
-                  Tableau de bord
+                  {t('hero.cta.dashboard')}
                 </>
               )}
             </Button>
@@ -72,28 +97,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
 
           {/* Features */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
-            {[
-              {
-                icon: Brain,
-                title: '3 formules',
-                description: 'Court, moyen ou long terme',
-              },
-              {
-                icon: Layers,
-                title: '4 types de fiches',
-                description: 'Flashcard, image, son, question',
-              },
-              {
-                icon: Clock,
-                title: 'Rappels automatiques',
-                description: 'Ne manquez jamais une révision',
-              },
-              {
-                icon: CheckCircle,
-                title: 'Suivi de progression',
-                description: 'Visualisez vos progrès',
-              },
-            ].map((feature, index) => (
+            {features.map((feature, index) => (
               <div
                 key={index}
                 className="flex flex-col items-center p-6 rounded-2xl bg-card shadow-soft"

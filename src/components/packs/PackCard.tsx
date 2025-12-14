@@ -52,7 +52,7 @@ export const PackCard = ({
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -77,7 +77,7 @@ export const PackCard = ({
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 flex-1">
         <p className="text-sm text-muted-foreground line-clamp-2">
           {pack.description}
         </p>

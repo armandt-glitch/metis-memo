@@ -8,20 +8,23 @@ import { FlashcardReview } from '@/components/FlashcardReview';
 import { PacksPage } from '@/components/packs/PacksPage';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGroups } from '@/hooks/useGroups';
+import { usePacks } from '@/hooks/usePacks';
 import { useToast } from '@/hooks/use-toast';
 import { useDueCardNotifications } from '@/hooks/useDueCardNotifications';
 import { Flashcard } from '@/types/flashcard';
 import { EditCardDialog } from '@/components/EditCardDialog';
 import { NotificationPermissionPrompt } from '@/components/NotificationPermissionPrompt';
 import { OnboardingTutorial } from '@/components/OnboardingTutorial';
+import { getPackCardsForReview } from '@/lib/packUtils';
 
-type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz' | 'packs';
+type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz' | 'packs' | 'pack-review';
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<View>('hero');
   const [reviewCardId, setReviewCardId] = useState<string | null>(null);
   const [thematicQuizGroupId, setThematicQuizGroupId] = useState<string | null>(null);
+  const [reviewingPackId, setReviewingPackId] = useState<string | null>(null);
   const [editingCard, setEditingCard] = useState<Flashcard | null>(null);
   const {
     flashcards,
@@ -40,6 +43,7 @@ const Index = () => {
     reloadFromStorage,
   } = useFlashcards();
   const { groups, addGroup, deleteGroup, getGroup } = useGroups();
+  const { installedPacks, deletePack } = usePacks();
   const { toast } = useToast();
   
   const stats = getStats();
@@ -156,12 +160,41 @@ const Index = () => {
     });
   };
 
+  const handleStartPackReview = (packId: string) => {
+    setReviewingPackId(packId);
+    setView('pack-review');
+  };
+
+  const handleDeletePack = async (packId: string) => {
+    await deletePack(packId);
+    reloadFromStorage();
+    toast({
+      title: 'Pack supprimé',
+      description: 'Le pack et ses fiches ont été supprimés.',
+    });
+  };
+
+  const handleReopenPack = (packId: string) => {
+    const pack = installedPacks.find(p => p.packId === packId);
+    if (pack) {
+      pack.cardIds.forEach(cardId => reopenCard(cardId));
+      toast({
+        title: 'Pack réouvert',
+        description: 'Toutes les fiches du pack sont à nouveau disponibles.',
+      });
+    }
+  };
+
   const cardsToReview = reviewCardId
     ? flashcards.filter((c) => c.id === reviewCardId)
     : dueCards;
 
   const thematicQuizCards = thematicQuizGroupId
     ? getThematicQuizCards(thematicQuizGroupId)
+    : [];
+
+  const packReviewCards = reviewingPackId
+    ? getPackCardsForReview(installedPacks.find(p => p.packId === reviewingPackId)!, flashcards)
     : [];
 
   return (
@@ -178,6 +211,7 @@ const Index = () => {
               stats={stats}
               groups={groups}
               cardCountsByGroup={cardCountsByGroup}
+              installedPacks={installedPacks}
               onCreateNew={() => setView('create')}
               onStartReview={handleStartReview}
               onReviewCard={handleReviewCard}
@@ -191,6 +225,9 @@ const Index = () => {
               onEditCard={handleEditCard}
               getGroup={getGroup}
               onOpenPacks={() => setView('packs')}
+              onStartPackReview={handleStartPackReview}
+              onDeletePack={handleDeletePack}
+              onReopenPack={handleReopenPack}
             />
           )}
 
@@ -231,6 +268,19 @@ const Index = () => {
               }}
               isThematicQuiz
               quizGroupName={thematicQuizGroupId ? getGroup(thematicQuizGroupId)?.name : undefined}
+            />
+          )}
+
+          {view === 'pack-review' && reviewingPackId && (
+            <FlashcardReview
+              cards={packReviewCards}
+              onReview={reviewCard}
+              onBack={() => {
+                setReviewingPackId(null);
+                setView('dashboard');
+              }}
+              isThematicQuiz
+              quizGroupName={installedPacks.find(p => p.packId === reviewingPackId)?.manifest.title}
             />
           )}
         </main>

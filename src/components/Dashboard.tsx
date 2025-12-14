@@ -226,8 +226,8 @@ export const Dashboard = ({
       <div className="grid grid-cols-3 gap-3 mb-8">
         <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50 text-center">
           <div className="flex justify-center mb-2">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Brain className="w-5 h-5 text-primary" />
+            <div className="p-2 rounded-lg bg-primary/10 dark:bg-[#780000]">
+              <Brain className="w-5 h-5 text-primary dark:text-white" />
             </div>
           </div>
           <p className="text-2xl font-bold text-foreground">{stats.total}</p>

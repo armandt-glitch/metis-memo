@@ -10,10 +10,12 @@ import { PacksPage } from '@/components/packs/PacksPage';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGroups } from '@/hooks/useGroups';
 import { usePacks } from '@/hooks/usePacks';
+import { PackSettings, InstalledPack } from '@/types/pack';
 import { useToast } from '@/hooks/use-toast';
 import { useDueCardNotifications } from '@/hooks/useDueCardNotifications';
 import { Flashcard } from '@/types/flashcard';
 import { EditCardDialog } from '@/components/EditCardDialog';
+import { PackConfigDialog } from '@/components/PackConfigDialog';
 import { NotificationPermissionPrompt } from '@/components/NotificationPermissionPrompt';
 import { OnboardingTutorial } from '@/components/OnboardingTutorial';
 import { getPackCardsForReview } from '@/lib/packUtils';
@@ -26,6 +28,7 @@ const Index = () => {
   const [reviewCardId, setReviewCardId] = useState<string | null>(null);
   const [thematicQuizGroupId, setThematicQuizGroupId] = useState<string | null>(null);
   const [reviewingPackId, setReviewingPackId] = useState<string | null>(null);
+  const [configuringPack, setConfiguringPack] = useState<InstalledPack | null>(null);
   const [editingCard, setEditingCard] = useState<Flashcard | null>(null);
   const {
     flashcards,
@@ -44,7 +47,7 @@ const Index = () => {
     reloadFromStorage,
   } = useFlashcards();
   const { groups, addGroup, deleteGroup, getGroup } = useGroups();
-  const { installedPacks, deletePack } = usePacks();
+  const { installedPacks, deletePack, updatePackSettings } = usePacks();
   const { toast } = useToast();
   
   const stats = getStats();
@@ -186,6 +189,24 @@ const Index = () => {
     }
   };
 
+  const handleConfigurePack = (packId: string) => {
+    const pack = installedPacks.find(p => p.packId === packId);
+    if (pack) {
+      setConfiguringPack(pack);
+    }
+  };
+
+  const handleSavePackSettings = async (packId: string, settings: PackSettings) => {
+    const success = await updatePackSettings(packId, settings);
+    if (success) {
+      reloadFromStorage();
+      toast({
+        title: 'Configuration enregistrée',
+        description: 'Les paramètres du pack ont été mis à jour.',
+      });
+    }
+  };
+
   const cardsToReview = reviewCardId
     ? flashcards.filter((c) => c.id === reviewCardId)
     : dueCards;
@@ -229,6 +250,7 @@ const Index = () => {
               onStartPackReview={handleStartPackReview}
               onDeletePack={handleDeletePack}
               onReopenPack={handleReopenPack}
+              onConfigurePack={handleConfigurePack}
             />
           )}
 
@@ -292,6 +314,13 @@ const Index = () => {
         onClose={() => setEditingCard(null)}
         onSave={handleSaveCard}
         onCreateGroup={handleCreateGroup}
+      />
+
+      <PackConfigDialog
+        pack={configuringPack}
+        isOpen={!!configuringPack}
+        onClose={() => setConfiguringPack(null)}
+        onSave={handleSavePackSettings}
       />
       
       <NotificationPermissionPrompt />

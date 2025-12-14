@@ -142,14 +142,27 @@ export const useFlashcards = () => {
     );
   };
 
-  const getThematicQuizCards = (groupId: string, count: number = 10) => {
+  const getThematicQuizCards = (groupId: string) => {
     const groupCards = groupId === 'ungrouped'
       ? flashcards.filter((c) => !c.groupIds || c.groupIds.length === 0)
       : flashcards.filter((c) => c.groupIds?.includes(groupId));
     
-    // Shuffle and take up to count cards
-    const shuffled = [...groupCards].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, count);
+    // Shuffle all cards (no limit)
+    return [...groupCards].sort(() => Math.random() - 0.5);
+  };
+
+  const reloadFromStorage = () => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored).map((card: any) => ({
+        ...card,
+        cardType: card.cardType || 'flashcard',
+        groupIds: card.groupIds || (card.groupId ? [card.groupId] : undefined),
+        createdAt: new Date(card.createdAt),
+        nextReviewAt: new Date(card.nextReviewAt),
+      }));
+      setFlashcards(parsed);
+    }
   };
 
   const toggleCardGroup = (cardId: string, groupId: string) => {
@@ -217,5 +230,6 @@ export const useFlashcards = () => {
     getThematicQuizCards,
     toggleCardGroup,
     clearCardGroups,
+    reloadFromStorage,
   };
 };

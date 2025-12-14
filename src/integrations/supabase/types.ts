@@ -41,6 +41,63 @@ export type Database = {
         }
         Relationships: []
       }
+      published_packs: {
+        Row: {
+          card_count: number
+          cards: Json
+          created_at: string
+          description: string
+          download_count: number
+          has_media: boolean
+          id: string
+          is_approved: boolean
+          level: string | null
+          pack_id: string
+          rating: number | null
+          tags: string[] | null
+          theme: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          card_count?: number
+          cards?: Json
+          created_at?: string
+          description: string
+          download_count?: number
+          has_media?: boolean
+          id?: string
+          is_approved?: boolean
+          level?: string | null
+          pack_id: string
+          rating?: number | null
+          tags?: string[] | null
+          theme?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          card_count?: number
+          cards?: Json
+          created_at?: string
+          description?: string
+          download_count?: number
+          has_media?: boolean
+          id?: string
+          is_approved?: boolean
+          level?: string | null
+          pack_id?: string
+          rating?: number | null
+          tags?: string[] | null
+          theme?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

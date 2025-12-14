@@ -1,21 +1,24 @@
 import { useState } from 'react';
 import { PackManifest, InstalledPack, PackSettings } from '@/types/pack';
+import { Flashcard } from '@/types/flashcard';
 import { usePacks } from '@/hooks/usePacks';
 import { PackCard } from '@/components/packs/PackCard';
 import { PackDetailDialog } from '@/components/packs/PackDetailDialog';
 import { MyPacksSection } from '@/components/packs/MyPacksSection';
 import { PackFilters } from '@/components/packs/PackFilters';
 import { PackConfigDialog } from '@/components/PackConfigDialog';
+import { PackCreator } from '@/components/packs/PackCreator';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, Search } from 'lucide-react';
+import { ArrowLeft, Package, Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PacksPageProps {
   onBack: () => void;
+  existingFlashcards?: Flashcard[];
 }
 
-export const PacksPage = ({ onBack }: PacksPageProps) => {
+export const PacksPage = ({ onBack, existingFlashcards = [] }: PacksPageProps) => {
   const { t } = useLanguage();
   const { 
     installedPacks, 
@@ -33,6 +36,7 @@ export const PacksPage = ({ onBack }: PacksPageProps) => {
   const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [showMyPacks, setShowMyPacks] = useState(false);
+  const [showCreator, setShowCreator] = useState(false);
   const [configuringPack, setConfiguringPack] = useState<InstalledPack | null>(null);
 
   const availablePacks = getAvailablePacks();
@@ -62,10 +66,21 @@ export const PacksPage = ({ onBack }: PacksPageProps) => {
     return await deletePack(packId);
   };
 
+  // Show creator view
+  if (showCreator) {
+    return (
+      <PackCreator
+        existingFlashcards={existingFlashcards}
+        onBack={() => setShowCreator(false)}
+        onPublish={() => setShowCreator(false)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="h-5 w-5" />
@@ -78,12 +93,18 @@ export const PacksPage = ({ onBack }: PacksPageProps) => {
             <p className="text-muted-foreground">{t('packs.subtitle')}</p>
           </div>
         </div>
-        <Button
-          variant={showMyPacks ? 'default' : 'outline'}
-          onClick={() => setShowMyPacks(!showMyPacks)}
-        >
-          {t('packs.my_packs')} ({installedPacks.length})
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowCreator(true)}>
+            <Plus className="h-4 w-4 mr-1" />
+            {t('pack.creator.title')}
+          </Button>
+          <Button
+            variant={showMyPacks ? 'default' : 'outline'}
+            onClick={() => setShowMyPacks(!showMyPacks)}
+          >
+            {t('packs.my_packs')} ({installedPacks.length})
+          </Button>
+        </div>
       </div>
 
       {showMyPacks ? (

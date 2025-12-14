@@ -255,10 +255,13 @@ const Index = () => {
           )}
 
           {view === 'packs' && (
-            <PacksPage onBack={() => {
-              reloadFromStorage();
-              setView('dashboard');
-            }} />
+            <PacksPage 
+              onBack={() => {
+                reloadFromStorage();
+                setView('dashboard');
+              }}
+              existingFlashcards={flashcards}
+            />
           )}
 
           {view === 'create' && (

@@ -236,8 +236,8 @@ export const Dashboard = ({
 
         <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50 text-center">
           <div className="flex justify-center mb-2">
-            <div className="p-2 rounded-lg bg-accent/10">
-              <Clock className="w-5 h-5 text-accent" />
+            <div className="p-2 rounded-lg bg-accent/10 dark:bg-[#780000]">
+              <Clock className="w-5 h-5 text-accent dark:text-white" />
             </div>
           </div>
           <p className="text-2xl font-bold text-foreground">{stats.dueNow}</p>
@@ -249,8 +249,8 @@ export const Dashboard = ({
           onClick={() => setViewMode('memorized')}
         >
           <div className="flex justify-center mb-2">
-            <div className="p-2 rounded-lg bg-accent/10">
-              <CheckCircle2 className="w-5 h-5 text-accent" />
+            <div className="p-2 rounded-lg bg-accent/10 dark:bg-[#780000]">
+              <CheckCircle2 className="w-5 h-5 text-accent dark:text-white" />
             </div>
           </div>
           <p className="text-2xl font-bold text-foreground">{stats.completed}</p>

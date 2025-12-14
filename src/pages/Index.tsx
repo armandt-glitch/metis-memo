@@ -5,6 +5,7 @@ import { Hero } from '@/components/Hero';
 import { Dashboard } from '@/components/Dashboard';
 import { FlashcardForm } from '@/components/FlashcardForm';
 import { FlashcardReview } from '@/components/FlashcardReview';
+import { PackReview } from '@/components/PackReview';
 import { PacksPage } from '@/components/packs/PacksPage';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGroups } from '@/hooks/useGroups';
@@ -272,15 +273,14 @@ const Index = () => {
           )}
 
           {view === 'pack-review' && reviewingPackId && (
-            <FlashcardReview
+            <PackReview
               cards={packReviewCards}
+              packName={installedPacks.find(p => p.packId === reviewingPackId)?.manifest.title || 'Pack'}
               onReview={reviewCard}
               onBack={() => {
                 setReviewingPackId(null);
                 setView('dashboard');
               }}
-              isThematicQuiz
-              quizGroupName={installedPacks.find(p => p.packId === reviewingPackId)?.manifest.title}
             />
           )}
         </main>

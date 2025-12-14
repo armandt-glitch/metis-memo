@@ -52,7 +52,7 @@ export const MyPacksSection = ({ installedPacks, onDelete, onConfigure, onBack }
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {installedPacks.map((pack) => (
-          <Card key={pack.packId}>
+          <Card key={pack.packId} className="flex flex-col h-full">
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between">
                 <CardTitle className="text-lg">{pack.manifest.title}</CardTitle>
@@ -64,7 +64,7 @@ export const MyPacksSection = ({ installedPacks, onDelete, onConfigure, onBack }
               </div>
             </CardHeader>
             
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 flex-1">
               <p className="text-sm text-muted-foreground line-clamp-2">
                 {pack.manifest.description}
               </p>

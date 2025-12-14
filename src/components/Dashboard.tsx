@@ -43,9 +43,9 @@ interface DashboardProps {
 }
 
 const formulaColors = {
-  short: 'bg-formula-short/10 text-formula-short border-formula-short/20',
-  medium: 'bg-formula-medium/10 text-formula-medium border-formula-medium/20',
-  long: 'bg-formula-long/10 text-formula-long border-formula-long/20',
+  short: 'bg-formula-short/10 text-formula-short border-formula-short/20 dark:bg-formula-short dark:text-white dark:border-formula-short',
+  medium: 'bg-formula-medium/10 text-formula-medium border-formula-medium/20 dark:bg-formula-medium dark:text-white dark:border-formula-medium',
+  long: 'bg-formula-long/10 text-formula-long border-formula-long/20 dark:bg-formula-long dark:text-white dark:border-formula-long',
 };
 
 export const Dashboard = ({

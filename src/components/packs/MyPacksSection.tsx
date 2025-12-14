@@ -1,4 +1,4 @@
-import { InstalledPack } from '@/types/pack';
+import { InstalledPack, PackSettings } from '@/types/pack';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,16 +13,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, BookOpen, Calendar, Package, Trash2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Calendar, Package, Settings2, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MyPacksSectionProps {
   installedPacks: InstalledPack[];
   onDelete: (packId: string) => Promise<boolean>;
+  onConfigure: (pack: InstalledPack) => void;
   onBack: () => void;
 }
 
-export const MyPacksSection = ({ installedPacks, onDelete, onBack }: MyPacksSectionProps) => {
+export const MyPacksSection = ({ installedPacks, onDelete, onConfigure, onBack }: MyPacksSectionProps) => {
   const { t } = useLanguage();
 
   if (installedPacks.length === 0) {
@@ -80,12 +81,25 @@ export const MyPacksSection = ({ installedPacks, onDelete, onBack }: MyPacksSect
               </div>
             </CardContent>
 
-            <CardFooter>
+            <CardFooter className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 gap-1"
+                onClick={() => onConfigure(pack)}
+              >
+                <Settings2 className="h-4 w-4" />
+                {t('pack.config.title')}
+              </Button>
+              
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm" className="w-full gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-9 w-9 text-[#780000] hover:text-[#780000] hover:bg-[#780000]/10"
+                  >
                     <Trash2 className="h-4 w-4" />
-                    {t('packs.delete')}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -99,7 +113,7 @@ export const MyPacksSection = ({ installedPacks, onDelete, onBack }: MyPacksSect
                     <AlertDialogCancel>{t('packs.cancel')}</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => onDelete(pack.packId)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      className="bg-[#780000] text-white hover:bg-[#780000]/90"
                     >
                       {t('packs.delete')}
                     </AlertDialogAction>

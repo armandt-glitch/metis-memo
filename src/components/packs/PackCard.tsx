@@ -128,20 +128,18 @@ export const PackCard = ({
         )}
       </CardContent>
 
-      <CardFooter className="gap-2">
+      <CardFooter className="grid grid-cols-2 gap-2">
         <Button
           variant="outline"
           size="sm"
-          className="flex-1"
           onClick={onViewDetails}
         >
           {t('packs.view_details')}
         </Button>
         
-        {!isInstalled && (
+        {!isInstalled ? (
           <Button
             size="sm"
-            className="flex-1"
             onClick={onDownload}
             disabled={isDownloading}
           >
@@ -154,10 +152,8 @@ export const PackCard = ({
               </>
             )}
           </Button>
-        )}
-        
-        {isInstalled && (
-          <Badge variant="secondary" className="flex-1 justify-center py-2">
+        ) : (
+          <Badge variant="secondary" className="justify-center py-2 h-9">
             <CheckCircle className="h-4 w-4 mr-1" />
             {t('packs.installed')}
           </Badge>

@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Flashcard, FORMULAS, Group, GROUP_COLORS } from '@/types/flashcard';
+import { InstalledPack } from '@/types/pack';
+import { getPackProgress, PackProgress } from '@/lib/packUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check, Pencil, Package } from 'lucide-react';
@@ -20,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Progress } from '@/components/ui/progress';
 
 type ViewMode = 'dashboard' | 'memorized';
 
@@ -28,6 +31,7 @@ interface DashboardProps {
   stats: { total: number; completed: number; dueNow: number };
   groups: Group[];
   cardCountsByGroup: Record<string, number>;
+  installedPacks: InstalledPack[];
   onCreateNew: () => void;
   onStartReview: () => void;
   onReviewCard: (id: string) => void;
@@ -41,6 +45,9 @@ interface DashboardProps {
   onEditCard: (card: Flashcard) => void;
   getGroup: (id: string) => Group | undefined;
   onOpenPacks: () => void;
+  onStartPackReview: (packId: string) => void;
+  onDeletePack: (packId: string) => void;
+  onReopenPack: (packId: string) => void;
 }
 
 const formulaColors = {
@@ -54,6 +61,7 @@ export const Dashboard = ({
   stats,
   groups,
   cardCountsByGroup,
+  installedPacks,
   onCreateNew,
   onStartReview,
   onReviewCard,
@@ -67,6 +75,9 @@ export const Dashboard = ({
   onEditCard,
   getGroup,
   onOpenPacks,
+  onStartPackReview,
+  onDeletePack,
+  onReopenPack,
 }: DashboardProps) => {
   const { t, language } = useLanguage();
   const dateLocale = language === 'fr' ? fr : enUS;
@@ -81,14 +92,41 @@ export const Dashboard = ({
     return t(`formula.${type}`);
   };
 
+  // Get all card IDs that belong to packs
+  const packCardIds = new Set(installedPacks.flatMap(p => p.cardIds));
+  
+  // Filter out pack cards from individual flashcards display
+  const nonPackFlashcards = flashcards.filter(c => !packCardIds.has(c.id));
+
   const filteredFlashcards = selectedGroupId === null
-    ? flashcards
+    ? nonPackFlashcards
     : selectedGroupId === 'ungrouped'
-    ? flashcards.filter((c) => !c.groupIds || c.groupIds.length === 0)
-    : flashcards.filter((c) => c.groupIds?.includes(selectedGroupId));
+    ? nonPackFlashcards.filter((c) => !c.groupIds || c.groupIds.length === 0)
+    : nonPackFlashcards.filter((c) => c.groupIds?.includes(selectedGroupId));
 
-  const memorizedCards = flashcards.filter((c) => c.completed);
+  // Calculate pack progresses
+  const packProgresses = installedPacks.map(pack => ({
+    pack,
+    progress: getPackProgress(pack, flashcards),
+  }));
 
+  // Packs that are not fully completed (show in upcoming)
+  const inProgressPacks = packProgresses
+    .filter(({ progress }) => !progress.isFullyCompleted && progress.totalCards > 0)
+    .sort((a, b) => {
+      // Sort by next review date
+      if (!a.progress.nextReviewAt) return 1;
+      if (!b.progress.nextReviewAt) return -1;
+      return a.progress.nextReviewAt.getTime() - b.progress.nextReviewAt.getTime();
+    });
+
+  // Packs that are fully completed (show in memorized)
+  const completedPacks = packProgresses.filter(({ progress }) => progress.isFullyCompleted);
+
+  // Individual memorized cards (not from packs)
+  const memorizedCards = nonPackFlashcards.filter((c) => c.completed);
+
+  // Individual upcoming cards (not from packs)
   const upcomingCards = filteredFlashcards
     .filter((c) => !c.completed)
     .sort((a, b) => new Date(a.nextReviewAt).getTime() - new Date(b.nextReviewAt).getTime())
@@ -108,6 +146,8 @@ export const Dashboard = ({
     }
   };
 
+  const totalMemorizedCount = memorizedCards.length + completedPacks.length;
+
   if (viewMode === 'memorized') {
     return (
       <div className="animate-slide-up">
@@ -121,10 +161,10 @@ export const Dashboard = ({
         </Button>
 
         <h2 className="text-2xl font-bold text-foreground mb-6">
-          {t('dashboard.memorized.title')} ({memorizedCards.length})
+          {t('dashboard.memorized.title')} ({totalMemorizedCount})
         </h2>
 
-        {memorizedCards.length === 0 ? (
+        {totalMemorizedCount === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-muted-foreground" />
@@ -137,60 +177,111 @@ export const Dashboard = ({
             </p>
           </div>
         ) : (
-          <div className="bg-card rounded-2xl p-6 shadow-soft">
-            <div className="space-y-3">
-              {memorizedCards.map((card) => {
-                const cardGroups = getCardGroups(card);
-                return (
-                  <div
-                    key={card.id}
-                    className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 group"
-                  >
-                    <div className="p-2 rounded-lg bg-accent/10">
-                      <CheckCircle2 className="w-5 h-5 text-accent" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">
-                        {card.question}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        {cardGroups.map((cardGroup) => (
-                          <span
-                            key={cardGroup.id}
-                            className="text-xs px-2 py-0.5 rounded-full text-white flex items-center gap-1"
-                            style={{ backgroundColor: cardGroup.color }}
-                          >
-                            <FolderOpen className="w-3 h-3" />
-                            {cardGroup.name}
-                          </span>
-                        ))}
-                        <span
-                          className={cn(
-                            'text-xs px-2 py-0.5 rounded-full border',
-                            formulaColors[card.formula as keyof typeof formulaColors]
-                          )}
-                        >
-                          {getFormulaName(card.formula)}
-                        </span>
+          <div className="space-y-6">
+            {/* Completed Packs */}
+            {completedPacks.length > 0 && (
+              <div className="bg-card rounded-2xl p-6 shadow-soft">
+                <h3 className="text-md font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-accent" />
+                  {t('packs.title')} ({completedPacks.length})
+                </h3>
+                <div className="space-y-3">
+                  {completedPacks.map(({ pack, progress }) => (
+                    <div
+                      key={pack.packId}
+                      className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 group"
+                    >
+                      <div className="p-2 rounded-lg bg-accent/10">
+                        <CheckCircle2 className="w-5 h-5 text-accent" />
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">
+                          {pack.manifest.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {progress.totalCards} {t('packs.cards')}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => onReopenPack(pack.packId)}
+                        className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
+                        title={t('dashboard.reopen')}
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onDeletePack(pack.packId)}
+                        className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => onReopenCard(card.id)}
-                      className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
-                      title={t('dashboard.reopen')}
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => onDeleteCard(card.id)}
-                      className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Individual memorized cards */}
+            {memorizedCards.length > 0 && (
+              <div className="bg-card rounded-2xl p-6 shadow-soft">
+                <h3 className="text-md font-semibold text-foreground mb-4">
+                  {t('dashboard.cards.individual')} ({memorizedCards.length})
+                </h3>
+                <div className="space-y-3">
+                  {memorizedCards.map((card) => {
+                    const cardGroups = getCardGroups(card);
+                    return (
+                      <div
+                        key={card.id}
+                        className="flex items-center gap-4 p-4 rounded-xl bg-secondary/50 group"
+                      >
+                        <div className="p-2 rounded-lg bg-accent/10">
+                          <CheckCircle2 className="w-5 h-5 text-accent" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            {card.question}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            {cardGroups.map((cardGroup) => (
+                              <span
+                                key={cardGroup.id}
+                                className="text-xs px-2 py-0.5 rounded-full text-white flex items-center gap-1"
+                                style={{ backgroundColor: cardGroup.color }}
+                              >
+                                <FolderOpen className="w-3 h-3" />
+                                {cardGroup.name}
+                              </span>
+                            ))}
+                            <span
+                              className={cn(
+                                'text-xs px-2 py-0.5 rounded-full border',
+                                formulaColors[card.formula as keyof typeof formulaColors]
+                              )}
+                            >
+                              {getFormulaName(card.formula)}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => onReopenCard(card.id)}
+                          className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
+                          title={t('dashboard.reopen')}
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteCard(card.id)}
+                          className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -299,11 +390,85 @@ export const Dashboard = ({
         </div>
       )}
 
-      {/* Upcoming reviews */}
+      {/* Upcoming reviews - Packs */}
+      {inProgressPacks.length > 0 && (
+        <div className="bg-card rounded-2xl p-6 shadow-soft mb-6">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" />
+            {t('dashboard.upcoming')} - {t('packs.title')}
+          </h3>
+          <div className="space-y-3">
+            {inProgressPacks.map(({ pack, progress }) => {
+              const isDue = progress.dueCards > 0;
+              const progressPercent = progress.totalCards > 0 
+                ? Math.round((progress.completedCards / progress.totalCards) * 100) 
+                : 0;
+              
+              return (
+                <div
+                  key={pack.packId}
+                  onClick={() => onStartPackReview(pack.packId)}
+                  className="flex flex-col gap-3 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Package className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground truncate">
+                        {pack.manifest.title}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                          {progress.completedCards}/{progress.totalCards} {t('packs.cards')}
+                        </span>
+                        {isDue && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                            {progress.dueCards} {t('dashboard.review.now')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p
+                        className={cn(
+                          'text-sm font-medium',
+                          isDue ? 'text-accent' : 'text-muted-foreground'
+                        )}
+                      >
+                        {isDue
+                          ? t('dashboard.now')
+                          : progress.nextReviewAt
+                            ? formatDistanceToNow(progress.nextReviewAt, {
+                                addSuffix: true,
+                                locale: dateLocale,
+                              })
+                            : ''}
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeletePack(pack.packId);
+                        }}
+                        className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <Progress value={progressPercent} className="h-2" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming reviews - Individual cards */}
       {upcomingCards.length > 0 && (
         <div className="bg-card rounded-2xl p-6 shadow-soft">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            {t('dashboard.upcoming')}
+            {t('dashboard.upcoming')} {inProgressPacks.length > 0 ? `- ${t('dashboard.cards.individual')}` : ''}
           </h3>
           <div className="space-y-3">
             {upcomingCards.map((card) => {

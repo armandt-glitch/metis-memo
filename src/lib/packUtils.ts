@@ -1,6 +1,45 @@
 import JSZip from 'jszip';
-import { PackManifest, PackCard, DEMO_PACKS } from '@/types/pack';
+import { PackManifest, PackCard, DEMO_PACKS, InstalledPack } from '@/types/pack';
+import { Flashcard } from '@/types/flashcard';
 import { savePackMedia } from './packDb';
+
+export interface PackProgress {
+  packId: string;
+  totalCards: number;
+  completedCards: number;
+  dueCards: number;
+  nextReviewAt: Date | null;
+  isFullyCompleted: boolean;
+}
+
+export const getPackProgress = (pack: InstalledPack, flashcards: Flashcard[]): PackProgress => {
+  const packCards = flashcards.filter(card => pack.cardIds.includes(card.id));
+  const completedCards = packCards.filter(card => card.completed).length;
+  const now = new Date();
+  const dueCards = packCards.filter(card => !card.completed && new Date(card.nextReviewAt) <= now).length;
+  
+  // Get next review date from non-completed cards
+  const nonCompletedCards = packCards.filter(card => !card.completed);
+  const nextReviewAt = nonCompletedCards.length > 0
+    ? nonCompletedCards.reduce((earliest, card) => {
+        const cardDate = new Date(card.nextReviewAt);
+        return cardDate < earliest ? cardDate : earliest;
+      }, new Date(nonCompletedCards[0].nextReviewAt))
+    : null;
+
+  return {
+    packId: pack.packId,
+    totalCards: packCards.length,
+    completedCards,
+    dueCards,
+    nextReviewAt,
+    isFullyCompleted: completedCards === packCards.length && packCards.length > 0,
+  };
+};
+
+export const getPackCardsForReview = (pack: InstalledPack, flashcards: Flashcard[]): Flashcard[] => {
+  return flashcards.filter(card => pack.cardIds.includes(card.id) && !card.completed);
+};
 
 export interface ValidatedPack {
   manifest: PackManifest;

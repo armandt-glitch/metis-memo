@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Flashcard, FORMULAS, Group, GROUP_COLORS } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check, Pencil } from 'lucide-react';
+import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check, Pencil, Package } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -40,6 +40,7 @@ interface DashboardProps {
   onCreateGroup: (name: string, color: string) => void;
   onEditCard: (card: Flashcard) => void;
   getGroup: (id: string) => Group | undefined;
+  onOpenPacks: () => void;
 }
 
 const formulaColors = {
@@ -65,6 +66,7 @@ export const Dashboard = ({
   onCreateGroup,
   onEditCard,
   getGroup,
+  onOpenPacks,
 }: DashboardProps) => {
   const { t, language } = useLanguage();
   const dateLocale = language === 'fr' ? fr : enUS;
@@ -213,6 +215,10 @@ export const Dashboard = ({
         <Button variant="hero" size="xl" onClick={onCreateNew} className="flex-1">
           <Plus className="w-5 h-5" />
           {t('dashboard.new.card')}
+        </Button>
+        <Button variant="hero-outline" size="xl" onClick={onOpenPacks} className="flex-1">
+          <Package className="w-5 h-5" />
+          {t('packs.title')}
         </Button>
         {stats.dueNow > 0 && (
           <Button variant="hero-outline" size="xl" onClick={onStartReview} className="flex-1">

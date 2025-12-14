@@ -5,6 +5,7 @@ import { Hero } from '@/components/Hero';
 import { Dashboard } from '@/components/Dashboard';
 import { FlashcardForm } from '@/components/FlashcardForm';
 import { FlashcardReview } from '@/components/FlashcardReview';
+import { PacksPage } from '@/components/packs/PacksPage';
 import { useFlashcards } from '@/hooks/useFlashcards';
 import { useGroups } from '@/hooks/useGroups';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +15,7 @@ import { EditCardDialog } from '@/components/EditCardDialog';
 import { NotificationPermissionPrompt } from '@/components/NotificationPermissionPrompt';
 import { OnboardingTutorial } from '@/components/OnboardingTutorial';
 
-type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz';
+type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz' | 'packs';
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -188,7 +189,12 @@ const Index = () => {
               onCreateGroup={handleCreateGroup}
               onEditCard={handleEditCard}
               getGroup={getGroup}
+              onOpenPacks={() => setView('packs')}
             />
+          )}
+
+          {view === 'packs' && (
+            <PacksPage onBack={() => setView('dashboard')} />
           )}
 
           {view === 'create' && (

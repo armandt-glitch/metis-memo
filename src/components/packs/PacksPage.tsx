@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { PackManifest } from '@/types/pack';
+import { PackManifest, InstalledPack, PackSettings } from '@/types/pack';
 import { usePacks } from '@/hooks/usePacks';
 import { PackCard } from '@/components/packs/PackCard';
 import { PackDetailDialog } from '@/components/packs/PackDetailDialog';
 import { MyPacksSection } from '@/components/packs/MyPacksSection';
 import { PackFilters } from '@/components/packs/PackFilters';
+import { PackConfigDialog } from '@/components/PackConfigDialog';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Package, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ export const PacksPage = ({ onBack }: PacksPageProps) => {
     getAvailablePacks, 
     downloadPack, 
     deletePack, 
+    updatePackSettings,
     getProgress, 
     isInstalled,
     formatFileSize 
@@ -31,6 +33,7 @@ export const PacksPage = ({ onBack }: PacksPageProps) => {
   const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [showMyPacks, setShowMyPacks] = useState(false);
+  const [configuringPack, setConfiguringPack] = useState<InstalledPack | null>(null);
 
   const availablePacks = getAvailablePacks();
 
@@ -87,6 +90,7 @@ export const PacksPage = ({ onBack }: PacksPageProps) => {
         <MyPacksSection 
           installedPacks={installedPacks}
           onDelete={handleDelete}
+          onConfigure={(pack) => setConfiguringPack(pack)}
           onBack={() => setShowMyPacks(false)}
         />
       ) : (
@@ -146,6 +150,17 @@ export const PacksPage = ({ onBack }: PacksPageProps) => {
         progress={selectedPack ? getProgress(selectedPack.packId) : undefined}
         onDownload={() => selectedPack && handleDownload(selectedPack.packId)}
         formatFileSize={formatFileSize}
+      />
+
+      {/* Pack Config Dialog */}
+      <PackConfigDialog
+        pack={configuringPack}
+        isOpen={!!configuringPack}
+        onClose={() => setConfiguringPack(null)}
+        onSave={(packId, settings) => {
+          updatePackSettings(packId, settings);
+          setConfiguringPack(null);
+        }}
       />
     </div>
   );

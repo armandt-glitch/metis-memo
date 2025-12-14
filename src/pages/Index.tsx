@@ -37,6 +37,7 @@ const Index = () => {
     getThematicQuizCards,
     toggleCardGroup,
     clearCardGroups,
+    reloadFromStorage,
   } = useFlashcards();
   const { groups, addGroup, deleteGroup, getGroup } = useGroups();
   const { toast } = useToast();
@@ -160,7 +161,7 @@ const Index = () => {
     : dueCards;
 
   const thematicQuizCards = thematicQuizGroupId
-    ? getThematicQuizCards(thematicQuizGroupId, 10)
+    ? getThematicQuizCards(thematicQuizGroupId)
     : [];
 
   return (
@@ -194,7 +195,10 @@ const Index = () => {
           )}
 
           {view === 'packs' && (
-            <PacksPage onBack={() => setView('dashboard')} />
+            <PacksPage onBack={() => {
+              reloadFromStorage();
+              setView('dashboard');
+            }} />
           )}
 
           {view === 'create' && (

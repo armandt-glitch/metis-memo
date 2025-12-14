@@ -28,11 +28,18 @@ export interface PackCard {
   hints?: string[];
 }
 
+export interface PackSettings {
+  cardType: 'flashcard' | 'written';
+  formula: 'test' | 'short' | 'medium' | 'long';
+}
+
 export interface InstalledPack {
   packId: string;
   manifest: PackManifest;
   installedAt: Date;
   cardIds: string[]; // IDs des fiches importées dans l'app
+  hasMedia?: boolean; // True if pack has images or audio
+  settings?: PackSettings;
 }
 
 export type PackDownloadStatus = 

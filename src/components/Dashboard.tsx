@@ -4,7 +4,7 @@ import { InstalledPack } from '@/types/pack';
 import { getPackProgress, PackProgress } from '@/lib/packUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check, Pencil, Package } from 'lucide-react';
+import { Plus, Play, Brain, Clock, CheckCircle2, Trash2, FolderOpen, ArrowLeft, RotateCcw, Sparkles, FolderPlus, X, Check, Pencil, Package, Settings2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -48,6 +48,7 @@ interface DashboardProps {
   onStartPackReview: (packId: string) => void;
   onDeletePack: (packId: string) => void;
   onReopenPack: (packId: string) => void;
+  onConfigurePack: (packId: string) => void;
 }
 
 const formulaColors = {
@@ -78,6 +79,7 @@ export const Dashboard = ({
   onStartPackReview,
   onDeletePack,
   onReopenPack,
+  onConfigurePack,
 }: DashboardProps) => {
   const { t, language } = useLanguage();
   const dateLocale = language === 'fr' ? fr : enUS;
@@ -445,6 +447,16 @@ export const Dashboard = ({
                               })
                             : ''}
                       </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onConfigurePack(pack.packId);
+                        }}
+                        className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
+                        title={t('pack.config.title')}
+                      >
+                        <Settings2 className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

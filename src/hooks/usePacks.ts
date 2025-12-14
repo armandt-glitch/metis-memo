@@ -4,13 +4,15 @@ import {
   InstalledPack, 
   PackDownloadProgress,
   PackDownloadStatus,
+  PackSettings,
   DEMO_PACKS
 } from '@/types/pack';
 import { 
   getAllInstalledPacks, 
   saveInstalledPack, 
   deleteInstalledPack as deletePackFromDb,
-  isPackInstalled 
+  isPackInstalled,
+  getInstalledPack
 } from '@/lib/packDb';
 import { generateDemoPackCards, formatFileSize } from '@/lib/packUtils';
 import { Flashcard, FormulaType, CardType } from '@/types/flashcard';
@@ -120,12 +122,20 @@ export const usePacks = () => {
       const allCards = [...existingCards, ...newFlashcards];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(allCards));
 
+      // Check if pack has media
+      const hasMedia = cards.some(card => card.imagePath || card.audioPath);
+
       // Save pack metadata to IndexedDB
       const installedPack: InstalledPack = {
         packId,
         manifest: pack,
         installedAt: new Date(),
         cardIds,
+        hasMedia,
+        settings: {
+          cardType: hasMedia ? 'flashcard' : 'flashcard',
+          formula: 'medium',
+        },
       };
 
       await saveInstalledPack(installedPack);
@@ -183,6 +193,42 @@ export const usePacks = () => {
     return installedPacks.some(p => p.packId === packId);
   };
 
+  const updatePackSettings = async (packId: string, settings: PackSettings): Promise<boolean> => {
+    try {
+      const pack = installedPacks.find(p => p.packId === packId);
+      if (!pack) return false;
+
+      // Update pack in IndexedDB
+      const updatedPack: InstalledPack = {
+        ...pack,
+        settings,
+      };
+      await saveInstalledPack(updatedPack);
+
+      // Update flashcards with new settings
+      const existingCards: Flashcard[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const updatedCards = existingCards.map((card: Flashcard) => {
+        if (pack.cardIds.includes(card.id)) {
+          return {
+            ...card,
+            cardType: settings.cardType as CardType,
+            formula: settings.formula as FormulaType,
+          };
+        }
+        return card;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCards));
+
+      // Update state
+      setInstalledPacks(prev => prev.map(p => p.packId === packId ? updatedPack : p));
+
+      return true;
+    } catch (error) {
+      console.error('Error updating pack settings:', error);
+      return false;
+    }
+  };
+
   return {
     installedPacks,
     isLoading,
@@ -194,5 +240,6 @@ export const usePacks = () => {
     isInstalled,
     checkIfInstalled,
     formatFileSize,
+    updatePackSettings,
   };
 };

@@ -211,6 +211,25 @@ const translations: Record<Language, Record<string, string>> = {
     'packs.delete_confirm_desc': 'Cette action supprimera le pack et toutes ses fiches :',
     'packs.cancel': 'Annuler',
     'packs.clear_filters': 'Effacer',
+    
+    // Pack configuration
+    'pack.config.title': 'Configurer le pack',
+    'pack.config.cardType': 'Type de révision',
+    'pack.config.formula': 'Rythme de révision',
+    'pack.config.mediaWarning': 'Ce pack contient des images ou sons. Le type de révision ne peut pas être modifié.',
+    
+    // Card types for config
+    'cardType.flashcard': 'Flashcard',
+    'cardType.flashcard.desc': 'Retourner la carte',
+    'cardType.written': 'Réponse écrite',
+    'cardType.written.desc': 'Taper la réponse',
+    
+    // Common
+    'common.cancel': 'Annuler',
+    'common.save': 'Enregistrer',
+    
+    // Individual cards
+    'dashboard.cards.individual': 'Fiches individuelles',
   },
   en: {
     // Header
@@ -414,6 +433,25 @@ const translations: Record<Language, Record<string, string>> = {
     'packs.delete_confirm_desc': 'This will remove the pack and all its cards:',
     'packs.cancel': 'Cancel',
     'packs.clear_filters': 'Clear',
+    
+    // Pack configuration
+    'pack.config.title': 'Configure pack',
+    'pack.config.cardType': 'Review type',
+    'pack.config.formula': 'Review schedule',
+    'pack.config.mediaWarning': 'This pack contains images or audio. The review type cannot be changed.',
+    
+    // Card types for config
+    'cardType.flashcard': 'Flashcard',
+    'cardType.flashcard.desc': 'Flip the card',
+    'cardType.written': 'Written answer',
+    'cardType.written.desc': 'Type the answer',
+    
+    // Common
+    'common.cancel': 'Cancel',
+    'common.save': 'Save',
+    
+    // Individual cards
+    'dashboard.cards.individual': 'Individual cards',
   },
 };
 

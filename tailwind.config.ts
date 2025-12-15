@@ -66,6 +66,8 @@ export default {
           long: "hsl(var(--formula-long))",
         },
         "card-answer": "hsl(var(--card-answer))",
+        "answer-correct": "hsl(var(--answer-correct))",
+        "answer-wrong": "hsl(var(--answer-wrong))",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Flashcard, FormulaType, CardType } from '@/types/flashcard';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,8 @@ import {
   RotateCcw,
   PenLine,
   Image,
-  Volume2
+  Volume2,
+  Upload
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -31,6 +32,7 @@ interface PackCard {
   question: string;
   answer: string;
   cardType: CardType;
+  mediaUrl?: string;
   isNew: boolean;
 }
 
@@ -61,6 +63,9 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
   // UI state
   const [isPublishing, setIsPublishing] = useState(false);
   const [showExistingPicker, setShowExistingPicker] = useState(false);
+  
+  // File input refs
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const generateId = () => Math.random().toString(36).substring(2, 9);
 
@@ -74,7 +79,7 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
     }]);
   };
 
-  const updateCard = (id: string, field: 'question' | 'answer' | 'cardType', value: string) => {
+  const updateCard = (id: string, field: 'question' | 'answer' | 'cardType' | 'mediaUrl', value: string) => {
     setPackCards(prev => prev.map(card => 
       card.id === id ? { ...card, [field]: value } : card
     ));
@@ -82,6 +87,44 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
 
   const removeCard = (id: string) => {
     setPackCards(prev => prev.filter(card => card.id !== id));
+  };
+
+  const handleCardTypeClick = (cardId: string, type: CardType) => {
+    updateCard(cardId, 'cardType', type);
+    
+    // Trigger file picker for image/audio types
+    if (type === 'image' || type === 'audio') {
+      setTimeout(() => {
+        const input = fileInputRefs.current[`${cardId}-${type}`];
+        if (input) input.click();
+      }, 100);
+    }
+  };
+
+  const handleFileChange = (cardId: string, type: 'image' | 'audio', file: File | null) => {
+    if (!file) return;
+    
+    // Validate file type
+    if (type === 'image' && !file.type.startsWith('image/')) {
+      toast({ title: t('pack.creator.error.invalidImage'), variant: 'destructive' });
+      return;
+    }
+    if (type === 'audio' && !file.type.startsWith('audio/')) {
+      toast({ title: t('pack.creator.error.invalidAudio'), variant: 'destructive' });
+      return;
+    }
+    
+    // Create object URL for preview
+    const url = URL.createObjectURL(file);
+    updateCard(cardId, 'mediaUrl', url);
+  };
+
+  const removeMedia = (cardId: string) => {
+    const card = packCards.find(c => c.id === cardId);
+    if (card?.mediaUrl) {
+      URL.revokeObjectURL(card.mediaUrl);
+    }
+    updateCard(cardId, 'mediaUrl', '');
   };
 
   const toggleExistingCard = (cardId: string) => {
@@ -104,6 +147,7 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
         question: fc.question,
         answer: fc.answer,
         cardType: fc.cardType || 'flashcard',
+        mediaUrl: fc.mediaUrl,
         isNew: false
       }));
     
@@ -372,7 +416,7 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
                             variant={isSelected ? "default" : "outline"}
                             size="sm"
                             className="h-8 px-2"
-                            onClick={() => updateCard(card.id, 'cardType', type)}
+                            onClick={() => handleCardTypeClick(card.id, type)}
                             title={t(`cardtype.${type}`)}
                           >
                             <Icon className="h-4 w-4" />
@@ -380,7 +424,75 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
                         );
                       })}
                     </div>
+                    
+                    {/* Hidden file inputs */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      ref={(el) => { fileInputRefs.current[`${card.id}-image`] = el; }}
+                      onChange={(e) => handleFileChange(card.id, 'image', e.target.files?.[0] || null)}
+                    />
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      className="hidden"
+                      ref={(el) => { fileInputRefs.current[`${card.id}-audio`] = el; }}
+                      onChange={(e) => handleFileChange(card.id, 'audio', e.target.files?.[0] || null)}
+                    />
                   </div>
+                  
+                  {/* Media preview */}
+                  {card.mediaUrl && (card.cardType === 'image' || card.cardType === 'audio') && (
+                    <div className="flex items-center gap-2 p-2 bg-background rounded-lg border">
+                      {card.cardType === 'image' ? (
+                        <img 
+                          src={card.mediaUrl} 
+                          alt="Preview" 
+                          className="h-16 w-16 object-cover rounded"
+                        />
+                      ) : (
+                        <audio 
+                          src={card.mediaUrl} 
+                          controls 
+                          className="h-10 max-w-[200px]"
+                        />
+                      )}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => removeMedia(card.id)}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        {t('common.remove')}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRefs.current[`${card.id}-${card.cardType}`]?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-1" />
+                        {t('common.change')}
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {/* Upload prompt for image/audio without media */}
+                  {!card.mediaUrl && (card.cardType === 'image' || card.cardType === 'audio') && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-dashed"
+                      onClick={() => fileInputRefs.current[`${card.id}-${card.cardType}`]?.click()}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {card.cardType === 'image' ? t('pack.creator.uploadImage') : t('pack.creator.uploadAudio')}
+                    </Button>
+                  )}
                 </div>
                 <Button
                   variant="ghost"

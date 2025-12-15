@@ -17,7 +17,11 @@ import {
   Save,
   GripVertical,
   CheckCircle,
-  X
+  X,
+  RotateCcw,
+  PenLine,
+  Image,
+  Volume2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -26,6 +30,7 @@ interface PackCard {
   id: string;
   question: string;
   answer: string;
+  cardType: CardType;
   isNew: boolean;
 }
 
@@ -64,11 +69,12 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
       id: generateId(),
       question: '',
       answer: '',
+      cardType: 'flashcard',
       isNew: true
     }]);
   };
 
-  const updateCard = (id: string, field: 'question' | 'answer', value: string) => {
+  const updateCard = (id: string, field: 'question' | 'answer' | 'cardType', value: string) => {
     setPackCards(prev => prev.map(card => 
       card.id === id ? { ...card, [field]: value } : card
     ));
@@ -97,6 +103,7 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
         id: generateId(),
         question: fc.question,
         answer: fc.answer,
+        cardType: fc.cardType || 'flashcard',
         isNew: false
       }));
     
@@ -152,7 +159,8 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
       const cards = validCards.map((card, index) => ({
         id: `${packId}-card-${index}`,
         question: card.question,
-        answer: card.answer
+        answer: card.answer,
+        cardType: card.cardType
       }));
 
       const { error } = await supabase.from('published_packs').insert({
@@ -324,24 +332,54 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
                   <GripVertical className="h-4 w-4" />
                   <span className="text-sm font-medium w-6">{index + 1}</span>
                 </div>
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">{t('pack.creator.question')}</Label>
-                    <Textarea
-                      value={card.question}
-                      onChange={(e) => updateCard(card.id, 'question', e.target.value)}
-                      placeholder={t('pack.creator.questionPlaceholder')}
-                      rows={2}
-                    />
+                <div className="flex-1 space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">{t('pack.creator.question')}</Label>
+                      <Textarea
+                        value={card.question}
+                        onChange={(e) => updateCard(card.id, 'question', e.target.value)}
+                        placeholder={t('pack.creator.questionPlaceholder')}
+                        rows={2}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">{t('pack.creator.answer')}</Label>
+                      <Textarea
+                        value={card.answer}
+                        onChange={(e) => updateCard(card.id, 'answer', e.target.value)}
+                        placeholder={t('pack.creator.answerPlaceholder')}
+                        rows={2}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs text-muted-foreground">{t('pack.creator.answer')}</Label>
-                    <Textarea
-                      value={card.answer}
-                      onChange={(e) => updateCard(card.id, 'answer', e.target.value)}
-                      placeholder={t('pack.creator.answerPlaceholder')}
-                      rows={2}
-                    />
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground">{t('pack.creator.cardType')}</Label>
+                    <div className="flex gap-1">
+                      {(['flashcard', 'written', 'image', 'audio'] as CardType[]).map((type) => {
+                        const IconMap = {
+                          flashcard: RotateCcw,
+                          written: PenLine,
+                          image: Image,
+                          audio: Volume2
+                        };
+                        const Icon = IconMap[type];
+                        const isSelected = card.cardType === type;
+                        return (
+                          <Button
+                            key={type}
+                            type="button"
+                            variant={isSelected ? "default" : "outline"}
+                            size="sm"
+                            className="h-8 px-2"
+                            onClick={() => updateCard(card.id, 'cardType', type)}
+                            title={t(`cardtype.${type}`)}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </Button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
                 <Button

@@ -265,6 +265,12 @@ const translations: Record<Language, Record<string, string>> = {
     'pack.creator.error.invalidCards': 'Au moins 3 fiches doivent avoir une question et une réponse',
     'pack.creator.error.notLoggedIn': 'Vous devez être connecté pour publier un pack',
     'pack.creator.error.publish': 'Erreur lors de la publication',
+    'pack.creator.error.invalidImage': 'Veuillez sélectionner un fichier image valide',
+    'pack.creator.error.invalidAudio': 'Veuillez sélectionner un fichier audio valide',
+    'pack.creator.uploadImage': 'Ajouter une image',
+    'pack.creator.uploadAudio': 'Ajouter un fichier audio',
+    'common.remove': 'Retirer',
+    'common.change': 'Changer',
   },
   en: {
     // Header
@@ -522,6 +528,12 @@ const translations: Record<Language, Record<string, string>> = {
     'pack.creator.error.invalidCards': 'At least 3 cards must have a question and answer',
     'pack.creator.error.notLoggedIn': 'You must be logged in to publish a pack',
     'pack.creator.error.publish': 'Error publishing pack',
+    'pack.creator.error.invalidImage': 'Please select a valid image file',
+    'pack.creator.error.invalidAudio': 'Please select a valid audio file',
+    'pack.creator.uploadImage': 'Add an image',
+    'pack.creator.uploadAudio': 'Add an audio file',
+    'common.remove': 'Remove',
+    'common.change': 'Change',
   },
 };
 

@@ -55,6 +55,8 @@
 
     /* Card answer back */
     --card-answer: 0 100% 24%;
+    --answer-correct: 122 97% 26%;
+    --answer-wrong: 0 100% 24%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;

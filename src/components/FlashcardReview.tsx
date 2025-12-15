@@ -137,7 +137,10 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             </div>
           ) : (
             // Back - Answer
-            <div className="bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center animate-fade-in">
+            <div className={cn(
+              "rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center animate-fade-in",
+              isWrittenCorrectCheck ? "bg-answer-correct" : "bg-answer-wrong"
+            )}>
               <p className="text-xs uppercase tracking-wider text-white/70 mb-2 md:mb-4">
                 {t('review.answer')}
               </p>

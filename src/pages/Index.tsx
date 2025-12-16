@@ -27,7 +27,7 @@ const Index = () => {
   
   // Check if user has visited before to skip hero page
   const getInitialView = (): View => {
-    const hasVisited = localStorage.getItem('hasVisitedBefore');
+    const hasVisited = localStorage.getItem('interval-memo-first-visit-done');
     return hasVisited ? 'dashboard' : 'hero';
   };
   

@@ -24,7 +24,14 @@ type View = 'hero' | 'dashboard' | 'create' | 'review' | 'thematic-quiz' | 'pack
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [view, setView] = useState<View>('hero');
+  
+  // Check if user has visited before to skip hero page
+  const getInitialView = (): View => {
+    const hasVisited = localStorage.getItem('hasVisitedBefore');
+    return hasVisited ? 'dashboard' : 'hero';
+  };
+  
+  const [view, setView] = useState<View>(getInitialView);
   const [reviewCardId, setReviewCardId] = useState<string | null>(null);
   const [thematicQuizGroupId, setThematicQuizGroupId] = useState<string | null>(null);
   const [reviewingPackId, setReviewingPackId] = useState<string | null>(null);

@@ -106,6 +106,8 @@ const translations: Record<Language, Record<string, string>> = {
     'review.of': 'sur',
     'review.thematic': 'Quizz thématique',
     'review.quiz': 'Quizz',
+    'review.retry.failed': 'Révision des fiches à revoir',
+    'review.validated': 'validées',
     
     // Onboarding
     'onboarding.welcome': 'Bienvenue sur Métis Memo !',
@@ -369,6 +371,8 @@ const translations: Record<Language, Record<string, string>> = {
     'review.of': 'of',
     'review.thematic': 'Thematic quiz',
     'review.quiz': 'Quiz',
+    'review.retry.failed': 'Reviewing failed cards',
+    'review.validated': 'validated',
     
     // Onboarding
     'onboarding.welcome': 'Welcome to Métis Memo!',

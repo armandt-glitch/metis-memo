@@ -1,4 +1,4 @@
-import logo from '@/assets/logo.svg';
+import logo from '@/assets/logo.png';
 import { InstallPWA } from '@/components/InstallPWA';
 import { NotificationSettings } from '@/components/NotificationSettings';
 import { LanguageSelector } from '@/components/LanguageSelector';

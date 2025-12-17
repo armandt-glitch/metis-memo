@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Sparkles, Clock, CheckCircle, Layers, LayoutDashboard } from 'lucide-react';
-import logo from '@/assets/logo.svg';
+import logo from '@/assets/logo.png';
 import { InstallPWA } from '@/components/InstallPWA';
 import { useLanguage } from '@/contexts/LanguageContext';
 const FIRST_VISIT_KEY = 'interval-memo-first-visit-done';

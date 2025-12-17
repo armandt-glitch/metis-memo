@@ -192,14 +192,9 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
     setIsPublishing(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({ title: t('pack.creator.error.notLoggedIn'), variant: 'destructive' });
-        setIsPublishing(false);
-        return;
-      }
-
-      const packId = `user-${user.id}-${Date.now()}`;
+      // Generate anonymous user ID for now (no auth required)
+      const anonymousUserId = crypto.randomUUID();
+      const packId = `anon-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
       const cards = validCards.map((card, index) => ({
         id: `${packId}-card-${index}`,
         question: card.question,
@@ -208,7 +203,7 @@ export const PackCreator = ({ existingFlashcards, onBack, onPublish }: PackCreat
       }));
 
       const { error } = await supabase.from('published_packs').insert({
-        user_id: user.id,
+        user_id: anonymousUserId,
         pack_id: packId,
         title: title.trim(),
         description: description.trim(),

@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Flashcard, FORMULAS } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X, RotateCcw, ArrowLeft, Volume2 } from 'lucide-react';
+import { Check, X, RotateCcw, ArrowLeft, Volume2, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { checkAnswer } from '@/lib/fuzzyMatch';
@@ -27,20 +27,112 @@ interface FlashcardReviewProps {
 
 export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizGroupName }: FlashcardReviewProps) => {
   const { t } = useLanguage();
+  
+  // Cards to review in current round
+  const [currentRoundCards, setCurrentRoundCards] = useState<Flashcard[]>(cards);
+  // Cards that were marked as "don't know" - need to be reviewed again
+  const [failedCards, setFailedCards] = useState<Flashcard[]>([]);
+  // Track which cards have been validated in this session
+  const [validatedCardIds, setValidatedCardIds] = useState<Set<string>>(new Set());
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [writtenAnswer, setWrittenAnswer] = useState('');
   const [showWrittenResult, setShowWrittenResult] = useState(false);
+  const [isReviewingFailed, setIsReviewingFailed] = useState(false);
 
-  // Ensure currentIndex is within bounds
-  const safeIndex = Math.min(currentIndex, Math.max(0, cards.length - 1));
-  const currentCard = cards[safeIndex];
+  const activeCards = isReviewingFailed ? failedCards : currentRoundCards;
+  const safeIndex = Math.min(currentIndex, Math.max(0, activeCards.length - 1));
+  const currentCard = activeCards[safeIndex];
 
   const getFormulaName = (type: string) => {
     return t(`formula.${type}`);
   };
 
-  if (cards.length === 0 || !currentCard) {
+  const startFailedCardsReview = useCallback(() => {
+    setCurrentRoundCards([]);
+    setIsReviewingFailed(true);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setWrittenAnswer('');
+    setShowWrittenResult(false);
+  }, []);
+
+  const handleAnswer = useCallback((remembered: boolean) => {
+    if (!currentCard) return;
+
+    if (remembered) {
+      // Card validated - mark it and call onReview
+      setValidatedCardIds(prev => new Set(prev).add(currentCard.id));
+      onReview(currentCard.id, true);
+      
+      // Remove from failed cards if we're reviewing them
+      if (isReviewingFailed) {
+        setFailedCards(prev => prev.filter(c => c.id !== currentCard.id));
+      }
+    } else {
+      // Card not remembered - add to failed cards for re-review
+      if (!isReviewingFailed) {
+        setFailedCards(prev => {
+          // Avoid duplicates
+          if (prev.find(c => c.id === currentCard.id)) return prev;
+          return [...prev, currentCard];
+        });
+      }
+      // Don't call onReview yet - we'll review it again
+    }
+
+    setIsFlipped(false);
+    setWrittenAnswer('');
+    setShowWrittenResult(false);
+
+    if (safeIndex < activeCards.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else {
+      // End of current round
+      if (isReviewingFailed) {
+        // Check if there are still failed cards
+        const remainingFailed = failedCards.filter(c => c.id !== currentCard.id || !remembered);
+        if (remainingFailed.length > 0 && remembered) {
+          // Continue with remaining failed cards
+          setCurrentIndex(0);
+        } else if (remainingFailed.length === 0 || (remainingFailed.length === 0 && remembered)) {
+          // All failed cards validated - session complete
+          onBack();
+        }
+      } else {
+        // End of main round
+        if (failedCards.length > 0 || !remembered) {
+          // There are failed cards to review
+          const updatedFailedCards = !remembered && !failedCards.find(c => c.id === currentCard.id)
+            ? [...failedCards, currentCard]
+            : failedCards;
+          
+          if (updatedFailedCards.length > 0) {
+            setFailedCards(updatedFailedCards);
+            startFailedCardsReview();
+          } else {
+            onBack();
+          }
+        } else {
+          // All cards validated on first try
+          onBack();
+        }
+      }
+    }
+  }, [currentCard, safeIndex, activeCards.length, isReviewingFailed, failedCards, onReview, onBack, startFailedCardsReview]);
+
+  const handleWrittenSubmit = () => {
+    setShowWrittenResult(true);
+  };
+
+  if (activeCards.length === 0 || !currentCard) {
+    // Check if we need to start reviewing failed cards
+    if (failedCards.length > 0 && !isReviewingFailed) {
+      startFailedCardsReview();
+      return null;
+    }
+    
     return (
       <div className="max-w-lg mx-auto text-center animate-slide-up">
         <div className="bg-card rounded-3xl p-12 shadow-card">
@@ -62,24 +154,9 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     );
   }
 
-  const formula = FORMULAS[currentCard.formula];
-  const progress = ((safeIndex + 1) / cards.length) * 100;
-
-  const handleAnswer = (remembered: boolean) => {
-    onReview(currentCard.id, remembered);
-    setIsFlipped(false);
-    setWrittenAnswer('');
-    setShowWrittenResult(false);
-    if (safeIndex < cards.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      onBack();
-    }
-  };
-
-  const handleWrittenSubmit = () => {
-    setShowWrittenResult(true);
-  };
+  const totalCards = cards.length;
+  const validatedCount = validatedCardIds.size;
+  const progress = (validatedCount / totalCards) * 100;
 
   const needsWrittenAnswer = currentCard.cardType === 'written' || currentCard.cardType === 'image' || currentCard.cardType === 'audio';
   
@@ -323,9 +400,19 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
             {t('review.thematic')} : {quizGroupName}
           </p>
         )}
+        
+        {isReviewingFailed && (
+          <div className="flex items-center justify-center gap-2 text-amber-500 mb-2">
+            <RefreshCw className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {t('review.retry.failed')} ({failedCards.length})
+            </span>
+          </div>
+        )}
+        
         <div className="flex justify-between text-sm text-muted-foreground mb-2">
-          <span>{t('review.card')} {safeIndex + 1} {t('review.of')} {cards.length}</span>
-          <span>{isThematicQuiz ? t('review.quiz') : getFormulaName(currentCard.formula)}</span>
+          <span>{t('review.card')} {safeIndex + 1} {t('review.of')} {activeCards.length}</span>
+          <span>{validatedCount}/{totalCards} {t('review.validated')}</span>
         </div>
         <div className="h-2 bg-secondary rounded-full overflow-hidden">
           <div

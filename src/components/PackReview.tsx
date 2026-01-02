@@ -2,11 +2,12 @@ import { useState, useMemo, useCallback } from 'react';
 import { Flashcard, FORMULAS } from '@/types/flashcard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X, RotateCcw, ArrowLeft, Volume2, RefreshCw } from 'lucide-react';
+import { Check, X, RotateCcw, ArrowLeft, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { checkAnswer } from '@/lib/fuzzyMatch';
 import { ImageLightbox } from './ImageLightbox';
+import { ResolvedAudio } from './ResolvedAudio';
 
 const getTextSize = (text: string, isAnswer = false) => {
   const len = text.length;
@@ -179,12 +180,7 @@ export const PackReview = ({ cards, packName, onReview, onBack }: PackReviewProp
               )}
               {currentCard.mediaUrl && currentCard.cardType === 'audio' && (
                 <div className="mb-3 md:mb-4 w-full max-w-xs">
-                  <div className="flex items-center gap-3 bg-secondary rounded-xl p-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Volume2 className="w-5 h-5 text-primary" />
-                    </div>
-                    <audio controls src={currentCard.mediaUrl} className="flex-1 h-8" />
-                  </div>
+                  <ResolvedAudio src={currentCard.mediaUrl} />
                 </div>
               )}
               <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">

@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Plus, ArrowLeft, Upload, X, Image as ImageIcon, Volume2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { saveImage, generateImageId, createIndexedDBRef } from '@/lib/imageStorage';
 
 interface FlashcardFormProps {
   onSubmit: (question: string, answer: string, formula: FormulaType, cardType: CardType, mediaUrl?: string, groupIds?: string[]) => void;
@@ -23,19 +24,38 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
   const [formula, setFormula] = useState<FormulaType>('medium');
   const [cardType, setCardType] = useState<CardType>('flashcard');
   const [groupIds, setGroupIds] = useState<string[]>([]);
-  const [mediaUrl, setMediaUrl] = useState<string | undefined>();
-  const [mediaPreview, setMediaPreview] = useState<string | undefined>();
+  const [mediaData, setMediaData] = useState<string | undefined>(); // base64 data for storage
+  const [mediaPreview, setMediaPreview] = useState<string | undefined>(); // for display
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (question.trim() && answer.trim()) {
-      onSubmit(question, answer, formula, cardType, mediaUrl, groupIds.length > 0 ? groupIds : undefined);
-      setQuestion('');
-      setAnswer('');
-      setGroupIds([]);
-      setMediaUrl(undefined);
-      setMediaPreview(undefined);
+    if (question.trim() && answer.trim() && !isSubmitting) {
+      setIsSubmitting(true);
+      
+      try {
+        let finalMediaUrl: string | undefined;
+        
+        // If we have media data, save to IndexedDB
+        if (mediaData && (cardType === 'image' || cardType === 'audio')) {
+          const tempCardId = Math.random().toString(36).substring(2, 9);
+          const imageId = generateImageId(tempCardId);
+          await saveImage(imageId, mediaData);
+          finalMediaUrl = createIndexedDBRef(imageId);
+        }
+        
+        onSubmit(question, answer, formula, cardType, finalMediaUrl, groupIds.length > 0 ? groupIds : undefined);
+        setQuestion('');
+        setAnswer('');
+        setGroupIds([]);
+        setMediaData(undefined);
+        setMediaPreview(undefined);
+      } catch (error) {
+        console.error('Failed to save flashcard with media:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -45,7 +65,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
-        setMediaUrl(result);
+        setMediaData(result);
         setMediaPreview(result);
       };
       reader.readAsDataURL(file);
@@ -53,7 +73,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
   };
 
   const clearMedia = () => {
-    setMediaUrl(undefined);
+    setMediaData(undefined);
     setMediaPreview(undefined);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -209,10 +229,10 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
           variant="hero"
           size="xl"
           className="w-full"
-          disabled={!question.trim() || !answer.trim() || (showMediaUpload && !mediaUrl)}
+          disabled={!question.trim() || !answer.trim() || (showMediaUpload && !mediaData) || isSubmitting}
         >
           <Plus className="w-5 h-5" />
-          {t('form.create')}
+          {isSubmitting ? t('form.saving') || 'Enregistrement...' : t('form.create')}
         </Button>
       </form>
     </div>

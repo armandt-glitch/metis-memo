@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { X, ZoomIn } from 'lucide-react';
+import { X, ZoomIn, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useResolvedMedia } from '@/hooks/useResolvedMedia';
 
 interface ImageLightboxProps {
   src: string;
@@ -11,18 +12,37 @@ interface ImageLightboxProps {
 
 export const ImageLightbox = ({ src, alt, className }: ImageLightboxProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { resolvedUrl, isLoading } = useResolvedMedia(src);
 
   const handleOpen = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsOpen(true);
+    if (resolvedUrl) {
+      setIsOpen(true);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className={cn("flex items-center justify-center bg-muted rounded-xl", className)}>
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!resolvedUrl) {
+    return (
+      <div className={cn("flex items-center justify-center bg-muted rounded-xl text-muted-foreground text-sm", className)}>
+        Image non disponible
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="relative inline-block group">
         <img 
-          src={src} 
+          src={resolvedUrl} 
           alt={alt} 
           className={cn("cursor-zoom-in", className)}
           onClick={handleOpen}
@@ -51,7 +71,7 @@ export const ImageLightbox = ({ src, alt, className }: ImageLightboxProps) => {
             <X className="w-6 h-6" />
           </button>
           <img 
-            src={src} 
+            src={resolvedUrl} 
             alt={alt} 
             className="w-auto h-auto max-w-full max-h-[90vh] object-contain mx-auto rounded-lg"
             onClick={(e) => e.stopPropagation()}

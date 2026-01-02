@@ -6,6 +6,7 @@ import { Check, X, RotateCcw, ArrowLeft, Volume2, RefreshCw } from 'lucide-react
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { checkAnswer } from '@/lib/fuzzyMatch';
+import { ImageLightbox } from './ImageLightbox';
 
 const getTextSize = (text: string, isAnswer = false) => {
   const len = text.length;
@@ -170,7 +171,7 @@ export const PackReview = ({ cards, packName, onReview, onBack }: PackReviewProp
           {!showWrittenResult ? (
             <div className="bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
               {currentCard.mediaUrl && currentCard.cardType === 'image' && (
-                <img 
+                <ImageLightbox 
                   src={currentCard.mediaUrl} 
                   alt="Question" 
                   className="max-w-[90%] max-h-[25vh] md:max-h-[35vh] w-auto h-auto object-contain rounded-xl mb-3 md:mb-4" 

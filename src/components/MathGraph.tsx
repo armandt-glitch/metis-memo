@@ -12,6 +12,17 @@ const evaluateFormula = (formula: string, x: number): number | null => {
     // Clean up the formula
     let expr = formula
       .replace(/\s/g, '')
+      // Handle Unicode superscript numbers
+      .replace(/⁰/g, '**0')
+      .replace(/¹/g, '**1')
+      .replace(/²/g, '**2')
+      .replace(/³/g, '**3')
+      .replace(/⁴/g, '**4')
+      .replace(/⁵/g, '**5')
+      .replace(/⁶/g, '**6')
+      .replace(/⁷/g, '**7')
+      .replace(/⁸/g, '**8')
+      .replace(/⁹/g, '**9')
       .replace(/\^/g, '**'); // Power operator
     
     // Handle implicit multiplication: 2x -> 2*x, x2 -> x*2, etc.

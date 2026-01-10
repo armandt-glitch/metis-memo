@@ -41,11 +41,22 @@ self.addEventListener('notificationclick', function(event) {
   }
   
   // For "review" action or clicking the notification body, open review
-  const urlToOpen = self.location.origin + '/?openReview=true';
+  const urlToOpen = new URL('/?openReview=true', self.location.origin);
   
-  // Always try to open a new window on mobile - most reliable method
   event.waitUntil(
-    clients.openWindow(urlToOpen)
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(function(windowClients) {
+        // Look for an existing app window
+        for (const client of windowClients) {
+          if (client.url.includes(self.location.origin)) {
+            // Found existing window - send message to navigate and focus
+            client.postMessage({ type: 'NAVIGATE_TO_REVIEW' });
+            return client.focus();
+          }
+        }
+        // No existing window - open a new one
+        return clients.openWindow(urlToOpen.href);
+      })
   );
 });
 

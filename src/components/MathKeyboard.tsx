@@ -19,6 +19,7 @@ const keys = [
 ];
 
 const functions = [
+  { label: 'f(x)=', value: 'f(x)=' },
   { label: 'x²', value: 'x^2' },
   { label: 'x³', value: 'x^3' },
   { label: '√x', value: 'sqrt(x)' },
@@ -30,7 +31,6 @@ const functions = [
   { label: 'π', value: 'pi' },
   { label: 'e', value: 'e' },
   { label: '|x|', value: 'abs(' },
-  { label: 'exp', value: 'exp(' },
 ];
 
 export const MathKeyboard = ({ onInsert, onClear, onBackspace }: MathKeyboardProps) => {

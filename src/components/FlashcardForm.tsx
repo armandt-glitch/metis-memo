@@ -34,7 +34,6 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
   
   // For graph type
   const [mathFormula, setMathFormula] = useState('');
-  const [graphMode, setGraphMode] = useState<'graph-to-formula' | 'formula-to-graph'>('graph-to-formula');
   
   // For memo type
   const [memoContent, setMemoContent] = useState('');
@@ -66,15 +65,10 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
         finalMediaUrl = createIndexedDBRef(imageId);
       }
       
-      // Handle graph type
+      // Handle graph type - always graph as question, formula as answer
       if (cardType === 'graph') {
-        if (graphMode === 'graph-to-formula') {
-          finalQuestion = `[GRAPH]${mathFormula}`;
-          finalAnswer = mathFormula;
-        } else {
-          finalQuestion = mathFormula;
-          finalAnswer = `[GRAPH]${mathFormula}`;
-        }
+        finalQuestion = `[GRAPH]${mathFormula}`;
+        finalAnswer = mathFormula;
       }
       
       // Handle memo type
@@ -252,26 +246,6 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
                 <MathGraph formula={mathFormula} />
               </div>
             )}
-            
-            <div className="space-y-4">
-              <label className="block text-sm font-medium text-foreground">
-                {t('form.graph.mode')}
-              </label>
-              <RadioGroup value={graphMode} onValueChange={(v) => setGraphMode(v as 'graph-to-formula' | 'formula-to-graph')}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="graph-to-formula" id="graph-to-formula" />
-                  <Label htmlFor="graph-to-formula" className="cursor-pointer">
-                    {t('form.graph.mode.graph')}
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="formula-to-graph" id="formula-to-graph" />
-                  <Label htmlFor="formula-to-graph" className="cursor-pointer">
-                    {t('form.graph.mode.formula')}
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
           </div>
         )}
 

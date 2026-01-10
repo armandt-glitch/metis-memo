@@ -30,7 +30,7 @@ const functions = [
   { label: 'ln', value: 'ln(' },
   { label: 'π', value: 'pi' },
   { label: 'e', value: 'e' },
-  { label: '|x|', value: 'abs(' },
+  { label: '|x|', value: '|x|' },
 ];
 
 export const MathKeyboard = ({ onInsert, onClear, onBackspace }: MathKeyboardProps) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,12 @@ import logo from '@/assets/logo.png';
 const Auth = () => {
   const { user, loading, signIn, signUp, resetPassword } = useAuth();
   const { t } = useLanguage();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Get the return URL from location state (set by ProtectedRoute)
+  const returnUrl = (location.state as { returnUrl?: string })?.returnUrl || '/';
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,7 +41,8 @@ const Auth = () => {
   }
 
   if (user) {
-    return <Navigate to="/" replace />;
+    // Redirect to the original URL the user was trying to access
+    return <Navigate to={returnUrl} replace />;
   }
 
   const handleSignIn = async (e: React.FormEvent) => {

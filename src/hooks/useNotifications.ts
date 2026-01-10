@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MOTIVATIONAL_MESSAGES = [
   "Rome ne s'est pas faite en un jour, ta mémoire non plus. Viens réviser.",
@@ -20,6 +22,8 @@ export const useNotifications = () => {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [supported, setSupported] = useState(false);
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [pushSubscription, setPushSubscription] = useState<PushSubscription | null>(null);
+  const { user, session } = useAuth();
 
   useEffect(() => {
     // Check if notifications are supported
@@ -72,6 +76,59 @@ export const useNotifications = () => {
     }
   }, []);
 
+  // Subscribe to push notifications and register with backend
+  const subscribeToPush = useCallback(async () => {
+    if (!user || !session) {
+      console.log('User not authenticated, cannot subscribe to push');
+      return null;
+    }
+
+    if (!swRegistration) {
+      console.log('No service worker registration');
+      return null;
+    }
+
+    try {
+      // Get existing subscription or create new one
+      let subscription = await swRegistration.pushManager.getSubscription();
+      
+      if (!subscription) {
+        // For now, we'll use a placeholder VAPID key
+        // In production, this should come from environment/backend
+        const vapidPublicKey = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U';
+        
+        subscription = await swRegistration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: vapidPublicKey,
+        });
+      }
+
+      setPushSubscription(subscription);
+
+      // Send subscription to backend
+      const subscriptionJson = subscription.toJSON();
+      
+      const { data, error } = await supabase.functions.invoke('register-push', {
+        body: {
+          endpoint: subscriptionJson.endpoint,
+          p256dh: subscriptionJson.keys?.p256dh,
+          auth: subscriptionJson.keys?.auth,
+        },
+      });
+
+      if (error) {
+        console.error('Error registering push subscription:', error);
+        return null;
+      }
+
+      console.log('Push subscription registered with backend');
+      return subscription;
+    } catch (error) {
+      console.error('Error subscribing to push:', error);
+      return null;
+    }
+  }, [user, session, swRegistration]);
+
   const requestPermission = useCallback(async () => {
     if (!supported) {
       console.log('Notifications not supported on this device');
@@ -82,12 +139,25 @@ export const useNotifications = () => {
       const result = await Notification.requestPermission();
       setPermission(result);
       console.log('Notification permission result:', result);
+      
+      // If granted and user is logged in, subscribe to push
+      if (result === 'granted' && user) {
+        await subscribeToPush();
+      }
+      
       return result === 'granted';
     } catch (error) {
       console.error('Error requesting notification permission:', error);
       return false;
     }
-  }, [supported]);
+  }, [supported, user, subscribeToPush]);
+
+  // Auto-subscribe when permission is granted and user logs in
+  useEffect(() => {
+    if (permission === 'granted' && user && swRegistration && !pushSubscription) {
+      subscribeToPush();
+    }
+  }, [permission, user, swRegistration, pushSubscription, subscribeToPush]);
 
   const sendNotification = useCallback(async (title: string, options?: NotificationOptions) => {
     if (!supported) {
@@ -199,14 +269,42 @@ export const useNotifications = () => {
     return timeoutId;
   }, [sendNotification]);
 
+  // Schedule notifications on backend
+  const scheduleNotificationsBackend = useCallback(async (notifications: { scheduled_at: string; card_count: number }[]) => {
+    if (!user || !session) {
+      console.log('User not authenticated, cannot schedule notifications on backend');
+      return false;
+    }
+
+    try {
+      const { error } = await supabase.functions.invoke('schedule-notifications', {
+        body: { notifications },
+      });
+
+      if (error) {
+        console.error('Error scheduling notifications:', error);
+        return false;
+      }
+
+      console.log(`Scheduled ${notifications.length} notifications on backend`);
+      return true;
+    } catch (error) {
+      console.error('Error scheduling notifications:', error);
+      return false;
+    }
+  }, [user, session]);
+
   return {
     supported,
     permission,
     swRegistration,
+    pushSubscription,
     requestPermission,
     registerServiceWorker,
+    subscribeToPush,
     sendNotification,
     notifyDueCards,
     scheduleNotification,
+    scheduleNotificationsBackend,
   };
 };

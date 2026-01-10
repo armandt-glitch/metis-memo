@@ -299,6 +299,21 @@ const translations: Record<Language, Record<string, string>> = {
     'pack.creator.uploadAudio': 'Ajouter un fichier audio',
     'common.remove': 'Retirer',
     'common.change': 'Changer',
+    
+    // Auth
+    'auth.subtitle': 'Connectez-vous pour synchroniser vos notifications',
+    'auth.login': 'Connexion',
+    'auth.signup': 'Inscription',
+    'auth.email': 'Email',
+    'auth.password': 'Mot de passe',
+    'auth.confirm': 'Confirmer le mot de passe',
+    'auth.loading': 'Chargement...',
+    'auth.logout': 'Déconnexion',
+    'auth.error.invalid': 'Email ou mot de passe incorrect',
+    'auth.error.passwords': 'Les mots de passe ne correspondent pas',
+    'auth.error.password.short': 'Le mot de passe doit contenir au moins 6 caractères',
+    'auth.error.exists': 'Cet email est déjà utilisé',
+    'auth.error.generic': 'Une erreur est survenue. Veuillez réessayer.',
   },
   en: {
     // Header
@@ -590,6 +605,21 @@ const translations: Record<Language, Record<string, string>> = {
     'pack.creator.uploadAudio': 'Add an audio file',
     'common.remove': 'Remove',
     'common.change': 'Change',
+    
+    // Auth
+    'auth.subtitle': 'Sign in to sync your notifications',
+    'auth.login': 'Login',
+    'auth.signup': 'Sign up',
+    'auth.email': 'Email',
+    'auth.password': 'Password',
+    'auth.confirm': 'Confirm password',
+    'auth.loading': 'Loading...',
+    'auth.logout': 'Logout',
+    'auth.error.invalid': 'Invalid email or password',
+    'auth.error.passwords': 'Passwords do not match',
+    'auth.error.password.short': 'Password must be at least 6 characters',
+    'auth.error.exists': 'This email is already registered',
+    'auth.error.generic': 'An error occurred. Please try again.',
   },
 };
 

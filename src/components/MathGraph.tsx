@@ -9,53 +9,69 @@ interface MathGraphProps {
 // Parse and evaluate simple math expressions
 const evaluateFormula = (formula: string, x: number): number | null => {
   try {
-    // Clean up the formula
-    let expr = formula
-      .replace(/\s/g, '')
-      // Handle Unicode superscript numbers
-      .replace(/⁰/g, '**0')
-      .replace(/¹/g, '**1')
-      .replace(/²/g, '**2')
-      .replace(/³/g, '**3')
-      .replace(/⁴/g, '**4')
-      .replace(/⁵/g, '**5')
-      .replace(/⁶/g, '**6')
-      .replace(/⁷/g, '**7')
-      .replace(/⁸/g, '**8')
-      .replace(/⁹/g, '**9')
-      .replace(/\^/g, '**'); // Power operator
+    // Clean up the formula - remove spaces first
+    let expr = formula.replace(/\s/g, '');
     
-    // Handle implicit multiplication: 2x -> 2*x, x2 -> x*2, etc.
+    // Handle Unicode superscript numbers - replace with ^n format first
+    expr = expr
+      .replace(/⁰/g, '^0')
+      .replace(/¹/g, '^1')
+      .replace(/²/g, '^2')
+      .replace(/³/g, '^3')
+      .replace(/⁴/g, '^4')
+      .replace(/⁵/g, '^5')
+      .replace(/⁶/g, '^6')
+      .replace(/⁷/g, '^7')
+      .replace(/⁸/g, '^8')
+      .replace(/⁹/g, '^9');
+    
+    // Now convert ^ to ** for JavaScript
+    expr = expr.replace(/\^/g, '**');
+    
+    // Handle implicit multiplication BEFORE converting to lowercase
+    // But be careful not to break ** operator
+    // First, temporarily replace ** with a placeholder
+    expr = expr.replace(/\*\*/g, '§POW§');
+    
+    // Now handle implicit multiplication
     expr = expr
       .replace(/(\d)([a-zA-Z])/g, '$1*$2') // 2x -> 2*x
-      .replace(/([a-zA-Z])(\d)/g, '$1*$2') // x2 -> x*2
+      .replace(/([a-zA-Z])(\d)/g, '$1*$2') // x2 -> x*2 (but not after **)
       .replace(/\)(\d)/g, ')*$1') // )2 -> )*2
       .replace(/(\d)\(/g, '$1*(') // 2( -> 2*(
       .replace(/\)\(/g, ')*(') // )( -> )*(
       .replace(/\)([a-zA-Z])/g, ')*$1') // )x -> )*x
       .replace(/([a-zA-Z])\(/g, '$1*('); // x( -> x*(
+    
+    // Restore ** operator
+    expr = expr.replace(/§POW§/g, '**');
 
     // Convert to lowercase for function matching
-    const lowerExpr = expr.toLowerCase();
+    expr = expr.toLowerCase();
     
-    // Replace math functions - order matters!
-    expr = lowerExpr
+    // Replace math functions - order matters (longer names first)!
+    expr = expr
       .replace(/sinh/g, 'Math.sinh')
       .replace(/cosh/g, 'Math.cosh')
       .replace(/tanh/g, 'Math.tanh')
+      .replace(/asin/g, 'Math.asin')
+      .replace(/acos/g, 'Math.acos')
+      .replace(/atan/g, 'Math.atan')
       .replace(/sin/g, 'Math.sin')
       .replace(/cos/g, 'Math.cos')
       .replace(/tan/g, 'Math.tan')
       .replace(/sqrt/g, 'Math.sqrt')
+      .replace(/cbrt/g, 'Math.cbrt')
       .replace(/abs/g, 'Math.abs')
       .replace(/log10/g, 'Math.log10')
+      .replace(/log2/g, 'Math.log2')
       .replace(/log/g, 'Math.log10')
       .replace(/ln/g, 'Math.log')
       .replace(/exp/g, 'Math.exp')
-      .replace(/pi/g, 'Math.PI')
-      .replace(/\be\b/g, 'Math.E'); // Only standalone 'e'
+      .replace(/pi/g, '(Math.PI)')
+      .replace(/\be\b/g, '(Math.E)'); // Only standalone 'e'
 
-    // Replace x with the value
+    // Replace x with the value (with parentheses for safety)
     expr = expr.replace(/x/g, `(${x})`);
 
     // Safely evaluate
@@ -66,7 +82,6 @@ const evaluateFormula = (formula: string, x: number): number | null => {
     }
     return null;
   } catch (e) {
-    console.log('Formula eval error:', e);
     return null;
   }
 };

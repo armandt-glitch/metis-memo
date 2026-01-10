@@ -213,7 +213,7 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
 
   // Graph type rendering
   const renderGraphContent = () => {
-    if (!showWrittenResult && isGraphQuestion) {
+    if (!showWrittenResult) {
       // Show graph, ask for formula
       return (
         <div key={currentCard.id}>
@@ -233,38 +233,6 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               {t('review.validate')}
             </Button>
           </div>
-        </div>
-      );
-    } else if (!showWrittenResult && !isGraphQuestion) {
-      // Show formula, ask to imagine graph then flip
-      return (
-        <div
-          key={currentCard.id}
-          className="cursor-pointer"
-          onClick={() => setIsFlipped(!isFlipped)}
-        >
-          {!isFlipped ? (
-            <div className="bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
-                {t('review.visualize.graph')}
-              </p>
-              <p className="text-2xl font-mono text-foreground mb-4">
-                f(x) = {currentCard.question}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {t('review.click.reveal')}
-              </p>
-            </div>
-          ) : (
-            <div className="bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center animate-fade-in">
-              <p className="text-xs uppercase tracking-wider text-white/70 mb-4">
-                {t('review.graph')}
-              </p>
-              <div className="w-full bg-white/10 rounded-xl p-2">
-                <MathGraph formula={graphFormula} />
-              </div>
-            </div>
-          )}
         </div>
       );
     } else {
@@ -483,9 +451,9 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
       return renderMemoActions();
     }
 
-    // Graph type with formula-to-graph mode (flip card style)
-    if (isGraphType && !isGraphQuestion) {
-      if (isFlipped) {
+    // Graph type - written answer style
+    if (isGraphType) {
+      if (showWrittenResult) {
         return (
           <div className="flex gap-4 animate-slide-up">
             <Button
@@ -504,25 +472,15 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
               onClick={() => handleAnswer(true)}
             >
               <Check className="w-5 h-5" />
-              {t('review.i.know')}
+              {isWrittenCorrectCheck ? t('review.correct') : t('review.i.knew')}
             </Button>
           </div>
         );
       }
-      return (
-        <Button
-          variant="secondary"
-          size="lg"
-          className="w-full"
-          onClick={() => setIsFlipped(true)}
-        >
-          <RotateCcw className="w-5 h-5" />
-          {t('review.flip')}
-        </Button>
-      );
+      return null;
     }
 
-    // For written, image, audio types and graph-to-formula
+    // For written, image, audio types
     if (needsWrittenAnswer) {
       if (showWrittenResult) {
         return (

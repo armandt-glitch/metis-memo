@@ -10,8 +10,7 @@ import { Plus, ArrowLeft, Upload, X, Image as ImageIcon, Volume2 } from 'lucide-
 import { useLanguage } from '@/contexts/LanguageContext';
 import { saveImage, generateImageId, createIndexedDBRef } from '@/lib/imageStorage';
 import { MathGraph } from './MathGraph';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
+import { MathKeyboard } from './MathKeyboard';
 
 interface FlashcardFormProps {
   onSubmit: (question: string, answer: string, formula: FormulaType, cardType: CardType, mediaUrl?: string, groupIds?: string[]) => void;
@@ -227,15 +226,15 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
               <label className="block text-sm font-medium text-foreground">
                 {t('form.math.formula')}
               </label>
-              <Input
-                value={mathFormula}
-                onChange={(e) => setMathFormula(e.target.value)}
-                placeholder={t('form.math.placeholder')}
-                className="font-mono"
+              <div className="bg-card border border-border rounded-xl p-4 font-mono text-lg min-h-[50px] flex items-center">
+                {mathFormula || <span className="text-muted-foreground">{t('form.math.placeholder')}</span>}
+              </div>
+              
+              <MathKeyboard
+                onInsert={(value) => setMathFormula(prev => prev + value)}
+                onBackspace={() => setMathFormula(prev => prev.slice(0, -1))}
+                onClear={() => setMathFormula('')}
               />
-              <p className="text-xs text-muted-foreground">
-                {t('form.math.hint')}
-              </p>
             </div>
             
             {mathFormula && (

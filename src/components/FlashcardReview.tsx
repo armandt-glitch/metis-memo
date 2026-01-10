@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { checkAnswer } from '@/lib/fuzzyMatch';
 import { ImageLightbox } from './ImageLightbox';
 import { ResolvedAudio } from './ResolvedAudio';
+import { MathGraph } from './MathGraph';
 
 // Helper to get responsive text size based on content length
 const getTextSize = (text: string, isAnswer = false) => {
@@ -160,16 +161,157 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
   const validatedCount = validatedCardIds.size;
   const progress = (validatedCount / totalCards) * 100;
 
-  const needsWrittenAnswer = currentCard.cardType === 'written' || currentCard.cardType === 'image' || currentCard.cardType === 'audio';
+  // Check if it's a graph or memo type
+  const isGraphType = currentCard.cardType === 'graph';
+  const isMemoType = currentCard.cardType === 'memo';
+  
+  // Extract graph formula from question/answer
+  const graphFormula = useMemo(() => {
+    if (!isGraphType) return '';
+    if (currentCard.question.startsWith('[GRAPH]')) {
+      return currentCard.question.replace('[GRAPH]', '');
+    }
+    if (currentCard.answer.startsWith('[GRAPH]')) {
+      return currentCard.answer.replace('[GRAPH]', '');
+    }
+    return currentCard.question;
+  }, [isGraphType, currentCard.question, currentCard.answer]);
+  
+  // For graph: is question the graph? (user must guess formula)
+  const isGraphQuestion = isGraphType && currentCard.question.startsWith('[GRAPH]');
+
+  const needsWrittenAnswer = currentCard.cardType === 'written' || currentCard.cardType === 'image' || currentCard.cardType === 'audio' || (isGraphType && isGraphQuestion);
   
   // Use fuzzy matching for answer validation
   const answerResult = useMemo(() => {
     return checkAnswer(writtenAnswer, currentCard.answer);
   }, [writtenAnswer, currentCard.answer]);
-  
+
   const isWrittenCorrectCheck = answerResult.isCorrect;
 
+  // Memo type - simple display with know/don't know
+  const renderMemoContent = () => {
+    return (
+      <div key={currentCard.id}>
+        <div className="bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
+          <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4">
+            <span className="text-2xl">📝</span>
+          </div>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+            {t('review.memo')}
+          </p>
+          <p className={cn(
+            "font-medium text-foreground text-center px-2 whitespace-pre-wrap",
+            getTextSize(currentCard.question)
+          )}>
+            {currentCard.question}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  // Graph type rendering
+  const renderGraphContent = () => {
+    if (!showWrittenResult && isGraphQuestion) {
+      // Show graph, ask for formula
+      return (
+        <div key={currentCard.id}>
+          <div className="bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+              {t('review.find.formula')}
+            </p>
+            <MathGraph formula={graphFormula} className="mb-4" />
+            <Input
+              value={writtenAnswer}
+              onChange={(e) => setWrittenAnswer(e.target.value)}
+              placeholder={t('review.type.formula')}
+              className="mb-3 max-w-xs font-mono"
+              onKeyDown={(e) => e.key === 'Enter' && handleWrittenSubmit()}
+            />
+            <Button onClick={handleWrittenSubmit} className="w-full max-w-xs">
+              {t('review.validate')}
+            </Button>
+          </div>
+        </div>
+      );
+    } else if (!showWrittenResult && !isGraphQuestion) {
+      // Show formula, ask to imagine graph then flip
+      return (
+        <div
+          key={currentCard.id}
+          className="cursor-pointer"
+          onClick={() => setIsFlipped(!isFlipped)}
+        >
+          {!isFlipped ? (
+            <div className="bg-card rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center justify-center animate-fade-in">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+                {t('review.visualize.graph')}
+              </p>
+              <p className="text-2xl font-mono text-foreground mb-4">
+                f(x) = {currentCard.question}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t('review.click.reveal')}
+              </p>
+            </div>
+          ) : (
+            <div className="bg-card-answer rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center animate-fade-in">
+              <p className="text-xs uppercase tracking-wider text-white/70 mb-4">
+                {t('review.graph')}
+              </p>
+              <div className="w-full bg-white/10 rounded-xl p-2">
+                <MathGraph formula={graphFormula} />
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    } else {
+      // Show result after answer
+      return (
+        <div className={cn(
+          "rounded-3xl shadow-card p-6 md:p-8 flex flex-col items-center animate-fade-in",
+          isWrittenCorrectCheck ? "bg-answer-correct" : "bg-answer-wrong"
+        )}>
+          <p className="text-xs uppercase tracking-wider text-white/70 mb-4">
+            {t('review.answer')}
+          </p>
+          <p className="text-xl font-mono text-white mb-4">
+            f(x) = {currentCard.answer}
+          </p>
+          <div className={cn(
+            'flex items-center gap-3 px-4 py-3 rounded-xl max-w-full',
+            isWrittenCorrectCheck ? 'bg-green-500/20' : 'bg-white/20'
+          )}>
+            {isWrittenCorrectCheck ? (
+              <Check className="w-5 h-5 text-white flex-shrink-0" />
+            ) : (
+              <X className="w-5 h-5 text-red-300 flex-shrink-0" />
+            )}
+            <div className="min-w-0">
+              <p className="text-xs text-white/70">{t('review.your.answer')}</p>
+              <p className={cn('font-mono', isWrittenCorrectCheck ? 'text-white' : 'text-red-200')}>
+                {writtenAnswer || t('review.empty')}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+
   const renderCardContent = () => {
+    // Memo type
+    if (isMemoType) {
+      return renderMemoContent();
+    }
+    
+    // Graph type
+    if (isGraphType) {
+      return renderGraphContent();
+    }
+    
     // For written, image, audio types - all need written answer
     if (needsWrittenAnswer) {
       return (
@@ -265,7 +407,6 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     }
 
     // Standard flashcard - click to flip
-    // Simple conditional rendering for proper height adaptation
     return (
       <div
         key={currentCard.id}
@@ -311,8 +452,77 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
     );
   };
 
+  const renderMemoActions = () => {
+    return (
+      <div className="flex gap-4 animate-slide-up">
+        <Button
+          variant="outline"
+          size="lg"
+          className="flex-1 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+          onClick={() => handleAnswer(false)}
+        >
+          <X className="w-5 h-5" />
+          {t('review.dont.know')}
+        </Button>
+        <Button
+          variant="default"
+          size="lg"
+          className="flex-1"
+          onClick={() => handleAnswer(true)}
+        >
+          <Check className="w-5 h-5" />
+          {t('review.i.know')}
+        </Button>
+      </div>
+    );
+  };
+
   const renderActions = () => {
-    // For written, image, audio types
+    // Memo type - always show actions
+    if (isMemoType) {
+      return renderMemoActions();
+    }
+
+    // Graph type with formula-to-graph mode (flip card style)
+    if (isGraphType && !isGraphQuestion) {
+      if (isFlipped) {
+        return (
+          <div className="flex gap-4 animate-slide-up">
+            <Button
+              variant="outline"
+              size="lg"
+              className="flex-1 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              onClick={() => handleAnswer(false)}
+            >
+              <X className="w-5 h-5" />
+              {t('review.to.review')}
+            </Button>
+            <Button
+              variant="default"
+              size="lg"
+              className="flex-1"
+              onClick={() => handleAnswer(true)}
+            >
+              <Check className="w-5 h-5" />
+              {t('review.i.know')}
+            </Button>
+          </div>
+        );
+      }
+      return (
+        <Button
+          variant="secondary"
+          size="lg"
+          className="w-full"
+          onClick={() => setIsFlipped(true)}
+        >
+          <RotateCcw className="w-5 h-5" />
+          {t('review.flip')}
+        </Button>
+      );
+    }
+
+    // For written, image, audio types and graph-to-formula
     if (needsWrittenAnswer) {
       if (showWrittenResult) {
         return (

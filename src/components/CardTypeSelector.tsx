@@ -1,5 +1,5 @@
 import { CardType } from '@/types/flashcard';
-import { RotateCcw, PenLine, Image, Volume2 } from 'lucide-react';
+import { RotateCcw, PenLine, Image, Volume2, LineChart, StickyNote } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -13,9 +13,11 @@ const iconMap = {
   written: PenLine,
   image: Image,
   audio: Volume2,
+  graph: LineChart,
+  memo: StickyNote,
 };
 
-const cardTypeKeys: CardType[] = ['flashcard', 'written', 'image', 'audio'];
+const cardTypeKeys: CardType[] = ['flashcard', 'written', 'image', 'audio', 'graph', 'memo'];
 
 export const CardTypeSelector = ({ selected, onSelect }: CardTypeSelectorProps) => {
   const { t } = useLanguage();

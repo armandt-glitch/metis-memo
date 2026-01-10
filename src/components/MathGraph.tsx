@@ -11,37 +11,51 @@ const evaluateFormula = (formula: string, x: number): number | null => {
   try {
     // Clean up the formula
     let expr = formula
-      .toLowerCase()
       .replace(/\s/g, '')
-      .replace(/\^/g, '**') // Power operator
-      .replace(/(\d)x/g, '$1*x') // 2x -> 2*x
-      .replace(/x(\d)/g, 'x*$1') // x2 -> x*2
-      .replace(/\)x/g, ')*x') // )x -> )*x
-      .replace(/x\(/g, 'x*(') // x( -> x*(
-      .replace(/\)\(/g, ')*(') // )( -> )*(
+      .replace(/\^/g, '**'); // Power operator
+    
+    // Handle implicit multiplication: 2x -> 2*x, x2 -> x*2, etc.
+    expr = expr
+      .replace(/(\d)([a-zA-Z])/g, '$1*$2') // 2x -> 2*x
+      .replace(/([a-zA-Z])(\d)/g, '$1*$2') // x2 -> x*2
+      .replace(/\)(\d)/g, ')*$1') // )2 -> )*2
       .replace(/(\d)\(/g, '$1*(') // 2( -> 2*(
+      .replace(/\)\(/g, ')*(') // )( -> )*(
+      .replace(/\)([a-zA-Z])/g, ')*$1') // )x -> )*x
+      .replace(/([a-zA-Z])\(/g, '$1*('); // x( -> x*(
+
+    // Convert to lowercase for function matching
+    const lowerExpr = expr.toLowerCase();
+    
+    // Replace math functions - order matters!
+    expr = lowerExpr
+      .replace(/sinh/g, 'Math.sinh')
+      .replace(/cosh/g, 'Math.cosh')
+      .replace(/tanh/g, 'Math.tanh')
       .replace(/sin/g, 'Math.sin')
       .replace(/cos/g, 'Math.cos')
       .replace(/tan/g, 'Math.tan')
       .replace(/sqrt/g, 'Math.sqrt')
       .replace(/abs/g, 'Math.abs')
+      .replace(/log10/g, 'Math.log10')
       .replace(/log/g, 'Math.log10')
       .replace(/ln/g, 'Math.log')
       .replace(/exp/g, 'Math.exp')
       .replace(/pi/g, 'Math.PI')
-      .replace(/e(?![x])/g, 'Math.E');
+      .replace(/\be\b/g, 'Math.E'); // Only standalone 'e'
 
     // Replace x with the value
     expr = expr.replace(/x/g, `(${x})`);
 
-    // Safely evaluate - only allow math operations
-    const result = new Function(`return ${expr}`)();
+    // Safely evaluate
+    const result = new Function(`"use strict"; return (${expr})`)();
     
-    if (typeof result === 'number' && isFinite(result)) {
+    if (typeof result === 'number' && isFinite(result) && !isNaN(result)) {
       return result;
     }
     return null;
-  } catch {
+  } catch (e) {
+    console.log('Formula eval error:', e);
     return null;
   }
 };

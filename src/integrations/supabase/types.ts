@@ -102,29 +102,29 @@ export type Database = {
         Row: {
           auth: string
           created_at: string
-          device_id: string
           endpoint: string
           id: string
           p256dh: string
           updated_at: string
+          user_id: string
         }
         Insert: {
           auth: string
           created_at?: string
-          device_id: string
           endpoint: string
           id?: string
           p256dh: string
           updated_at?: string
+          user_id: string
         }
         Update: {
           auth?: string
           created_at?: string
-          device_id?: string
           endpoint?: string
           id?: string
           p256dh?: string
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -132,36 +132,28 @@ export type Database = {
         Row: {
           card_count: number
           created_at: string
-          device_id: string
           id: string
           scheduled_at: string
           sent: boolean
+          user_id: string
         }
         Insert: {
           card_count?: number
           created_at?: string
-          device_id: string
           id?: string
           scheduled_at: string
           sent?: boolean
+          user_id: string
         }
         Update: {
           card_count?: number
           created_at?: string
-          device_id?: string
           id?: string
           scheduled_at?: string
           sent?: boolean
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "scheduled_notifications_device_id_fkey"
-            columns: ["device_id"]
-            isOneToOne: false
-            referencedRelation: "push_subscriptions"
-            referencedColumns: ["device_id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {

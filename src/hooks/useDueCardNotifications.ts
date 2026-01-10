@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useNotifications } from './useNotifications';
+import { useAuth } from '@/contexts/AuthContext';
 import { Flashcard } from '@/types/flashcard';
 
 const NOTIFICATION_COOLDOWN = 30 * 60 * 1000; // 30 minutes minimum between notifications
@@ -12,9 +13,17 @@ export const useDueCardNotifications = (
   dueCount: number,
   options?: UseDueCardNotificationsOptions
 ) => {
-  const { permission, notifyDueCards, scheduleNotification, registerServiceWorker } = useNotifications();
+  const { 
+    permission, 
+    notifyDueCards, 
+    scheduleNotification, 
+    scheduleNotificationsBackend,
+    registerServiceWorker 
+  } = useNotifications();
+  const { user } = useAuth();
   const lastNotifiedTime = useRef<number>(0);
   const scheduledTimeouts = useRef<NodeJS.Timeout[]>([]);
+  const lastScheduledHash = useRef<string>('');
 
   // Register service worker on mount if permission is granted
   useEffect(() => {
@@ -23,7 +32,7 @@ export const useDueCardNotifications = (
     }
   }, [permission, registerServiceWorker]);
 
-  // Notify when due count changes
+  // Notify when due count changes (local notification)
   useEffect(() => {
     if (permission !== 'granted') return;
     if (dueCount === 0) return;
@@ -42,7 +51,7 @@ export const useDueCardNotifications = (
   const scheduleUpcomingNotifications = useCallback((flashcards: Flashcard[]) => {
     if (permission !== 'granted') return;
     
-    // Clear existing scheduled notifications
+    // Clear existing scheduled notifications (local)
     scheduledTimeouts.current.forEach(clearTimeout);
     scheduledTimeouts.current = [];
     
@@ -57,28 +66,49 @@ export const useDueCardNotifications = (
       return timeDiff > 0 && timeDiff <= maxScheduleTime;
     });
     
-    // Schedule notifications for each unique time (grouped by hour to avoid too many)
-    const scheduledHours = new Set<string>();
+    // Group by hour to avoid too many notifications
+    const scheduledHours = new Map<string, { date: Date; count: number }>();
     
     upcomingCards.forEach(card => {
       const reviewDate = new Date(card.nextReviewAt);
       const hourKey = `${reviewDate.getFullYear()}-${reviewDate.getMonth()}-${reviewDate.getDate()}-${reviewDate.getHours()}`;
       
-      if (!scheduledHours.has(hourKey)) {
-        scheduledHours.add(hourKey);
-        
+      const existing = scheduledHours.get(hourKey);
+      if (existing) {
+        existing.count++;
+      } else {
+        scheduledHours.set(hourKey, { date: reviewDate, count: 1 });
+      }
+    });
+
+    // If user is authenticated, send to backend
+    if (user) {
+      const notifications = Array.from(scheduledHours.values()).map(({ date, count }) => ({
+        scheduled_at: date.toISOString(),
+        card_count: count,
+      }));
+      
+      // Create a hash to avoid redundant API calls
+      const hash = JSON.stringify(notifications.map(n => n.scheduled_at).sort());
+      if (hash !== lastScheduledHash.current) {
+        lastScheduledHash.current = hash;
+        scheduleNotificationsBackend(notifications);
+      }
+    } else {
+      // Fallback to local scheduling for non-authenticated users (shouldn't happen with mandatory auth)
+      scheduledHours.forEach(({ date }) => {
         const timeoutId = scheduleNotification(
           'Métis Memo - Révision',
           'Une carte est prête à être révisée !',
-          reviewDate
+          date
         );
         
         if (timeoutId) {
           scheduledTimeouts.current.push(timeoutId);
         }
-      }
-    });
-  }, [permission, scheduleNotification]);
+      });
+    }
+  }, [permission, user, scheduleNotification, scheduleNotificationsBackend]);
 
   // Schedule notifications when flashcards change
   useEffect(() => {

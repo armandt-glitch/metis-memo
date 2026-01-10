@@ -3,6 +3,7 @@ import { InstallPWA } from '@/components/InstallPWA';
 import { NotificationSettings } from '@/components/NotificationSettings';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { AuthButton } from '@/components/auth/AuthButton';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface HeaderProps {
@@ -29,6 +30,7 @@ export const Header = ({ dueCount = 0 }: HeaderProps) => {
             <LanguageSelector />
             <NotificationSettings dueCount={dueCount} />
             <InstallPWA />
+            <AuthButton />
           </div>
         </div>
       </div>

@@ -64,7 +64,7 @@ export const MathKeyboard = ({ onInsert, onClear, onBackspace }: MathKeyboardPro
             variant={key === 'x' ? 'default' : 'secondary'}
             size="sm"
             className="h-10 text-base font-mono"
-            onClick={() => onInsert(key === '=' ? '' : key)}
+            onClick={() => onInsert(key)}
           >
             {key}
           </Button>

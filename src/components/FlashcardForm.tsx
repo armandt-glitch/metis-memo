@@ -9,6 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Plus, ArrowLeft, Upload, X, Image as ImageIcon, Volume2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { saveImage, generateImageId, createIndexedDBRef } from '@/lib/imageStorage';
+import { MathGraph } from './MathGraph';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 interface FlashcardFormProps {
   onSubmit: (question: string, answer: string, formula: FormulaType, cardType: CardType, mediaUrl?: string, groupIds?: string[]) => void;
@@ -28,34 +31,70 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
   const [mediaPreview, setMediaPreview] = useState<string | undefined>(); // for display
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // For graph type
+  const [mathFormula, setMathFormula] = useState('');
+  const [graphMode, setGraphMode] = useState<'graph-to-formula' | 'formula-to-graph'>('graph-to-formula');
+  
+  // For memo type
+  const [memoContent, setMemoContent] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (question.trim() && answer.trim() && !isSubmitting) {
-      setIsSubmitting(true);
+    
+    // Validation based on card type
+    if (cardType === 'memo') {
+      if (!memoContent.trim() || isSubmitting) return;
+    } else if (cardType === 'graph') {
+      if (!mathFormula.trim() || isSubmitting) return;
+    } else {
+      if (!question.trim() || !answer.trim() || isSubmitting) return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      let finalMediaUrl: string | undefined;
+      let finalQuestion = question;
+      let finalAnswer = answer;
       
-      try {
-        let finalMediaUrl: string | undefined;
-        
-        // If we have media data, save to IndexedDB
-        if (mediaData && (cardType === 'image' || cardType === 'audio')) {
-          const tempCardId = Math.random().toString(36).substring(2, 9);
-          const imageId = generateImageId(tempCardId);
-          await saveImage(imageId, mediaData);
-          finalMediaUrl = createIndexedDBRef(imageId);
-        }
-        
-        onSubmit(question, answer, formula, cardType, finalMediaUrl, groupIds.length > 0 ? groupIds : undefined);
-        setQuestion('');
-        setAnswer('');
-        setGroupIds([]);
-        setMediaData(undefined);
-        setMediaPreview(undefined);
-      } catch (error) {
-        console.error('Failed to save flashcard with media:', error);
-      } finally {
-        setIsSubmitting(false);
+      // If we have media data, save to IndexedDB
+      if (mediaData && (cardType === 'image' || cardType === 'audio')) {
+        const tempCardId = Math.random().toString(36).substring(2, 9);
+        const imageId = generateImageId(tempCardId);
+        await saveImage(imageId, mediaData);
+        finalMediaUrl = createIndexedDBRef(imageId);
       }
+      
+      // Handle graph type
+      if (cardType === 'graph') {
+        if (graphMode === 'graph-to-formula') {
+          finalQuestion = `[GRAPH]${mathFormula}`;
+          finalAnswer = mathFormula;
+        } else {
+          finalQuestion = mathFormula;
+          finalAnswer = `[GRAPH]${mathFormula}`;
+        }
+      }
+      
+      // Handle memo type
+      if (cardType === 'memo') {
+        finalQuestion = memoContent;
+        finalAnswer = '[MEMO]';
+      }
+      
+      onSubmit(finalQuestion, finalAnswer, formula, cardType, finalMediaUrl, groupIds.length > 0 ? groupIds : undefined);
+      setQuestion('');
+      setAnswer('');
+      setGroupIds([]);
+      setMediaData(undefined);
+      setMediaPreview(undefined);
+      setMathFormula('');
+      setMemoContent('');
+    } catch (error) {
+      console.error('Failed to save flashcard with media:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -82,6 +121,9 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
 
   const showMediaUpload = cardType === 'image' || cardType === 'audio';
   const acceptType = cardType === 'image' ? 'image/*' : 'audio/*';
+  const isGraphType = cardType === 'graph';
+  const isMemoType = cardType === 'memo';
+  const showStandardFields = !isGraphType && !isMemoType;
 
   return (
     <div className="max-w-2xl mx-auto animate-slide-up">
@@ -184,29 +226,100 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
           </div>
         )}
 
-        <div className="space-y-4">
-          <label className="block text-sm font-medium text-foreground">
-            {t('form.question')}
-          </label>
-          <Textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder={t('form.question.placeholder')}
-            className="min-h-[100px] resize-none bg-card border-border focus:ring-primary"
-          />
-        </div>
+        {/* Graph type specific fields */}
+        {isGraphType && (
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-foreground">
+                {t('form.math.formula')}
+              </label>
+              <Input
+                value={mathFormula}
+                onChange={(e) => setMathFormula(e.target.value)}
+                placeholder={t('form.math.placeholder')}
+                className="font-mono"
+              />
+              <p className="text-xs text-muted-foreground">
+                {t('form.math.hint')}
+              </p>
+            </div>
+            
+            {mathFormula && (
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-foreground">
+                  {t('form.graph.preview')}
+                </label>
+                <MathGraph formula={mathFormula} />
+              </div>
+            )}
+            
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-foreground">
+                {t('form.graph.mode')}
+              </label>
+              <RadioGroup value={graphMode} onValueChange={(v) => setGraphMode(v as 'graph-to-formula' | 'formula-to-graph')}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="graph-to-formula" id="graph-to-formula" />
+                  <Label htmlFor="graph-to-formula" className="cursor-pointer">
+                    {t('form.graph.mode.graph')}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="formula-to-graph" id="formula-to-graph" />
+                  <Label htmlFor="formula-to-graph" className="cursor-pointer">
+                    {t('form.graph.mode.formula')}
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+          </div>
+        )}
 
-        <div className="space-y-4">
-          <label className="block text-sm font-medium text-foreground">
-            {t('form.answer')} {cardType === 'written' && t('form.answer.written')}
-          </label>
-          <Textarea
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            placeholder={t('form.answer.placeholder')}
-            className="min-h-[100px] resize-none bg-card border-border focus:ring-primary"
-          />
-        </div>
+        {/* Memo type specific fields */}
+        {isMemoType && (
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-foreground">
+              {t('form.memo.content')}
+            </label>
+            <Textarea
+              value={memoContent}
+              onChange={(e) => setMemoContent(e.target.value)}
+              placeholder={t('form.memo.placeholder')}
+              className="min-h-[150px] resize-none bg-card border-border focus:ring-primary"
+            />
+            <p className="text-xs text-muted-foreground">
+              {t('form.memo.hint')}
+            </p>
+          </div>
+        )}
+
+        {showStandardFields && (
+          <>
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-foreground">
+                {t('form.question')}
+              </label>
+              <Textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder={t('form.question.placeholder')}
+                className="min-h-[100px] resize-none bg-card border-border focus:ring-primary"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-foreground">
+                {t('form.answer')} {cardType === 'written' && t('form.answer.written')}
+              </label>
+              <Textarea
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                placeholder={t('form.answer.placeholder')}
+                className="min-h-[100px] resize-none bg-card border-border focus:ring-primary"
+              />
+            </div>
+          </>
+        )}
 
         <div className="space-y-4">
           <label className="block text-sm font-medium text-foreground">
@@ -229,7 +342,13 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
           variant="hero"
           size="xl"
           className="w-full"
-          disabled={!question.trim() || !answer.trim() || (showMediaUpload && !mediaData) || isSubmitting}
+          disabled={
+            (showStandardFields && (!question.trim() || !answer.trim())) ||
+            (isGraphType && !mathFormula.trim()) ||
+            (isMemoType && !memoContent.trim()) ||
+            (showMediaUpload && !mediaData) ||
+            isSubmitting
+          }
         >
           <Plus className="w-5 h-5" />
           {isSubmitting ? t('form.saving') || 'Enregistrement...' : t('form.create')}

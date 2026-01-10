@@ -1,5 +1,5 @@
 export type FormulaType = 'test' | 'short' | 'medium' | 'long';
-export type CardType = 'flashcard' | 'written' | 'image' | 'audio';
+export type CardType = 'flashcard' | 'written' | 'image' | 'audio' | 'graph' | 'memo';
 
 export interface ReviewSchedule {
   interval: number; // in minutes
@@ -66,6 +66,16 @@ export const CARD_TYPES: Record<CardType, { name: string; description: string; i
     name: 'Audio',
     description: 'Question basée sur un fichier audio',
     icon: 'Volume2',
+  },
+  graph: {
+    name: 'Graphique',
+    description: 'Représentation graphique d\'une fonction',
+    icon: 'LineChart',
+  },
+  memo: {
+    name: 'Pense-bête',
+    description: 'Simple mémo sans question/réponse',
+    icon: 'StickyNote',
   },
 };
 

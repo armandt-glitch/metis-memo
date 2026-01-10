@@ -151,6 +151,32 @@ const translations: Record<Language, Record<string, string>> = {
     'cardtype.image.desc': 'Question basée sur une image',
     'cardtype.audio': 'Audio',
     'cardtype.audio.desc': 'Question basée sur un fichier audio',
+    'cardtype.graph': 'Graphique',
+    'cardtype.graph.desc': 'Fonction mathématique',
+    'cardtype.memo': 'Pense-bête',
+    'cardtype.memo.desc': 'Simple mémo à retenir',
+    
+    // Form - Graph type
+    'form.math.formula': 'Formule mathématique',
+    'form.math.placeholder': 'Ex: x^2, sin(x), 2*x+1...',
+    'form.math.hint': 'Utilisez x comme variable. Opérateurs: +, -, *, /, ^. Fonctions: sin, cos, tan, sqrt, log, exp',
+    'form.graph.preview': 'Aperçu du graphique',
+    'form.graph.mode': 'Mode de révision',
+    'form.graph.mode.graph': 'Afficher le graphique → deviner la formule',
+    'form.graph.mode.formula': 'Afficher la formule → visualiser le graphique',
+    
+    // Form - Memo type
+    'form.memo.content': 'Contenu du pense-bête',
+    'form.memo.placeholder': 'Entrez le texte à mémoriser...',
+    'form.memo.hint': 'Simple texte à retenir, sans question/réponse',
+    
+    // Review - new types
+    'review.memo': 'Pense-bête',
+    'review.find.formula': 'Quelle est la formule ?',
+    'review.type.formula': 'Tapez la formule...',
+    'review.visualize.graph': 'Visualisez le graphique',
+    'review.graph': 'Graphique',
+    'review.dont.know': 'Je ne sais pas',
     
     // Colors
     'color.red': 'Rouge',
@@ -416,6 +442,32 @@ const translations: Record<Language, Record<string, string>> = {
     'cardtype.image.desc': 'Question based on an image',
     'cardtype.audio': 'Audio',
     'cardtype.audio.desc': 'Question based on an audio file',
+    'cardtype.graph': 'Graph',
+    'cardtype.graph.desc': 'Math function',
+    'cardtype.memo': 'Memo',
+    'cardtype.memo.desc': 'Simple note to remember',
+    
+    // Form - Graph type
+    'form.math.formula': 'Math formula',
+    'form.math.placeholder': 'E.g: x^2, sin(x), 2*x+1...',
+    'form.math.hint': 'Use x as variable. Operators: +, -, *, /, ^. Functions: sin, cos, tan, sqrt, log, exp',
+    'form.graph.preview': 'Graph preview',
+    'form.graph.mode': 'Review mode',
+    'form.graph.mode.graph': 'Show graph → guess formula',
+    'form.graph.mode.formula': 'Show formula → visualize graph',
+    
+    // Form - Memo type
+    'form.memo.content': 'Memo content',
+    'form.memo.placeholder': 'Enter text to memorize...',
+    'form.memo.hint': 'Simple text to remember, no question/answer',
+    
+    // Review - new types
+    'review.memo': 'Memo',
+    'review.find.formula': 'What is the formula?',
+    'review.type.formula': 'Type the formula...',
+    'review.visualize.graph': 'Visualize the graph',
+    'review.graph': 'Graph',
+    'review.dont.know': "I don't know",
     
     // Colors
     'color.red': 'Red',

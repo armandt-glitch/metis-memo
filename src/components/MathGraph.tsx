@@ -71,6 +71,8 @@ const detectDomain = (formula: string): { min: number; max: number } => {
 
 export const MathGraph = ({ formula, className = '' }: MathGraphProps) => {
   const data = useMemo(() => {
+    if (!formula.trim()) return [];
+    
     const { min, max } = detectDomain(formula);
     const points: { x: number; y: number | null }[] = [];
     const step = (max - min) / 200;
@@ -98,37 +100,59 @@ export const MathGraph = ({ formula, className = '' }: MathGraphProps) => {
     };
   }, [data]);
 
+  // Check if we have valid data
+  const hasValidData = data.some(d => d.y !== null);
+
+  if (!hasValidData && formula.trim()) {
+    return (
+      <div className={`w-full bg-secondary/50 rounded-xl p-4 ${className}`}>
+        <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+          <p className="text-center">
+            Formule non reconnue.<br />
+            <span className="text-xs">Essayez: x^2, sin(x), 2*x+1...</span>
+          </p>
+        </div>
+        <p className="text-xs text-center text-muted-foreground mt-2 font-mono">
+          f(x) = {formula}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full bg-secondary/50 rounded-xl p-4 ${className}`}>
-      <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-          <XAxis 
-            dataKey="x" 
-            type="number"
-            domain={['dataMin', 'dataMax']}
-            tickFormatter={(v) => v.toFixed(1)}
-            stroke="hsl(var(--muted-foreground))"
-            fontSize={10}
-          />
-          <YAxis 
-            domain={[yBounds.min, yBounds.max]}
-            tickFormatter={(v) => v.toFixed(1)}
-            stroke="hsl(var(--muted-foreground))"
-            fontSize={10}
-          />
-          <ReferenceLine x={0} stroke="hsl(var(--muted-foreground))" strokeWidth={1} />
-          <ReferenceLine y={0} stroke="hsl(var(--muted-foreground))" strokeWidth={1} />
-          <Line 
-            type="monotone" 
-            dataKey="y" 
-            stroke="hsl(var(--primary))" 
-            strokeWidth={2}
-            dot={false}
-            connectNulls={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div style={{ width: '100%', height: 200 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis 
+              dataKey="x" 
+              type="number"
+              domain={['dataMin', 'dataMax']}
+              tickFormatter={(v) => typeof v === 'number' ? v.toFixed(1) : v}
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={10}
+            />
+            <YAxis 
+              domain={[yBounds.min, yBounds.max]}
+              tickFormatter={(v) => typeof v === 'number' ? v.toFixed(1) : v}
+              stroke="hsl(var(--muted-foreground))"
+              fontSize={10}
+            />
+            <ReferenceLine x={0} stroke="hsl(var(--muted-foreground))" strokeWidth={1} />
+            <ReferenceLine y={0} stroke="hsl(var(--muted-foreground))" strokeWidth={1} />
+            <Line 
+              type="monotone" 
+              dataKey="y" 
+              stroke="hsl(var(--primary))" 
+              strokeWidth={2}
+              dot={false}
+              connectNulls={false}
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
       <p className="text-xs text-center text-muted-foreground mt-2 font-mono">
         f(x) = {formula}
       </p>

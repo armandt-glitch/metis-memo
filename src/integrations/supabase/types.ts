@@ -98,6 +98,71 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          device_id: string
+          endpoint: string
+          id: string
+          p256dh: string
+          updated_at: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          device_id: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          updated_at?: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          device_id?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      scheduled_notifications: {
+        Row: {
+          card_count: number
+          created_at: string
+          device_id: string
+          id: string
+          scheduled_at: string
+          sent: boolean
+        }
+        Insert: {
+          card_count?: number
+          created_at?: string
+          device_id: string
+          id?: string
+          scheduled_at: string
+          sent?: boolean
+        }
+        Update: {
+          card_count?: number
+          created_at?: string
+          device_id?: string
+          id?: string
+          scheduled_at?: string
+          sent?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_notifications_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "push_subscriptions"
+            referencedColumns: ["device_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -314,6 +314,11 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.error.password.short': 'Le mot de passe doit contenir au moins 6 caractères',
     'auth.error.exists': 'Cet email est déjà utilisé',
     'auth.error.generic': 'Une erreur est survenue. Veuillez réessayer.',
+    'auth.forgot': 'Mot de passe oublié ?',
+    'auth.reset.subtitle': 'Entrez votre email pour recevoir un lien de réinitialisation',
+    'auth.reset.button': 'Envoyer le lien',
+    'auth.reset.back': 'Retour à la connexion',
+    'auth.reset.success': 'Email envoyé ! Vérifiez votre boîte de réception.',
   },
   en: {
     // Header
@@ -620,6 +625,11 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.error.password.short': 'Password must be at least 6 characters',
     'auth.error.exists': 'This email is already registered',
     'auth.error.generic': 'An error occurred. Please try again.',
+    'auth.forgot': 'Forgot password?',
+    'auth.reset.subtitle': 'Enter your email to receive a reset link',
+    'auth.reset.button': 'Send reset link',
+    'auth.reset.back': 'Back to login',
+    'auth.reset.success': 'Email sent! Check your inbox.',
   },
 };
 

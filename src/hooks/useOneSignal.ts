@@ -25,10 +25,13 @@ export const useOneSignal = () => {
           notifyButton: { enable: false },
           allowLocalhostAsSecureOrigin: true,
           serviceWorkerParam: { scope: '/' },
+          serviceWorkerPath: '/OneSignalSDKWorker.js',
           welcomeNotification: {
             title: 'Métis Memo',
             message: 'Les notifications sont maintenant actives !',
           },
+          notificationClickHandlerMatch: 'origin',
+          notificationClickHandlerAction: 'focus',
         });
         
         setInitialized(true);

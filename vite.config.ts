@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "robots.txt", "sw-notifications.js"],
+      includeAssets: ["favicon.ico", "robots.txt", "OneSignalSDKWorker.js"],
       manifest: {
         name: "Métis Memo - Mémorisation intelligente",
         short_name: "Métis Memo",

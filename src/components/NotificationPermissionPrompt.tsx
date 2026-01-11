@@ -1,58 +1,30 @@
 import { useState, useEffect } from 'react';
 import { Bell, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNotifications } from '@/hooks/useNotifications';
+import { useOneSignal } from '@/hooks/useOneSignal';
 import { toast } from 'sonner';
 
 export const NotificationPermissionPrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
-  const { supported, permission, requestPermission, registerServiceWorker } = useNotifications();
+  const { initialized, permission, requestPermission, supported } = useOneSignal();
 
   useEffect(() => {
-    // Show prompt immediately if:
-    // 1. Notifications are supported
-    // 2. Permission hasn't been granted or denied yet
-    // 3. User hasn't dismissed the prompt in this session
+    // Show prompt if:
+    // 1. OneSignal is initialized
+    // 2. Notifications are supported
+    // 3. Permission hasn't been granted or denied yet
+    // 4. User hasn't dismissed the prompt in this session
     const dismissed = sessionStorage.getItem('notification-prompt-dismissed');
-    if (supported && permission === 'default' && !dismissed) {
-      // Show immediately on app open
+    if (initialized && supported && permission === 'default' && !dismissed) {
       setShowPrompt(true);
     }
-  }, [supported, permission]);
+  }, [initialized, supported, permission]);
 
   const handleEnable = async () => {
-    // First register service worker
-    const registration = await registerServiceWorker();
-    
-    // Then request permission
     const granted = await requestPermission();
     
     if (granted) {
       toast.success('Notifications activées ! Vous serez prévenu quand des cartes sont à réviser.');
-      
-      // Send a test notification via service worker
-      setTimeout(async () => {
-        try {
-          const notificationOptions = {
-            body: 'Les notifications sont maintenant actives !',
-            icon: '/pwa-192x192.png',
-            badge: '/badge-notification.png',
-            tag: 'test-notification',
-            data: {
-              url: '/?openReview=true'
-            }
-          };
-          
-          if (registration?.active) {
-            await registration.showNotification('Métis Memo', notificationOptions);
-          } else if ('serviceWorker' in navigator) {
-            const reg = await navigator.serviceWorker.ready;
-            await reg.showNotification('Métis Memo', notificationOptions);
-          }
-        } catch (error) {
-          console.error('Test notification failed:', error);
-        }
-      }, 1000);
     } else {
       toast.error('Les notifications ont été refusées. Vous pouvez les activer dans les paramètres de votre navigateur.');
     }

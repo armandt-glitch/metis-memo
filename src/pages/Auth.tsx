@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertCircle, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { InstallPWA } from '@/components/InstallPWA';
 import logo from '@/assets/logo.png';
 
 const Auth = () => {
@@ -311,6 +312,10 @@ const Auth = () => {
           )}
         </CardContent>
       </Card>
+      
+      <div className="mt-6">
+        <InstallPWA variant="hero" />
+      </div>
     </div>
   );
 };

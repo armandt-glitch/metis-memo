@@ -36,13 +36,15 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
   
   // For memo type
   const [memoContent, setMemoContent] = useState('');
-
+  const [memoMediaType, setMemoMediaType] = useState<'text' | 'image' | 'audio'>('text');
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation based on card type
     if (cardType === 'memo') {
-      if ((!memoContent.trim() && !mediaData) || isSubmitting) return;
+      if (memoMediaType === 'text' && !memoContent.trim()) return;
+      if ((memoMediaType === 'image' || memoMediaType === 'audio') && !mediaData) return;
+      if (isSubmitting) return;
     } else if (cardType === 'graph') {
       if (!mathFormula.trim() || isSubmitting) return;
     } else {
@@ -112,8 +114,8 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
     }
   };
 
-  const showMediaUpload = cardType === 'image' || cardType === 'audio' || cardType === 'memo';
-  const acceptType = cardType === 'audio' ? 'audio/*' : 'image/*';
+  const showMediaUpload = cardType === 'image' || cardType === 'audio' || (cardType === 'memo' && memoMediaType !== 'text');
+  const acceptType = cardType === 'audio' || (cardType === 'memo' && memoMediaType === 'audio') ? 'audio/*' : 'image/*';
   const isGraphType = cardType === 'graph';
   const isMemoType = cardType === 'memo';
   const showStandardFields = !isGraphType && !isMemoType;
@@ -252,91 +254,46 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
         {isMemoType && (
           <div className="space-y-4">
             <label className="block text-sm font-medium text-foreground">
-              {t('form.memo.content')}
+              {t('form.memo.type') || 'Type de contenu'}
             </label>
-            <Textarea
-              value={memoContent}
-              onChange={(e) => setMemoContent(e.target.value)}
-              placeholder={t('form.memo.placeholder')}
-              className="min-h-[150px] resize-none bg-card border-border focus:ring-primary"
-            />
-            
-            {/* Media type selector for memo */}
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-foreground">{t('form.memo.add.media') || 'Ajouter un média (optionnel)'}</p>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant={acceptType === 'image/*' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => {
-                    // Reset media when switching
-                    clearMedia();
-                  }}
-                >
-                  <ImageIcon className="w-4 h-4 mr-1" />
-                  Image
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    clearMedia();
-                    // Switch to audio accept type
-                    if (fileInputRef.current) {
-                      fileInputRef.current.accept = 'audio/*';
-                      fileInputRef.current.click();
-                    }
-                  }}
-                >
-                  <Volume2 className="w-4 h-4 mr-1" />
-                  Audio
-                </Button>
-              </div>
-              
-              {mediaPreview && (
-                <div className="relative">
-                  {mediaPreview.startsWith('data:image') ? (
-                    <div className="relative rounded-xl overflow-hidden bg-secondary">
-                      <img src={mediaPreview} alt="Preview" className="w-full h-48 object-contain" />
-                    </div>
-                  ) : (
-                    <div className="bg-secondary rounded-xl p-4 flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <Volume2 className="w-6 h-6 text-primary" />
-                      </div>
-                      <audio controls src={mediaPreview} className="flex-1" />
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={clearMedia}
-                    className="absolute top-2 right-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-              
-              {!mediaPreview && (
-                <div
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.accept = 'image/*,audio/*';
-                      fileInputRef.current.click();
-                    }
-                  }}
-                  className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                >
-                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                    <Upload className="w-5 h-5" />
-                    <p>{t('form.memo.click.add.media') || 'Cliquez pour ajouter une image ou un son'}</p>
-                  </div>
-                </div>
-              )}
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={memoMediaType === 'text' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => { setMemoMediaType('text'); clearMedia(); }}
+              >
+                {t('form.memo.type.text') || 'Texte'}
+              </Button>
+              <Button
+                type="button"
+                variant={memoMediaType === 'image' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => { setMemoMediaType('image'); setMemoContent(''); clearMedia(); }}
+              >
+                <ImageIcon className="w-4 h-4 mr-1" />
+                Image
+              </Button>
+              <Button
+                type="button"
+                variant={memoMediaType === 'audio' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => { setMemoMediaType('audio'); setMemoContent(''); clearMedia(); }}
+              >
+                <Volume2 className="w-4 h-4 mr-1" />
+                Audio
+              </Button>
             </div>
-            
+
+            {memoMediaType === 'text' && (
+              <Textarea
+                value={memoContent}
+                onChange={(e) => setMemoContent(e.target.value)}
+                placeholder={t('form.memo.placeholder')}
+                className="min-h-[150px] resize-none bg-card border-border focus:ring-primary"
+              />
+            )}
+
             <p className="text-xs text-muted-foreground">
               {t('form.memo.hint')}
             </p>
@@ -395,8 +352,8 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
           disabled={
             (showStandardFields && (!question.trim() || !answer.trim())) ||
             (isGraphType && !mathFormula.trim()) ||
-            (isMemoType && !memoContent.trim()) ||
-            (showMediaUpload && !mediaData) ||
+            (isMemoType && memoMediaType === 'text' && !memoContent.trim()) ||
+            (isMemoType && memoMediaType !== 'text' && !mediaData) ||
             isSubmitting
           }
         >

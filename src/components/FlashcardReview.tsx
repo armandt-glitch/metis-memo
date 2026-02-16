@@ -200,6 +200,29 @@ export const FlashcardReview = ({ cards, onReview, onBack, isThematicQuiz, quizG
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
             {t('review.memo')}
           </p>
+          
+          {/* Show image if present */}
+          {currentCard.mediaUrl && currentCard.mediaUrl !== '' && (
+            (() => {
+              // Detect if it's audio or image based on the data
+              const isAudioMedia = currentCard.mediaUrl!.includes('data:audio') || currentCard.mediaUrl!.includes('audio');
+              if (isAudioMedia) {
+                return (
+                  <div className="mb-4 w-full max-w-xs">
+                    <ResolvedAudio src={currentCard.mediaUrl!} />
+                  </div>
+                );
+              }
+              return (
+                <ImageLightbox 
+                  src={currentCard.mediaUrl!} 
+                  alt="Fiche" 
+                  className="max-w-[90%] max-h-[25vh] md:max-h-[35vh] w-auto h-auto object-contain rounded-xl mb-4" 
+                />
+              );
+            })()
+          )}
+          
           <p className={cn(
             "font-medium text-foreground text-center px-2 whitespace-pre-wrap",
             getTextSize(currentCard.question)

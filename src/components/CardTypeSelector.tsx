@@ -17,7 +17,7 @@ const iconMap = {
   memo: StickyNote,
 };
 
-const cardTypeKeys: CardType[] = ['flashcard', 'written', 'image', 'audio', 'graph', 'memo'];
+const cardTypeKeys: CardType[] = ['memo', 'flashcard', 'written', 'image', 'audio', 'graph'];
 
 export const CardTypeSelector = ({ selected, onSelect }: CardTypeSelectorProps) => {
   const { t } = useLanguage();

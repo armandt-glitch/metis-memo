@@ -73,8 +73,8 @@ export const CARD_TYPES: Record<CardType, { name: string; description: string; i
     icon: 'LineChart',
   },
   memo: {
-    name: 'Pense-bête',
-    description: 'Simple mémo sans question/réponse',
+    name: 'Fiche de révision',
+    description: 'Fiche avec texte, image ou son',
     icon: 'StickyNote',
   },
 };

@@ -153,8 +153,8 @@ const translations: Record<Language, Record<string, string>> = {
     'cardtype.audio.desc': 'Question basée sur un fichier audio',
     'cardtype.graph': 'Graphique',
     'cardtype.graph.desc': 'Fonction mathématique',
-    'cardtype.memo': 'Pense-bête',
-    'cardtype.memo.desc': 'Simple mémo à retenir',
+    'cardtype.memo': 'Fiche de révision',
+    'cardtype.memo.desc': 'Texte, image ou son à retenir',
     
     // Form - Graph type
     'form.math.formula': 'Formule mathématique',
@@ -166,12 +166,12 @@ const translations: Record<Language, Record<string, string>> = {
     'form.graph.mode.formula': 'Afficher la formule → visualiser le graphique',
     
     // Form - Memo type
-    'form.memo.content': 'Contenu du pense-bête',
+    'form.memo.content': 'Contenu de la fiche',
     'form.memo.placeholder': 'Entrez le texte à mémoriser...',
-    'form.memo.hint': 'Simple texte à retenir, sans question/réponse',
+    'form.memo.hint': 'Vous pouvez aussi ajouter une image ou un son',
     
     // Review - new types
-    'review.memo': 'Pense-bête',
+    'review.memo': 'Fiche de révision',
     'review.find.formula': 'Quelle est la formule ?',
     'review.type.formula': 'Tapez la formule...',
     'review.visualize.graph': 'Visualisez le graphique',
@@ -464,8 +464,8 @@ const translations: Record<Language, Record<string, string>> = {
     'cardtype.audio.desc': 'Question based on an audio file',
     'cardtype.graph': 'Graph',
     'cardtype.graph.desc': 'Math function',
-    'cardtype.memo': 'Memo',
-    'cardtype.memo.desc': 'Simple note to remember',
+    'cardtype.memo': 'Review card',
+    'cardtype.memo.desc': 'Text, image or audio to remember',
     
     // Form - Graph type
     'form.math.formula': 'Math formula',
@@ -477,12 +477,12 @@ const translations: Record<Language, Record<string, string>> = {
     'form.graph.mode.formula': 'Show formula → visualize graph',
     
     // Form - Memo type
-    'form.memo.content': 'Memo content',
+    'form.memo.content': 'Card content',
     'form.memo.placeholder': 'Enter text to memorize...',
-    'form.memo.hint': 'Simple text to remember, no question/answer',
+    'form.memo.hint': 'You can also add an image or audio',
     
     // Review - new types
-    'review.memo': 'Memo',
+    'review.memo': 'Review card',
     'review.find.formula': 'What is the formula?',
     'review.type.formula': 'Type the formula...',
     'review.visualize.graph': 'Visualize the graph',

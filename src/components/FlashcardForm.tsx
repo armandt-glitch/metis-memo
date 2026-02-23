@@ -6,7 +6,7 @@ import { GroupSelector } from './GroupSelector';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Plus, ArrowLeft, Upload, X, Image as ImageIcon, Volume2 } from 'lucide-react';
+import { Plus, ArrowLeft, Upload, X, Image as ImageIcon, Volume2, Type } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { saveImage, generateImageId, createIndexedDBRef } from '@/lib/imageStorage';
 import { MathGraph } from './MathGraph';
@@ -114,8 +114,8 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
     }
   };
 
-  const showMediaUpload = cardType === 'image' || cardType === 'audio' || (cardType === 'memo' && memoMediaType !== 'text');
-  const acceptType = cardType === 'audio' || (cardType === 'memo' && memoMediaType === 'audio') ? 'audio/*' : 'image/*';
+  const showMediaUpload = cardType === 'image' || cardType === 'audio';
+  const acceptType = (cardType === 'memo' && memoMediaType === 'audio') || cardType === 'audio' ? 'audio/*' : 'image/*';
   const isGraphType = cardType === 'graph';
   const isMemoType = cardType === 'memo';
   const showStandardFields = !isGraphType && !isMemoType;
@@ -256,33 +256,43 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
             <label className="block text-sm font-medium text-foreground">
               {t('form.memo.type') || 'Type de contenu'}
             </label>
-            <div className="flex gap-2">
-              <Button
+            <div className="flex gap-4 justify-center">
+              <button
                 type="button"
-                variant={memoMediaType === 'text' ? 'default' : 'outline'}
-                size="sm"
                 onClick={() => { setMemoMediaType('text'); clearMedia(); }}
+                className={`flex flex-col items-center justify-center gap-2 w-24 h-24 rounded-2xl border-2 transition-all ${
+                  memoMediaType === 'text'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+                }`}
               >
-                {t('form.memo.type.text') || 'Texte'}
-              </Button>
-              <Button
+                <Type className="w-10 h-10" />
+                <span className="text-xs font-medium">Texte</span>
+              </button>
+              <button
                 type="button"
-                variant={memoMediaType === 'image' ? 'default' : 'outline'}
-                size="sm"
                 onClick={() => { setMemoMediaType('image'); setMemoContent(''); clearMedia(); }}
+                className={`flex flex-col items-center justify-center gap-2 w-24 h-24 rounded-2xl border-2 transition-all ${
+                  memoMediaType === 'image'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+                }`}
               >
-                <ImageIcon className="w-4 h-4 mr-1" />
-                Image
-              </Button>
-              <Button
+                <ImageIcon className="w-10 h-10" />
+                <span className="text-xs font-medium">Image</span>
+              </button>
+              <button
                 type="button"
-                variant={memoMediaType === 'audio' ? 'default' : 'outline'}
-                size="sm"
                 onClick={() => { setMemoMediaType('audio'); setMemoContent(''); clearMedia(); }}
+                className={`flex flex-col items-center justify-center gap-2 w-24 h-24 rounded-2xl border-2 transition-all ${
+                  memoMediaType === 'audio'
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+                }`}
               >
-                <Volume2 className="w-4 h-4 mr-1" />
-                Audio
-              </Button>
+                <Volume2 className="w-10 h-10" />
+                <span className="text-xs font-medium">Audio</span>
+              </button>
             </div>
 
             {memoMediaType === 'text' && (
@@ -292,6 +302,66 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
                 placeholder={t('form.memo.placeholder')}
                 className="min-h-[150px] resize-none bg-card border-border focus:ring-primary"
               />
+            )}
+
+            {/* Media upload for memo image/audio - placed AFTER the type selector */}
+            {memoMediaType !== 'text' && showMediaUpload && (
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-foreground">
+                  {memoMediaType === 'image' ? t('form.image') : t('form.audio')}
+                </label>
+                
+                {mediaPreview ? (
+                  <div className="relative">
+                    {memoMediaType === 'image' ? (
+                      <div className="relative rounded-xl overflow-hidden bg-secondary">
+                        <img
+                          src={mediaPreview}
+                          alt="Preview"
+                          className="w-full h-48 object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="bg-secondary rounded-xl p-4 flex items-center gap-4">
+                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Volume2 className="w-6 h-6 text-primary" />
+                        </div>
+                        <audio controls src={mediaPreview} className="flex-1" />
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={clearMedia}
+                      className="absolute top-2 right-2 w-8 h-8 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                  >
+                    <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mx-auto mb-4">
+                      {memoMediaType === 'image' ? (
+                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                      ) : (
+                        <Volume2 className="w-6 h-6 text-muted-foreground" />
+                      )}
+                    </div>
+                    <p className="text-muted-foreground">
+                      {memoMediaType === 'image' ? t('form.click.add.image') : t('form.click.add.audio')}
+                    </p>
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={acceptType}
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
             )}
 
             <p className="text-xs text-muted-foreground">

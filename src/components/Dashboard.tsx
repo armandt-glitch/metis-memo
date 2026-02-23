@@ -128,11 +128,15 @@ export const Dashboard = ({
   // Individual memorized cards (not from packs)
   const memorizedCards = nonPackFlashcards.filter((c) => c.completed);
 
-  // Individual upcoming cards (not from packs)
-  const upcomingCards = filteredFlashcards
+  // All individual upcoming cards (not from packs), sorted by next review
+  const allUpcomingCards = filteredFlashcards
     .filter((c) => !c.completed)
-    .sort((a, b) => new Date(a.nextReviewAt).getTime() - new Date(b.nextReviewAt).getTime())
-    .slice(0, 10);
+    .sort((a, b) => new Date(a.nextReviewAt).getTime() - new Date(b.nextReviewAt).getTime());
+
+  // Next 5 cards to review (highlighted section)
+  const nextReviewCards = allUpcomingCards.slice(0, 5);
+  // Remaining cards
+  const remainingCards = allUpcomingCards.slice(5);
 
   const getCardGroups = (card: Flashcard): Group[] => {
     if (!card.groupIds || card.groupIds.length === 0) return [];
@@ -146,6 +150,152 @@ export const Dashboard = ({
       setNewGroupColor(GROUP_COLORS[0].value);
       setIsCreatingGroup(false);
     }
+  };
+
+  const renderCardRow = (card: Flashcard) => {
+    const isDue = new Date(card.nextReviewAt) <= new Date();
+    const cardGroups = getCardGroups(card);
+    return (
+      <div
+        key={card.id}
+        onClick={() => onReviewCard(card.id)}
+        className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group cursor-pointer"
+      >
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-foreground line-clamp-2 sm:truncate">
+            {card.question}
+          </p>
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className={cn(
+                    "text-xs px-2 py-0.5 rounded-full flex items-center gap-1 transition-all hover:opacity-80",
+                    cardGroups.length > 0
+                      ? "text-white"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  )}
+                  style={cardGroups.length > 0 ? { backgroundColor: cardGroups[0].color } : undefined}
+                >
+                  {cardGroups.length > 0 ? (
+                    <>
+                      <FolderOpen className="w-3 h-3" />
+                      {cardGroups.length === 1 ? cardGroups[0].name : `${cardGroups.length} ${t('dashboard.groups')}`}
+                    </>
+                  ) : (
+                    <>
+                      <FolderPlus className="w-3 h-3" />
+                      {t('dashboard.add.group')}
+                    </>
+                  )}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2" align="start">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground px-2 pb-1">
+                    {t('dashboard.manage.groups')}
+                  </p>
+                  {cardGroups.length > 0 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClearCardGroups(card.id);
+                      }}
+                      className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-muted-foreground"
+                    >
+                      <X className="w-3 h-3" />
+                      {t('dashboard.remove.all.groups')}
+                    </button>
+                  )}
+                  {groups.map((group) => {
+                    const isInGroup = card.groupIds?.includes(group.id);
+                    return (
+                      <button
+                        key={group.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleCardGroup(card.id, group.id);
+                        }}
+                        className={cn(
+                          "w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2",
+                          isInGroup && "bg-secondary"
+                        )}
+                      >
+                        <div
+                          className="w-3 h-3 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: group.color }}
+                        >
+                          {isInGroup && <Check className="w-2 h-2 text-white" />}
+                        </div>
+                        {group.name}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsCreatingGroup(true);
+                    }}
+                    className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-primary"
+                  >
+                    <Plus className="w-3 h-3" />
+                    {t('dashboard.new.group')}
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <span
+              className={cn(
+                'text-xs px-2 py-0.5 rounded-full border',
+                formulaColors[card.formula as keyof typeof formulaColors]
+              )}
+            >
+              {getFormulaName(card.formula)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {t('dashboard.step')} {card.currentStep + 1}/{FORMULAS[card.formula].schedule.length}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 mt-2 sm:mt-0">
+          <p
+            className={cn(
+              'text-sm font-medium',
+              isDue ? 'text-accent' : 'text-muted-foreground'
+            )}
+          >
+            {isDue
+              ? t('dashboard.now')
+              : formatDistanceToNow(new Date(card.nextReviewAt), {
+                  addSuffix: true,
+                  locale: dateLocale,
+                })}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditCard(card);
+              }}
+              className="sm:opacity-0 sm:group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
+              title={t('dashboard.edit')}
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteCard(card.id);
+              }}
+              className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const totalMemorizedCount = memorizedCards.length + completedPacks.length;
@@ -476,158 +626,28 @@ export const Dashboard = ({
         </div>
       )}
 
-      {/* Upcoming reviews - Individual cards */}
-      {upcomingCards.length > 0 && (
-        <div className="bg-card rounded-2xl p-6 shadow-soft">
-          <h3 className="text-lg font-semibold text-foreground mb-4">
+      {/* Next 5 reviews - highlighted */}
+      {nextReviewCards.length > 0 && (
+        <div className="bg-card rounded-2xl p-6 shadow-soft mb-6 border-2 border-primary/20">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-primary" />
             {t('dashboard.upcoming')} {inProgressPacks.length > 0 ? `- ${t('dashboard.cards.individual')}` : ''}
           </h3>
           <div className="space-y-3">
-            {upcomingCards.map((card) => {
-              const isDue = new Date(card.nextReviewAt) <= new Date();
-              const cardGroups = getCardGroups(card);
-              return (
-                <div
-                  key={card.id}
-                  onClick={() => onReviewCard(card.id)}
-                  className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors group cursor-pointer"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground line-clamp-2 sm:truncate">
-                      {card.question}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2 flex-wrap">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button
-                            onClick={(e) => e.stopPropagation()}
-                            className={cn(
-                              "text-xs px-2 py-0.5 rounded-full flex items-center gap-1 transition-all hover:opacity-80",
-                              cardGroups.length > 0
-                                ? "text-white"
-                                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-                            )}
-                            style={cardGroups.length > 0 ? { backgroundColor: cardGroups[0].color } : undefined}
-                          >
-                            {cardGroups.length > 0 ? (
-                              <>
-                                <FolderOpen className="w-3 h-3" />
-                                {cardGroups.length === 1 ? cardGroups[0].name : `${cardGroups.length} ${t('dashboard.groups')}`}
-                              </>
-                            ) : (
-                              <>
-                                <FolderPlus className="w-3 h-3" />
-                                {t('dashboard.add.group')}
-                              </>
-                            )}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-48 p-2" align="start">
-                          <div className="space-y-1">
-                            <p className="text-xs font-medium text-muted-foreground px-2 pb-1">
-                              {t('dashboard.manage.groups')}
-                            </p>
-                            {cardGroups.length > 0 && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onClearCardGroups(card.id);
-                                }}
-                                className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-muted-foreground"
-                              >
-                                <X className="w-3 h-3" />
-                                {t('dashboard.remove.all.groups')}
-                              </button>
-                            )}
-                            {groups.map((group) => {
-                              const isInGroup = card.groupIds?.includes(group.id);
-                              return (
-                                <button
-                                  key={group.id}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onToggleCardGroup(card.id, group.id);
-                                  }}
-                                  className={cn(
-                                    "w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2",
-                                    isInGroup && "bg-secondary"
-                                  )}
-                                >
-                                  <div
-                                    className="w-3 h-3 rounded-full flex items-center justify-center"
-                                    style={{ backgroundColor: group.color }}
-                                  >
-                                    {isInGroup && <Check className="w-2 h-2 text-white" />}
-                                  </div>
-                                  {group.name}
-                                </button>
-                              );
-                            })}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setIsCreatingGroup(true);
-                              }}
-                              className="w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-secondary flex items-center gap-2 text-primary"
-                            >
-                              <Plus className="w-3 h-3" />
-                              {t('dashboard.new.group')}
-                            </button>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                      <span
-                        className={cn(
-                          'text-xs px-2 py-0.5 rounded-full border',
-                          formulaColors[card.formula as keyof typeof formulaColors]
-                        )}
-                      >
-                        {getFormulaName(card.formula)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {t('dashboard.step')} {card.currentStep + 1}/{FORMULAS[card.formula].schedule.length}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 mt-2 sm:mt-0">
-                    <p
-                      className={cn(
-                        'text-sm font-medium',
-                        isDue ? 'text-accent' : 'text-muted-foreground'
-                      )}
-                    >
-                      {isDue
-                        ? t('dashboard.now')
-                        : formatDistanceToNow(new Date(card.nextReviewAt), {
-                            addSuffix: true,
-                            locale: dateLocale,
-                          })}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEditCard(card);
-                        }}
-                        className="sm:opacity-0 sm:group-hover:opacity-100 p-2 rounded-lg hover:bg-primary/10 text-primary transition-all"
-                        title={t('dashboard.edit')}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteCard(card.id);
-                        }}
-                        className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-all"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {nextReviewCards.map((card) => renderCardRow(card))}
+          </div>
+        </div>
+      )}
+
+      {/* All remaining cards */}
+      {remainingCards.length > 0 && (
+        <div className="bg-card rounded-2xl p-6 shadow-soft">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Brain className="w-5 h-5 text-muted-foreground" />
+            {t('dashboard.cards.created')} ({remainingCards.length})
+          </h3>
+          <div className="space-y-3">
+            {remainingCards.map((card) => renderCardRow(card))}
           </div>
         </div>
       )}

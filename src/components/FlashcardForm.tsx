@@ -306,11 +306,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
 
             {/* Media upload for memo image/audio - placed AFTER the type selector */}
             {memoMediaType !== 'text' && (
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-foreground">
-                  {memoMediaType === 'image' ? t('form.image') : t('form.audio')}
-                </label>
-                
+              <div>
                 {mediaPreview ? (
                   <div className="relative">
                     {memoMediaType === 'image' ? (
@@ -363,10 +359,6 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
                 />
               </div>
             )}
-
-            <p className="text-xs text-muted-foreground">
-              {t('form.memo.hint')}
-            </p>
           </div>
         )}
 

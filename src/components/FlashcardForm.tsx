@@ -254,7 +254,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
         {isMemoType && (
           <div className="space-y-4">
             <label className="block text-sm font-medium text-foreground">
-              {t('form.memo.type') || 'Type de contenu'}
+              Type de contenu
             </label>
             <div className="flex gap-4 justify-center">
               <button
@@ -305,7 +305,7 @@ export const FlashcardForm = ({ onSubmit, onBack, groups, onCreateGroup }: Flash
             )}
 
             {/* Media upload for memo image/audio - placed AFTER the type selector */}
-            {memoMediaType !== 'text' && showMediaUpload && (
+            {memoMediaType !== 'text' && (
               <div className="space-y-4">
                 <label className="block text-sm font-medium text-foreground">
                   {memoMediaType === 'image' ? t('form.image') : t('form.audio')}

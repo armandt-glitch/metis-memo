@@ -3,6 +3,8 @@ import { InstallPWA } from '@/components/InstallPWA';
 import { NotificationSettings } from '@/components/NotificationSettings';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { Button } from '@/components/ui/button';
+import { HelpCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface HeaderProps {
@@ -25,6 +27,15 @@ export const Header = ({ dueCount = 0 }: HeaderProps) => {
           </div>
           
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => window.dispatchEvent(new Event('restart-tutorial'))}
+              aria-label="Revoir le tutoriel"
+              title="Revoir le tutoriel"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </Button>
             <ThemeToggle />
             <LanguageSelector />
             <NotificationSettings dueCount={dueCount} />

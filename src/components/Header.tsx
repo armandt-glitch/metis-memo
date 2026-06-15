@@ -30,9 +30,9 @@ export const Header = ({ dueCount = 0 }: HeaderProps) => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => window.dispatchEvent(new Event('restart-tutorial'))}
-              aria-label="Revoir le tutoriel"
-              title="Revoir le tutoriel"
+              onClick={() => window.dispatchEvent(new Event('show-hero'))}
+              aria-label="Revoir la page d'introduction"
+              title="Revoir la page d'introduction"
             >
               <HelpCircle className="w-5 h-5" />
             </Button>

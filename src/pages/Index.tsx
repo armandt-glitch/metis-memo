@@ -92,6 +92,17 @@ const Index = () => {
     };
   }, []);
 
+  // Listen for "show-hero" event to display the intro page again
+  useEffect(() => {
+    const handler = () => {
+      localStorage.removeItem('interval-memo-first-visit-done');
+      setView('hero');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.addEventListener('show-hero', handler);
+    return () => window.removeEventListener('show-hero', handler);
+  }, []);
+
   const handleCreateFlashcard = (
     question: string,
     answer: string,

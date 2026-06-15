@@ -59,6 +59,12 @@ export const OnboardingTutorial = () => {
     if (!hasCompletedTutorial) {
       setIsVisible(true);
     }
+    const restart = () => {
+      setCurrentStep(0);
+      setIsVisible(true);
+    };
+    window.addEventListener('restart-tutorial', restart);
+    return () => window.removeEventListener('restart-tutorial', restart);
   }, []);
 
   const handleNext = () => {
